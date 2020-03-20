@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--external_product!-->
+    <record id="external_product_form_view" model="ir.ui.view">
+        <field name="name">Product</field>
+        <field name="model">external.product</field>
+        <field name="arch" type="xml">
+            <form string="Product">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_variant_id"/>
+                        <field name="name"/>
+                        <field name="source"/>
+                        <field name="source_url"/>
+                        <field name="product_template_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="invoice_partner_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="create_uid" readonly="1"/>
+                        <field name="create_date" readonly="1"/>                        
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_product_tree" model="ir.ui.view">
+        <field name="name">Product</field>
+        <field name="model">external.product</field>            
+        <field name="arch" type="xml">
+            <tree string="Product"> 
+                <field name="external_id"/>
+                <field name="external_variant_id"/>
+                <field name="name"/>
+                <field name="source"/>
+                <field name="product_template_id"/>
+            </tree>
+        </field>            
+    </record>        
+    <record id="external_product_action" model="ir.actions.act_window">
+        <field name="name">Product</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">external.product</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="external_product_tree"/>                
+    </record>
+    <!--external_customer!-->
+    <record id="external_customer_form_view" model="ir.ui.view">
+        <field name="name">Customer</field>
+        <field name="model">external.customer</field>
+        <field name="arch" type="xml">
+            <form string="Customer">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>                                                
+                        <field name="source"/>
+                        <field name="source_url"/>
+                        <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="email"/>
+                        <field name="accepts_marketing"/>
+                        <field name="first_name"/>
+                        <field name="last_name"/>
+                        <field name="company"/>
+                        <field name="address_1"/>
+                        <field name="address_2"/>
+                        <field name="city"/>
+                        <field name="active"/>
+                        <field name="phone"/>
+                        <field name="country_code"/>
+                        <field name="country_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="province_code"/>
+                        <field name="postcode"/>
+                        <field name="country_state_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="create_uid" readonly="1"/>
+                        <field name="create_date" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_customer_tree" model="ir.ui.view">
+        <field name="name">Customer</field>
+        <field name="model">external.customer</field>            
+        <field name="arch" type="xml">
+            <tree string="Customer"> 
+                <field name="external_id"/>                                                
+                <field name="source"/>
+                <field name="partner_id"/>
+                <field name="email"/>
+                <field name="accepts_marketing"/>
+                <field name="first_name"/>
+                <field name="last_name"/>
+                <field name="company"/>
+                <field name="address_1"/>
+                <field name="address_2"/>
+                <field name="city"/>
+                <field name="active"/>
+                <field name="phone"/>
+                <field name="country_code"/>
+                <field name="country_id"/>
+                <field name="province_code"/>
+                <field name="postcode"/>
+                <field name="country_state_id"/>                
+            </tree>
+        </field>            
+    </record>        
+    <record id="external_customer_action" model="ir.actions.act_window">
+        <field name="name">Customer</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">external.customer</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="external_customer_tree"/>                
+    </record>
+    <!--external.stock.picking.line!-->
+    <record id="external_stock_picking_line_form_view" model="ir.ui.view">
+        <field name="name">Stock Picking Line</field>
+        <field name="model">external.stock.picking.line</field>
+        <field name="arch" type="xml">
+            <form string="Stock Picking Line">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_variant_id"/>
+                        <field name="external_product_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="title"/>
+                        <field name="quantity"/>
+                        <field name="move_id"/>
+                        <field name="invoice_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                                                                                                            
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_stock_picking_line_tree" model="ir.ui.view">
+        <field name="name">Stock Picking Line</field>
+        <field name="model">external.stock.picking.line</field>            
+        <field name="arch" type="xml">
+            <tree string="Stock Picking Line"> 
+                <field name="external_id"/>
+                <field name="external_variant_id"/>
+                <field name="external_product_id"/>
+                <field name="title"/>
+                <field name="quantity"/>
+                <field name="move_id"/>
+                <field name="invoice_line_id"/>
+            </tree>
+        </field>            
+    </record>
+    <!--external.stock.picking!-->
+    <record id="external_stock_picking_form_view" model="ir.ui.view">
+        <field name="name">Stock Picking</field>
+        <field name="model">external.stock.picking</field>
+        <field name="arch" type="xml">
+            <form string="Stock Picking">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="source"/>
+                        <field name="source_url"/>
+                        <field name="picking_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="number"/>
+                        <field name="external_source_name"/>
+                        <field name="external_stock_picking_line_ids"/>
+                        <field name="state"/>
+                        <field name="create_uid" readonly="1"/>
+                        <field name="create_date" readonly="1"/>                                                                                                                                                                                            
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_stock_picking_tree" model="ir.ui.view">
+        <field name="name">Stock Picking</field>
+        <field name="model">external.stock.picking</field>            
+        <field name="arch" type="xml">
+            <tree string="Stock Picking"> 
+                <field name="external_id"/>
+                <field name="external_customer_id"/>
+                <field name="source"/>
+                <field name="picking_id"/>
+                <field name="number"/>
+                <field name="external_source_name"/>
+                <field name="state"/>
+            </tree>
+        </field>            
+    </record>        
+    <record id="external_stock_picking_action" model="ir.actions.act_window">
+        <field name="name">Stock Picking</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">external.stock.picking</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="external_stock_picking_tree"/>                
+    </record>                     
+    <menuitem 
+        id="menu_odoo_external_odoo" 
+        name="External Odoo"
+        parent="base.menu_custom" 
+        sequence="47"
+    />
+    <menuitem 
+        action="external_product_action" 
+        name="Product"
+        id="menuitem_external_product" 
+        parent="menu_odoo_external_odoo"
+    />
+    <menuitem 
+        action="external_customer_action" 
+        name="Customer"
+        id="menuitem_external_customer" 
+        parent="menu_odoo_external_odoo"
+    />
+    <menuitem 
+        action="external_stock_picking_action" 
+        name="Stock Picking"
+        id="menuitem_external_stock_picking" 
+        parent="menu_odoo_external_odoo"
+    />                   
+</odoo>

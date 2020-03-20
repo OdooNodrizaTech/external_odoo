@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, tools
+
+import logging
+_logger = logging.getLogger(__name__)
+
+import requests, json
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
+import pytz
+
+import boto3
+from botocore.exceptions import ClientError
+
+class ExternalProduct(models.Model):
+    _name = 'external.product'
+    _description = 'External Product'
+    _order = 'create_date desc'
+
+    external_id = fields.Char(
+        string='External Id'
+    )    
+    external_variant_id = fields.Char(
+        string='External Variant Id'
+    )
+    name = fields.Char(
+        string='Name'
+    )            
+    source = fields.Selection(
+        [
+            ('custom', 'Custom'),
+            ('shopify', 'Shopify'),
+            ('woocommerce', 'Woocommerce'),
+        ],
+        string='Source',
+        default='custom'
+    )
+    source_url = fields.Char(
+        string='Source Url'
+    )
+    product_template_id = fields.Many2one(
+        comodel_name='product.template',
+        string='Product Template'
+    )
+    invoice_partner_id = fields.Many2one(
+        comodel_name='res.partner',
+        string='Partner id (Auto-invoice in stock.picking)'
+    )    
+
+    @api.one
+    def operations_item(self):
+        return False        
+
+    @api.model
+    def create(self, values):
+        return_item = super(ExternalProduct, self).create(values)
+        # operations
+        return_item.operations_item()
+        # return
+        return return_item    

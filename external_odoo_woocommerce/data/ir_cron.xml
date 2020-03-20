@@ -1,0 +1,26 @@
+<openerp>
+    <data noupdate="1">
+        <record id="cron_sqs_external_sale_order_woocommerce" model="ir.cron">
+            <field name="name">SQS External Sale Order Woocommerce</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'external.sale.order'" />
+            <field name="function" eval="'cron_sqs_external_sale_order_woocommerce'" />
+            <field name="args" eval="" />
+        </record>
+        <record id="cron_sqs_external_stock_picking_woocommerce" model="ir.cron">
+            <field name="name">SQS External Stock Picking Woocommerce</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'external.stock.picking'" />
+            <field name="function" eval="'cron_sqs_external_stock_picking_woocommerce'" />
+            <field name="args" eval="" />
+        </record>                                        
+    </data>
+</openerp>
