@@ -60,6 +60,7 @@ class ExternalSaleOrder(models.Model):
                     result_message = {
                         'statusCode': 200,
                         'return_body': 'OK',
+                        'delete_message': False,
                         'message': message_body
                     }
                     # fields_need_check
@@ -67,6 +68,7 @@ class ExternalSaleOrder(models.Model):
                     for field_need_check in fields_need_check:
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
+                            result_message['delete_message'] = True
                             result_message['return_body'] = 'No existe el campo ' + str(field_need_check)
                     # operations
                     if result_message['statusCode'] == 200:
@@ -78,9 +80,13 @@ class ExternalSaleOrder(models.Model):
                             _logger.info(external_sale_order_obj)
                             #action_run
                             external_sale_order_obj.action_run()
-                        # remove_message
-                        if result_message['statusCode'] == 200:
-                            response_delete_message = sqs.delete_message(
-                                QueueUrl=sqs_url,
-                                ReceiptHandle=message['ReceiptHandle']
-                            )
+                            #delete_message
+                            result_message['delete_message'] = True
+                    #logger
+                    _logger.info(result_message)
+                    # remove_message
+                    if result_message['delete_message'] == True:
+                        response_delete_message = sqs.delete_message(
+                            QueueUrl=sqs_url,
+                            ReceiptHandle=message['ReceiptHandle']
+                        )

@@ -62,11 +62,13 @@ class ExternalStockPicking(models.Model):
                     result_message = {
                         'statusCode': 200,
                         'return_body': 'OK',
+                        'delete_message': False,
                         'message': message_body
                     }
                     #line_items
                     if 'line_items' not in message_body:
                         result_message['statusCode'] = 500
+                        result_message['delete_message'] = True
                         result_message['return_body'] = {'error': 'Falta el campo line_items'}
                     #default
                     source = 'woocommerce'
@@ -75,6 +77,7 @@ class ExternalStockPicking(models.Model):
                     for field_need_check in fields_need_check:
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
+                            result_message['delete_message'] = True
                             result_message['return_body'] = 'No existe el campo ' + str(field_need_check)
                     # operations_1
                     if result_message['statusCode'] == 200:
@@ -83,6 +86,7 @@ class ExternalStockPicking(models.Model):
                         #status
                         if message_body['status'] not in ['processing', 'completed']:
                             result_message['statusCode'] = 500
+                            result_message['delete_message'] = True
                             result_message['return_body'] = {'error': 'El pedido no esta completado'}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
@@ -134,6 +138,7 @@ class ExternalStockPicking(models.Model):
                             #search_previous
                             external_stock_picking_ids = self.env['external.stock.picking'].sudo().search([('external_id', '=', str(self.external_id)),('source', '=', str(self.source)),('source_url', '=', str(self.source_url))])
                             if len(external_stock_picking_ids)>0:
+                                result_message['delete_message'] = True
                                 result_message['return_body'] = {'message': 'Raro de narices, ya existe'}
                             else:                                
                                 external_stock_picking_obj = self.env['external.stock.picking'].sudo(6).create(external_stock_picking_vals)
@@ -149,10 +154,14 @@ class ExternalStockPicking(models.Model):
                                     }
                                     external_stock_picking_line_obj = self.env['external.stock.picking.line'].sudo(6).create(external_stock_picking_line_vals)
                                 #action_run
-                                external_stock_picking_obj.action_run()                            
-                        # remove_message
-                        if result_message['statusCode'] == 200:
-                            response_delete_message = sqs.delete_message(
-                                QueueUrl=sqs_url,
-                                ReceiptHandle=message['ReceiptHandle']
-                            )
+                                external_stock_picking_obj.action_run()
+                                #delete_message
+                                result_message['delete_message'] = True
+                    #logger
+                    _logger.info(result_message)                                                            
+                    # remove_message
+                    if result_message['delete_message']==True:
+                        response_delete_message = sqs.delete_message(
+                            QueueUrl=sqs_url,
+                            ReceiptHandle=message['ReceiptHandle']
+                        )
