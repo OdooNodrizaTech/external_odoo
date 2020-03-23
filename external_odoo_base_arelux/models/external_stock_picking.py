@@ -73,4 +73,6 @@ class ExternalStockPicking(models.Model):
                 data = {"status": "completed"}                
                 response_wcapi = wcapi.put("orders/"+external_stock_picking_id.number, data).json()
                 _logger.info('response_wcapi')
-                _logger.info(response_wcapi)        
+                _logger.info(response_wcapi)
+                #upgrade
+                external_stock_picking_id.woocommerce_update = True
