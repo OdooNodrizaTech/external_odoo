@@ -61,15 +61,23 @@ class ExternalStockPicking(models.Model):
         if self.picking_id.id==0:
             if self.external_customer_id.id>0:
                 if self.external_customer_id.partner_id.id>0:
+                    #params
+                    external_odoo_external_stock_picking_picking_type_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_external_stock_picking_picking_type_id'))
+                    external_odoo_carrier_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_carrier_id'))
+                    #stock_picking_type
+                    stock_picking_type_id = self.env['stock.picking.type'].sudo().browse(external_odoo_external_stock_picking_picking_type_id)                    
                     #stock_picking
                     stock_picking_vals = {
-                        'picking_type_id' : 4,
-                        'location_id': 15,
+                        'picking_type_id' : stock_picking_type_id.id,
+                        'location_id': stock_picking_type_id.default_location_src_id.id,
                         'location_dest_id': 9,
                         'move_type' : 'one',
                         'partner_id': self.external_customer_id.partner_id.id,
                         'move_lines': []             
                     }
+                    #carrier_id
+                    if external_odoo_carrier_id>0:
+                        stock_picking_vals['carrier_id'] = external_odoo_carrier_id
                     #move_lines
                     for external_stock_picking_line_id in self.external_stock_picking_line_ids:
                         move_line_item = {

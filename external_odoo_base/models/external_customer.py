@@ -86,24 +86,21 @@ class ExternalCustomer(models.Model):
 
     @api.one
     def operations_item(self):
+        #phone_mobile
+        phone = str(self.phone)
+        mobile = None
+        phone_first_char = str(self.phone)[:1]
+        if phone_first_char=='6':
+            mobile = str(phone)
+            phone = None
         #search
         if self.phone!=False:
-            res_partner_ids = self.env['res.partner'].sudo().search(
-                [
-                    ('email', '=', str(self.email)),
-                    ('active', '=', True),
-                    ('supplier', '=', False),
-                    ('phone', '=', str(self.phone))
-                ]
-            )
+            if phone!=None:
+                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('phone', '=', str(self.phone))])
+            else:
+                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('mobile', '=', str(mobile))])
         else:
-            res_partner_ids = self.env['res.partner'].sudo().search(
-                [
-                    ('email', '=', str(self.email)),
-                    ('active', '=', True),
-                    ('supplier', '=', False)
-                ]
-            )
+            res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False)])
         #if exists
         if len(res_partner_ids)>0:
             res_partner_id = res_partner_ids[0]
@@ -125,11 +122,13 @@ class ExternalCustomer(models.Model):
                 'street': str(self.address_1),
                 'street2': str(self.address_2),
                 'city': str(self.city),
-                'phone': str(self.phone),
-                'zip': str(self.postcode),                
-                'ar_qt_activity_type': 'arelux',
-                'ar_qt_customer_type': 'particular',
+                'zip': str(self.postcode)
             }
+            #phone_mobile
+            if phone!=None:
+                res_partner_vals['phone'] = str(phone)
+            else:
+                res_partner_vals['mobile'] = str(mobile)
             #country_id
             if self.country_code!=False:
                 res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])
@@ -150,7 +149,7 @@ class ExternalCustomer(models.Model):
 
     @api.model
     def create(self, values):
-        return_item = super(ExternalCustomer, self).create(values)
+        return_item = super(ExternalCustomer, self).create(values)        
         # operations
         return_item.operations_item()
         # return
