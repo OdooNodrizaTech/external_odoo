@@ -104,17 +104,17 @@ class ExternalStockPicking(models.Model):
                                 stock_picking_vals['move_lines'].append((0, 0, move_line_item))
                         #create
                         stock_picking_obj = self.env['stock.picking'].create(stock_picking_vals)
-                    #update
-                    self.picking_id = stock_picking_obj.id
-                    #lines
-                    for move_line in stock_picking_obj.move_lines:
-                        external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search([('external_stock_picking_id', '=', self.id),('external_product_id.product_template_id', '=', move_line.product_id.id)])
-                        if len(external_stock_picking_line_ids)>0:
-                            external_stock_picking_line_id = external_stock_picking_line_ids[0]
-                            external_stock_picking_line_id.move_id = move_line.id         
-                    #action_confirm
-                    stock_picking_obj.action_confirm()
-                    #force_assign
-                    stock_picking_obj.force_assign()                            
+                        #update
+                        self.picking_id = stock_picking_obj.id
+                        #lines
+                        for move_line in stock_picking_obj.move_lines:
+                            external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search([('external_stock_picking_id', '=', self.id),('external_product_id.product_template_id', '=', move_line.product_id.id)])
+                            if len(external_stock_picking_line_ids)>0:
+                                external_stock_picking_line_id = external_stock_picking_line_ids[0]
+                                external_stock_picking_line_id.move_id = move_line.id         
+                        #action_confirm
+                        stock_picking_obj.action_confirm()
+                        #force_assign
+                        stock_picking_obj.force_assign()                            
         #return
         return False            
