@@ -82,7 +82,13 @@ class ExternalCustomer(models.Model):
     country_state_id = fields.Many2one(
         comodel_name='res.country.state',
         string='Country State'
-    )        
+    )
+    
+    @api.multi
+    def action_operations_item(self):
+        for obj in self:
+            if obj.partner_id.id==0:
+                obj.action_operations_item()  
 
     @api.one
     def operations_item(self):

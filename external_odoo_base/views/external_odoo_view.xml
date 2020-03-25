@@ -48,7 +48,10 @@
         <field name="name">Customer</field>
         <field name="model">external.customer</field>
         <field name="arch" type="xml">
-            <form string="Customer">                                                
+            <form string="Customer">
+                <header>
+                    <button name="action_operations_item" attrs="{'invisible': [('partner_id', '!=', False)]}" string="Ejecutar" type="object"/>
+                </header>                                                
                 <sheet string="child">
                     <group>
                         <field name="external_id"/>                                                
@@ -151,7 +154,10 @@
         <field name="name">Stock Picking</field>
         <field name="model">external.stock.picking</field>
         <field name="arch" type="xml">
-            <form string="Stock Picking">                                                
+            <form string="Stock Picking">
+                <header>
+                    <button name="action_run_multi" attrs="{'invisible': [('picking_id', '!=', False)]}" string="Ejecutar" type="object"/>
+                </header>                                                
                 <sheet string="child">
                     <group>
                         <field name="external_id"/>

@@ -54,14 +54,13 @@ class ExternalStockPickingLine(models.Model):
     def operations_item(self):
         if self.external_product_id.id==0:
             if self.external_stock_picking_id.id>0:
-                external_product_ids = self.env['external.product'].sudo().search(
-                    [
-                        ('source', '=', str(self.external_stock_picking_id.source)),
-                        ('external_id', '=', str(self.external_id)),
-                        ('external_variant_id', '=', str(self.external_variant_id))
-                    ]
-                )
-                if len(external_product_ids)>0:
+                if self.external_variant_id!=False:
+                    external_product_ids = self.env['external.product'].sudo().search([('source', '=', str(self.external_stock_picking_id.source)),('external_id', '=', str(self.external_id)),('external_variant_id', '=', str(self.external_variant_id))])
+                else:
+                    external_product_ids = self.env['external.product'].sudo().search([('source', '=', str(self.external_stock_picking_id.source)),('external_id', '=', str(self.external_id))])                        
+                if len(external_product_ids)==0:
+                    _logger.info('Muy raro, no se encuentra external_product_id respecto a source='+str(self.external_stock_picking_id.source)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
+                else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
         #return
