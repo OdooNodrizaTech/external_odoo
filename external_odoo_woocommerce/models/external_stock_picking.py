@@ -96,22 +96,31 @@ class ExternalStockPicking(models.Model):
                                 'active': True,
                                 'source': str(source),
                                 'source_url': str(source_url),
-                                'external_id': str(message_body['customer_id']),
+                                'external_id': int(message_body['customer_id']),
                                 'province_code': str(message_body['shipping']['state']),
                                 'country_code': str(message_body['shipping']['country'])                                        
                             }
+                            #vat
+                            if 'meta_data' in external_customer_vals:
+                                for meta_data_item in external_customer_vals['meta_data']:
+                                    if meta_data_item['key']=='NIF':
+                                        external_customer_vals['vat'] = str(meta_data_item['value'])                                                            
                             #fields_billing
                             fields_billing = ['email', 'phone']
                             for field_billing in fields_billing:
                                 if field_billing in message_body['billing']:
                                     if message_body['billing'][field_billing]!='':
-                                        external_customer_vals[field_billing] = str(message_body['billing'][field_billing]) 
+                                        external_customer_vals[field_billing] = str(message_body['billing'][field_billing])                                        
                             #fields_shipping
                             fields_shipping = ['first_name', 'last_name', 'company', 'address_1', 'address_2', 'city', 'postcode']
                             for field_shipping in fields_shipping:
                                 if field_shipping in message_body['shipping']:
                                     if message_body['shipping'][field_shipping]!='':
-                                        external_customer_vals[field_shipping] = str(message_body['shipping'][field_shipping])                            
+                                        external_customer_vals[field_shipping] = str(message_body['shipping'][field_shipping])
+                            #fix external_id=0
+                            if external_customer_vals['external_id']==0:
+                                if 'email' in external_customer_vals:
+                                    external_customer_vals['external_id'] = str(external_customer_vals['email'])                                                                    
                             #search_previous
                             external_customer_ids = self.env['external.customer'].sudo().search(
                                 [

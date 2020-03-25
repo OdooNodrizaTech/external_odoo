@@ -16,6 +16,18 @@
         <record id="external_odoo_user_id" model="ir.config_parameter">
             <field name="key">external_odoo_user_id</field>
             <field name="value">0</field>
+        </record>
+        <record id="external_odoo_external_sale_order_shipping_product_template_id" model="ir.config_parameter">
+            <field name="key">external_odoo_external_sale_order_shipping_product_template_id</field>
+            <field name="value">0</field>
+        </record>
+        <record id="external_odoo_payment_mode_id" model="ir.config_parameter">
+            <field name="key">external_odoo_payment_mode_id</field>
+            <field name="value">0</field>
+        </record>
+        <record id="external_odoo_payment_term_id" model="ir.config_parameter">
+            <field name="key">external_odoo_payment_term_id</field>
+            <field name="value">1</field>
         </record>            
     </data>
 </openerp>

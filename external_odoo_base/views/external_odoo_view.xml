@@ -57,7 +57,8 @@
                         <field name="external_id"/>                                                
                         <field name="source"/>
                         <field name="source_url"/>
-                        <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>                        
+                        <field name="vat"/>
                         <field name="email"/>
                         <field name="accepts_marketing"/>
                         <field name="first_name"/>
@@ -88,6 +89,7 @@
                 <field name="external_id"/>                                                
                 <field name="source"/>
                 <field name="partner_id"/>
+                <field name="vat"/>
                 <field name="email"/>
                 <field name="accepts_marketing"/>
                 <field name="first_name"/>
@@ -113,6 +115,187 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_customer_tree"/>                
+    </record>
+    <!--external_address!-->
+    <record id="external_address_form_view" model="ir.ui.view">
+        <field name="name">Address</field>
+        <field name="model">external.address</field>
+        <field name="arch" type="xml">
+            <form string="Address">
+                <header>
+                    <button name="action_operations_item" attrs="{'invisible': [('partner_id', '!=', False)]}" string="Ejecutar" type="object"/>
+                </header>                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_customer_id"/>                                                
+                        <field name="source"/>
+                        <field name="source_url"/>
+                        <field name="type"/>
+                        <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="first_name"/>
+                        <field name="address1"/>
+                        <field name="phone"/>
+                        <field name="city"/>
+                        <field name="last_name"/>
+                        <field name="address2"/>
+                        <field name="company"/>
+                        <field name="latitude"/>
+                        <field name="longitude"/>
+                        <field name="country_code"/>
+                        <field name="country_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="province_code"/>
+                        <field name="country_state_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="postcode"/>                        
+                        <field name="create_uid" readonly="1"/>
+                        <field name="create_date" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_address_tree" model="ir.ui.view">
+        <field name="name">Address</field>
+        <field name="model">external.address</field>            
+        <field name="arch" type="xml">
+            <tree string="Address"> 
+                <field name="external_id"/>
+                <field name="external_customer_id"/>                                                
+                <field name="source"/>
+                <field name="type"/>
+                <field name="partner_id"/>
+                <field name="first_name"/>
+                <field name="address1"/>
+                <field name="phone"/>
+                <field name="city"/>
+                <field name="last_name"/>
+                <field name="address2"/>
+                <field name="company"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <field name="country_id"/>
+                <field name="country_state_id"/>                          
+            </tree>
+        </field>            
+    </record>        
+    <record id="external_address_action" model="ir.actions.act_window">
+        <field name="name">Address</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">external.address</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="external_address_tree"/>                
+    </record>
+    <!--external.sale.order.discount!-->
+    <record id="external_sale_order_discount_form_view" model="ir.ui.view">
+        <field name="name">Sale Order Discount</field>
+        <field name="model">external.sale.order.discount</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order Discount">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="currency_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="type"/>
+                        <field name="value"/>
+                        <field name="value_type"/>
+                        <field name="description"/>
+                        <field name="title"/>
+                        <field name="sale_order_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                     
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_sale_order_discounte_tree" model="ir.ui.view">
+        <field name="name">Sale Order Discount</field>
+        <field name="model">external.sale.order.discount</field>            
+        <field name="arch" type="xml">
+            <tree string="Sale Order Discount"> 
+                <field name="external_id"/>
+                <field name="currency_id"/>
+                <field name="type"/>
+                <field name="value"/>
+                <field name="value_type"/>
+                <field name="description"/>
+                <field name="title"/>
+                <field name="sale_order_line_id"/>
+            </tree>
+        </field>            
+    </record>
+    <!--external.sale.order.line!-->
+    <record id="external_sale_order_line_form_view" model="ir.ui.view">
+        <field name="name">Sale Order Line</field>
+        <field name="model">external.sale.order.line</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order Line">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_variant_id"/>
+                        <field name="external_product_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="currency_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="title"/>
+                        <field name="quantity"/>
+                        <field name="sku"/>
+                        <field name="price"/>
+                        <field name="total_discount"/>
+                        <field name="sale_order_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                           
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_sale_order_line_tree" model="ir.ui.view">
+        <field name="name">Sale Order Line</field>
+        <field name="model">external.sale.order.line</field>            
+        <field name="arch" type="xml">
+            <tree string="Sale Order Line"> 
+                <field name="external_id"/>
+                <field name="external_variant_id"/>
+                <field name="external_product_id"/>
+                <field name="currency_id"/>
+                <field name="title"/>
+                <field name="quantity"/>
+                <field name="sku"/>
+                <field name="price"/>
+                <field name="total_discount"/>
+                <field name="sale_order_line_id"/>
+            </tree>
+        </field>            
+    </record>
+    <!--external.sale.order.shipping!-->
+    <record id="external_sale_order_shipping_form_view" model="ir.ui.view">
+        <field name="name">Sale Order Shipping</field>
+        <field name="model">external.sale.order.shipping</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order Shipping">                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="currency_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="title"/>
+                        <field name="price"/>
+                        <field name="discounted_price"/>
+                        <field name="sale_order_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_sale_order_shipping_tree" model="ir.ui.view">
+        <field name="name">Sale Order Shipping</field>
+        <field name="model">external.sale.order.shipping</field>            
+        <field name="arch" type="xml">
+            <tree string="Sale Order Shipping"> 
+                <field name="external_id"/>
+                <field name="currency_id"/>
+                <field name="title"/>
+                <field name="price"/>
+                <field name="discounted_price"/>                
+                <field name="sale_order_line_id"/>
+            </tree>
+        </field>            
     </record>
     <!--external.stock.picking.line!-->
     <record id="external_stock_picking_line_form_view" model="ir.ui.view">
@@ -148,6 +331,64 @@
                 <field name="invoice_line_id"/>
             </tree>
         </field>            
+    </record>
+    <!--external.sale.order!-->
+    <record id="external_sale_order_form_view" model="ir.ui.view">
+        <field name="name">Sale Order</field>
+        <field name="model">external.sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order">
+                <header>
+                    <button name="action_run_multi" attrs="{'invisible': [('sale_order_id', '!=', False)]}" string="Ejecutar" type="object"/>
+                </header>                                                
+                <sheet string="child">
+                    <group>
+                        <field name="external_id"/>
+                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="source"/>
+                        <field name="source_url"/>
+                        <field name="date"/>
+                        <field name="lead_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="sale_order_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="account_payment_id" options='{"no_create": True, "no_create_edit": True}'/>                        
+                        <field name="number"/>
+                        <field name="external_source_name"/>
+                        <field name="external_sale_order_discount_ids"/>
+                        <field name="external_sale_order_line_ids"/>
+                        <field name="external_sale_order_shipping_ids"/>
+                        <field name="state"/>
+                        <field name="create_uid" readonly="1"/>
+                        <field name="create_date" readonly="1"/>                                                                                                                                                                                            
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="external_sale_order_tree" model="ir.ui.view">
+        <field name="name">Sale Order</field>
+        <field name="model">external.sale.order</field>            
+        <field name="arch" type="xml">
+            <tree string="Sale Order"> 
+                <field name="external_id"/>
+                <field name="external_customer_id"/>
+                <field name="source"/>
+                <field name="date"/>
+                <field name="lead_id"/>
+                <field name="sale_order_id"/>
+                <field name="account_payment_id"/>
+                <field name="number"/>
+                <field name="external_source_name"/>
+                <field name="state"/>
+            </tree>
+        </field>            
+    </record>        
+    <record id="external_sale_order_action" model="ir.actions.act_window">
+        <field name="name">Sale Order</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">external.sale.order</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="external_sale_order_tree"/>                
     </record>
     <!--external.stock.picking!-->
     <record id="external_stock_picking_form_view" model="ir.ui.view">
@@ -215,6 +456,18 @@
         action="external_customer_action" 
         name="Customer"
         id="menuitem_external_customer" 
+        parent="menu_odoo_external_odoo"
+    />
+    <menuitem 
+        action="external_address_action" 
+        name="Address"
+        id="menuitem_external_address" 
+        parent="menu_odoo_external_odoo"
+    />
+    <menuitem 
+        action="external_sale_order_action" 
+        name="Sale Order"
+        id="menuitem_external_sale_order" 
         parent="menu_odoo_external_odoo"
     />
     <menuitem 

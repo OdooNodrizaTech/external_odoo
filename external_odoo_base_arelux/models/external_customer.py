@@ -24,6 +24,7 @@ class ExternalCustomer(models.Model):
             self.partner_id.ar_qt_activity_type = 'arelux'
             self.partner_id.ar_qt_customer_type = 'particular'
             #update category_id=53 (Orache)
-            self.partner_id.category_id = [(4, 53)]
+            if self.source_url=='https://www.orache.shop/':
+                self.partner_id.category_id = [(4, 53)]
         #return
         return return_item    

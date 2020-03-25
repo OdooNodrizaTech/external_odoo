@@ -36,6 +36,9 @@ class ExternalCustomer(models.Model):
         comodel_name='res.partner',
         string='Partner'
     )
+    vat = fields.Char(
+        string='Vat'
+    )
     email = fields.Char(
         string='Email'
     )
@@ -92,64 +95,65 @@ class ExternalCustomer(models.Model):
 
     @api.one
     def operations_item(self):
-        #phone_mobile
-        phone = str(self.phone)
-        mobile = None
-        phone_first_char = str(self.phone)[:1]
-        if phone_first_char=='6':
-            mobile = str(phone)
-            phone = None
-        #search
-        if self.phone!=False:
-            if phone!=None:
-                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('phone', '=', str(self.phone))])
-            else:
-                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('mobile', '=', str(mobile))])
-        else:
-            res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False)])
-        #if exists
-        if len(res_partner_ids)>0:
-            res_partner_id = res_partner_ids[0]
-            self.partner_id = res_partner_id.id
-            #Update country_id
-            if self.partner_id.country_id.id>0:
-                self.country_id = self.partner_id.country_id.id
-            #Update state_id
-            if self.partner_id.state_id.id>0:
-                self.country_state_id = self.partner_id.state_id.id
-        else:
-            #create
-            res_partner_vals = {
-                'active': True,
-                'customer': True,
-                'supplier': False,
-                'name': str(self.first_name)+' '+str(self.last_name),
-                'email': str(self.email),
-                'street': str(self.address_1),
-                'street2': str(self.address_2),
-                'city': str(self.city),
-                'zip': str(self.postcode)
-            }
+        if self.partner_id.id==0:
             #phone_mobile
-            if phone!=None:
-                res_partner_vals['phone'] = str(phone)
+            phone = str(self.phone)
+            mobile = None
+            phone_first_char = str(self.phone)[:1]
+            if phone_first_char=='6':
+                mobile = str(phone)
+                phone = None
+            #search
+            if self.phone!=False:
+                if phone!=None:
+                    res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('phone', '=', str(self.phone))])
+                else:
+                    res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('mobile', '=', str(mobile))])
             else:
-                res_partner_vals['mobile'] = str(mobile)
-            #country_id
-            if self.country_code!=False:
-                res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])
-                if len(res_country_ids)>0:
-                    res_country_id = res_country_ids[0]
-                    res_partner_vals['country_id'] = res_country_id.id
-                    #state_id
-                    if self.province_code!=False:
-                        res_country_state_ids = self.env['res.country.state'].sudo().search([('country_id', '=', res_country_id.id),('code', '=', str(self.province_code))])
-                        if len(res_country_state_ids)>0:
-                            res_country_state_id = res_country_state_ids[0]
-                            res_partner_vals['state_id'] = res_country_state_id.id
-            #create
-            res_partner_obj = self.env['res.partner'].create(res_partner_vals)
-            self.partner_id = res_partner_obj.id                        
+                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False)])
+            #if exists
+            if len(res_partner_ids)>0:
+                res_partner_id = res_partner_ids[0]
+                self.partner_id = res_partner_id.id
+                #Update country_id
+                if self.partner_id.country_id.id>0:
+                    self.country_id = self.partner_id.country_id.id
+                #Update state_id
+                if self.partner_id.state_id.id>0:
+                    self.country_state_id = self.partner_id.state_id.id
+            else:
+                #create
+                res_partner_vals = {
+                    'active': True,
+                    'customer': True,
+                    'supplier': False,
+                    'name': str(self.first_name)+' '+str(self.last_name),
+                    'email': str(self.email),
+                    'street': str(self.address_1),
+                    'street2': str(self.address_2),
+                    'city': str(self.city),
+                    'zip': str(self.postcode)
+                }
+                #phone_mobile
+                if phone!=None:
+                    res_partner_vals['phone'] = str(phone)
+                else:
+                    res_partner_vals['mobile'] = str(mobile)
+                #country_id
+                if self.country_code!=False:
+                    res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])
+                    if len(res_country_ids)>0:
+                        res_country_id = res_country_ids[0]
+                        res_partner_vals['country_id'] = res_country_id.id
+                        #state_id
+                        if self.province_code!=False:
+                            res_country_state_ids = self.env['res.country.state'].sudo().search([('country_id', '=', res_country_id.id),('code', '=', str(self.province_code))])
+                            if len(res_country_state_ids)>0:
+                                res_country_state_id = res_country_state_ids[0]
+                                res_partner_vals['state_id'] = res_country_state_id.id
+                #create
+                res_partner_obj = self.env['res.partner'].create(res_partner_vals)
+                self.partner_id = res_partner_obj.id                        
         #return
         return False        
 

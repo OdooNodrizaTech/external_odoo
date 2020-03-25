@@ -59,7 +59,7 @@ class ExternalStockPicking(models.Model):
     def action_run_multi(self):
         for obj in self:
             if obj.picking_id.id==0:
-                obj.action_run_multi()
+                obj.action_run()
 
     @api.one
     def action_run(self):
