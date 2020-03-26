@@ -87,6 +87,7 @@ class ExternalCustomer(models.Model):
         if self.partner_id.id==0:
             #phone
             phone = None
+            mobile = None
             ##phone_mobile
             if self.phone!=False:
                 #phone vs mobile

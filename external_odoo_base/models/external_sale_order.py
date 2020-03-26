@@ -251,10 +251,10 @@ class ExternalSaleOrder(models.Model):
                     #external_sale_order_line_ids
                     for external_sale_order_line_id in self.external_sale_order_line_ids:
                         if external_sale_order_line_id.sale_order_line_id.id>0:
-                            if external_sale_order_line_id.sale_order_line_id.sale_order_line_id.price_subtotal!=external_sale_order_line_id.total_price_without_tax:
+                            if external_sale_order_line_id.sale_order_line_id.price_subtotal!=external_sale_order_line_id.total_price_without_tax:
                                 external_sale_order_line_id.sale_order_line_id.price_subtotal = external_sale_order_line_id.total_price_without_tax
                                 #Fix price_tax
-                                external_sale_order_line_id.sale_order_line_id.price_tax = external_sale_order_line_id.sale_order_line_id.price_total - external_sale_order_line_id.sale_order_line_id.price_subtotal
+                                #external_sale_order_line_id.sale_order_line_id.price_tax = external_sale_order_line_id.sale_order_line_id.price_total - external_sale_order_line_id.sale_order_line_id.price_subtotal
                                 #update order
                                 self.sale_order_id._amount_all()
         #return
