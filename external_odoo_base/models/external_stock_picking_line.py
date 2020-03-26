@@ -24,7 +24,7 @@ class ExternalStockPickingLine(models.Model):
         string='External Id (Product id)'
     )
     external_variant_id = fields.Char(
-        string='External Variant Id'
+        string='External Variant Id (Variant Id)'
     )
     external_product_id = fields.Many2one(
         comodel_name='external.product',
@@ -57,7 +57,7 @@ class ExternalStockPickingLine(models.Model):
                 if self.external_variant_id!=False:
                     external_product_ids = self.env['external.product'].sudo().search(
                         [
-                            ('source', '=', str(self.external_stock_picking_id.source)),
+                            ('external_source_id', '=', self.external_stock_picking_id.external_source_id.id),
                             ('external_id', '=', str(self.external_id)),
                             ('external_variant_id', '=', str(self.external_variant_id))
                         ]
@@ -65,13 +65,13 @@ class ExternalStockPickingLine(models.Model):
                 else:
                     external_product_ids = self.env['external.product'].sudo().search(
                         [
-                            ('source', '=', str(self.external_stock_picking_id.source)),
+                            ('external_source_id', '=', self.external_stock_picking_id.external_source_id.id),
                             ('external_id', '=', str(self.external_id))
                         ]
                     )
                 #operations                                           
                 if len(external_product_ids)==0:
-                    _logger.info('Muy raro, no se encuentra external_product_id respecto a source='+str(self.external_stock_picking_id.source)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
+                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id='+str(self.external_stock_picking_id.external_source_id.id)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
                 else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
@@ -90,7 +90,8 @@ class ExternalStockPickingLine(models.Model):
     def cron_external_stock_picking_line_generate_invoice_lines(self, cr=None, uid=False, context=None):
         _logger.info('cron_external_stock_picking_line_generate_invoice_lines')
         #params
-        external_odoo_journal_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_journal_id'))
+        #external_odoo_journal_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_journal_id'))
+        external_odoo_journal_id = 1
         #search
         external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search(
             [

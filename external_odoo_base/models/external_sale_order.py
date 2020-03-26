@@ -42,19 +42,11 @@ class ExternalSaleOrder(models.Model):
     currency_id = fields.Many2one(
         comodel_name='res.currency',
         string='Currency'
-    )        
-    source = fields.Selection(
-        [
-            ('custom', 'Custom'),
-            ('shopify', 'Shopify'),
-            ('woocommerce', 'Woocommerce'),
-        ],
-        string='Source',
-        default='custom'
     )
-    source_url = fields.Char(
-        string='Source Url'
-    )
+    external_source_id = fields.Many2one(
+        comodel_name='external.source',
+        string='External Source'
+    )            
     account_payment_id = fields.Many2one(
         comodel_name='account.payment',
         string='Payment'
@@ -87,7 +79,8 @@ class ExternalSaleOrder(models.Model):
     )
     external_source_name = fields.Selection(
         [
-            ('web', 'Web')
+            ('web', 'Web'),
+            ('shopify_draft_order', 'Shopify Draft Order')
         ],
         string='External Source Name',
         default='web'
@@ -121,26 +114,25 @@ class ExternalSaleOrder(models.Model):
         if self.lead_id.id==0:
             if self.external_customer_id.id>0:
                 if self.external_customer_id.partner_id.id>0:   
-                    #user_id
-                    external_odoo_user_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_user_id'))
                     #date_deadline
                     current_date = datetime.today()
                     date_deadline = current_date + relativedelta(days=1)
                     #vals
                     crm_lead_vals = {
                         'type': 'opportunity',
-                        'name': str(self.source)+' '+str(self.number),
+                        'name': str(self.external_source_id.type)+' '+str(self.number),
                         'team_id': 1,
                         'probability': 10,
-                        'user_id': external_odoo_user_id,
-                        'partner_id': False,
-                        'ar_qt_customer_type': 'particular',
                         'date_deadline': str(date_deadline.strftime("%Y-%m-%d %H:%I:%S"))
                     }
+                    #user_id
+                    if self.external_source_id.external_sale_order_user_id.id>0:
+                        crm_lead_vals['user_id'] = self.external_source_id.external_sale_order_user_id.id
                     #create
                     crm_lead_obj = self.env['crm.lead'].sudo(self.create_uid).create(crm_lead_vals)
                     #update_partner_id
                     crm_lead_obj.partner_id = self.external_customer_id.partner_id.id
+                    crm_lead_obj._onchange_partner_id()                                        
                     #lead_id
                     self.lead_id = crm_lead_obj.id                                        
         #return
@@ -176,35 +168,35 @@ class ExternalSaleOrder(models.Model):
                         if external_sale_order_line_id.external_product_id.id==0:
                             allow_create = False
         #operations                
-        if allow_create==True:
-            #define
-            external_odoo_external_sale_order_shipping_product_template_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_external_sale_order_shipping_product_template_id'))
-            external_odoo_payment_mode_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_payment_mode_id'))
-            external_odoo_payment_term_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_payment_term_id'))                        
+        if allow_create==True:                        
             #vals
             sale_order_vals = {
                 'state': 'draft',
                 'opportunity_id': self.lead_id.id,
-                'user_id': self.lead_id.user_id.id,
                 'team_id': self.lead_id.team_id.id,
                 'partner_id': self.lead_id.partner_id.id,
                 'partner_invoice_id': self.external_billing_address_id.partner_id.id,
                 'partner_shipping_id': self.external_shipping_address_id.partner_id.id,
-                'payment_mode_id': external_odoo_payment_mode_id,
-                'payment_term_id': external_odoo_payment_term_id,
                 'date_order': str(self.date),
                 'show_total': True,
                 'origin': str(self.lead_id.name),
                 'order_line': []                                                
             }
-            #define            
-            product_template_id_shipping = self.env['product.template'].sudo().browse(external_odoo_external_sale_order_shipping_product_template_id)
+            #user_id
+            if self.lead_id.user_id.id>0:
+                sale_order_vals['user_id'] = self.lead_id.user_id.id
+            #payment_mode_id
+            if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
+                sale_order_vals['payment_mode_id'] = self.external_source_id.external_sale_order_account_payment_mode_id.id
+            #payment_term_id
+            if self.external_source_id.external_sale_order_account_payment_term_id.id>0:
+                sale_order_vals['payment_term_id'] = self.external_source_id.external_sale_order_account_payment_term_id.id
             #external_sale_order_shipping_id
             for external_sale_order_shipping_id in self.external_sale_order_shipping_ids:                    
                 #data
                 data_sale_order_line = {
                     'order_id': self.sale_order_id.id,
-                    'product_id': product_template_id_shipping.id,
+                    'product_id': self.external_source_id.external_sale_order_shipping_product_template_id.id,
                     'name': str(external_sale_order_shipping_id.title),                    
                     'product_uom_qty': 1,
                     'product_uom': 1,
@@ -212,8 +204,8 @@ class ExternalSaleOrder(models.Model):
                     'discount': 0
                 }
                 #Fix product_uom
-                if product_template_id_shipping.uom_id.id>0:
-                    data_sale_order_line['product_uom'] = product_template_id_shipping.uom_id.id
+                if self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id>0:
+                    data_sale_order_line['product_uom'] = self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id
                 #append                 
                 sale_order_vals['order_line'].append((0, 0, data_sale_order_line))
             #lines

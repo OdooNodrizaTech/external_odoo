@@ -16,12 +16,15 @@ class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
     _description = 'External Sale Order Line'
     _order = 'create_date desc'
-
+    
+    line_id = fields.Char(
+        string='Line Id'
+    )
     external_id = fields.Char(
-        string='External Id'
+        string='External Id (Product_id)'
     )
     external_variant_id = fields.Char(
-        string='External Variant Id'
+        string='External Variant Id (Variant_id)'
     )
     external_product_id = fields.Many2one(
         comodel_name='external.product',
@@ -63,7 +66,7 @@ class ExternalSaleOrderLine(models.Model):
                 if self.external_variant_id!=False:
                     external_product_ids = self.env['external.product'].sudo().search(
                         [
-                            ('source', '=', str(self.external_sale_order_id.source)),
+                            ('external_source_id', '=', self.external_sale_order_id.external_source_id.id),
                             ('external_id', '=', str(self.external_id)),
                             ('external_variant_id', '=', str(self.external_variant_id))
                         ]
@@ -71,13 +74,13 @@ class ExternalSaleOrderLine(models.Model):
                 else:
                     external_product_ids = self.env['external.product'].sudo().search(
                         [
-                            ('source', '=', str(self.external_sale_order_id.source)),
+                            ('external_source_id', '=', self.external_sale_order_id.external_source_id.id),
                             ('external_id', '=', str(self.external_id))
                         ]
                     )
                 #operations                                          
                 if len(external_product_ids)==0:
-                    _logger.info('Muy raro, no se encuentra external_product_id respecto a source='+str(self.external_sale_order_id.source)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
+                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id='+str(self.external_sale_order_id.external_source_id.id)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
                 else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id

@@ -82,7 +82,14 @@ class ExternalStockPicking(models.Model):
                     # operations_1
                     if result_message['statusCode'] == 200:
                         #source_url
-                        source_url = str(message_body['X-WC-Webhook-Source'])                        
+                        source_url = str(message_body['X-WC-Webhook-Source'])
+                        #external_source_id
+                        external_source_ids = self.env['external.source'].sudo().search([('type', '=', str(source)),('url', '=', str(source_url))])
+                        if len(external_source_ids)==0:
+                            result_message['statusCode'] = 500
+                            result_message['return_body'] = {'error': 'No existe external_source id con este source='+str(source)+' y url='+str(source_url)}
+                        else:
+                            external_source_id = external_source_ids[0]                        
                         #status
                         if message_body['status'] not in ['processing', 'completed']:
                             result_message['statusCode'] = 500
@@ -93,9 +100,8 @@ class ExternalStockPicking(models.Model):
                             #operaciones varias para crearlos
                             #external_customer                                  
                             external_customer_vals = {
+                                'external_source_id': external_source_id.id,
                                 'active': True,
-                                'source': str(source),
-                                'source_url': str(source_url),
                                 'external_id': int(message_body['customer_id']),
                                 'province_code': str(message_body['shipping']['state']),
                                 'country_code': str(message_body['shipping']['country'])                                        
@@ -124,8 +130,7 @@ class ExternalStockPicking(models.Model):
                             #search_previous
                             external_customer_ids = self.env['external.customer'].sudo().search(
                                 [
-                                    ('source', '=', str(source)),
-                                    ('source_url', '=', str(source_url)),
+                                    ('external_source_id', '=', external_source_id.id),
                                     ('external_id', '=', str(message_body['customer_id']))                                    
                                 ]
                             )
@@ -138,14 +143,13 @@ class ExternalStockPicking(models.Model):
                             external_stock_picking_vals = {
                                 'external_id': str(message_body['id']),
                                 'external_customer_id': external_customer_obj.id,
-                                'source': str(source),
-                                'source_url': str(source_url),
+                                'external_source_id': external_source_id.id,
                                 'state': str(message_body['status']),
                                 'number': str(message_body['number']),
                                 'external_source_name': 'web'    
                             }
                             #search_previous
-                            external_stock_picking_ids = self.env['external.stock.picking'].sudo().search([('external_id', '=', str(self.external_id)),('source', '=', str(self.source)),('source_url', '=', str(self.source_url))])
+                            external_stock_picking_ids = self.env['external.stock.picking'].sudo().search([('external_id', '=', str(self.external_id)),('external_source_id', '=', external_source_id.id)])
                             if len(external_stock_picking_ids)>0:
                                 result_message['delete_message'] = True
                                 result_message['return_body'] = {'message': 'Raro de narices, ya existe'}

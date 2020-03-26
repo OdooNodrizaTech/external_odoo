@@ -80,7 +80,14 @@ class ExternalSaleOrder(models.Model):
                     # operations
                     if result_message['statusCode'] == 200:
                         #source_url
-                        source_url = str(message_body['X-Shopify-Shop-Domain'])                        
+                        source_url = str(message_body['X-Shopify-Shop-Domain'])
+                        #external_source_id
+                        external_source_ids = self.env['external.source'].sudo().search([('type', '=', str(source)),('url', '=', str(source_url))])
+                        if len(external_source_ids)==0:
+                            result_message['statusCode'] = 500
+                            result_message['return_body'] = {'error': 'No existe external_source id con este source='+str(source)+' y url='+str(source_url)}
+                        else:
+                            external_source_id = external_source_ids[0]                        
                         #status
                         if message_body['financial_status']!='paid':
                             result_message['statusCode'] = 500
@@ -92,8 +99,7 @@ class ExternalSaleOrder(models.Model):
                             #external_sale_order
                             external_sale_order_vals = {
                                 'external_id': str(message_body['id']),
-                                'source': str(source),
-                                'source_url': str(source_url),
+                                'external_source_id': external_source_id.id,
                                 'state': str(message_body['financial_status']),
                                 'date': str(message_body['processed_at'])
                             }
@@ -121,11 +127,15 @@ class ExternalSaleOrder(models.Model):
                             #external_customer
                             external_customer_vals = {
                                 'external_id': str(message_body['customer']['id']),
-                                'source': str(source),
-                                'source_url': str(source_url),
+                                'external_source_id': external_source_id.id,
                                 'accepts_marketing': message_body['customer']['accepts_marketing'],
                                 'active': True    
                             }
+                            #vat
+                            if 'note' in message_body:
+                                if message_body['note']!='':
+                                    if message_body['note']!=None:
+                                        external_customer_vals['vat'] = str(message_body['note']) 
                             #cutomer_fields_need_check
                             cutomer_fields_need_check = ['email', 'first_name', 'last_name', 'phone', 'zip']
                             for cutomer_field_need_check in cutomer_fields_need_check:
@@ -156,8 +166,7 @@ class ExternalSaleOrder(models.Model):
                             #search_previous
                             external_customer_ids = self.env['external.customer'].sudo().search(
                                 [
-                                    ('source', '=', str(source)),
-                                    ('source_url', '=', str(source_url)),
+                                    ('external_source_id', '=', external_source_id.id),
                                     ('external_id', '=', str(message_body['customer']['id']))                                    
                                 ]
                             )
@@ -174,8 +183,7 @@ class ExternalSaleOrder(models.Model):
                                 if address_type in message_body:                                                                 
                                     external_address_vals = {
                                         'external_customer_id': external_customer_obj.id,
-                                        'source': str(source),
-                                        'source_url': str(source_url),
+                                        'external_source_id': external_source_id.id,
                                         'type': 'invoice'                                
                                     }
                                     #address_fields_need_check
@@ -195,8 +203,7 @@ class ExternalSaleOrder(models.Model):
                                     #search_previous
                                     external_address_ids = self.env['external.address'].sudo().search(
                                         [
-                                            ('source', '=', str(source)),
-                                            ('source_url', '=', str(source_url)),
+                                            ('external_source_id', '=', external_source_id.id),
                                             ('external_customer_id', '=', external_address_vals['external_customer_id']),
                                             ('type', '=', external_address_vals['type'])                                    
                                         ]
@@ -215,8 +222,7 @@ class ExternalSaleOrder(models.Model):
                             _logger.info(external_sale_order_vals)
                             external_sale_order_ids = self.env['external.sale.order'].sudo().search(
                                 [
-                                    ('source', '=', str(source)),
-                                    ('source_url', '=', str(source_url)),
+                                    ('external_source_id', '=', external_source_id.id),
                                     ('external_id', '=', str(external_sale_order_vals['external_id']))                                    
                                 ]
                             )
@@ -245,14 +251,20 @@ class ExternalSaleOrder(models.Model):
                                 #line_items
                                 for line_item in message_body['line_items']:
                                     external_sale_order_line_vals = {
-                                        'external_id': str(line_item['id']),
-                                        'external_variant_id': str(line_item['variant_id']),
+                                        'line_id': str(line_item['id']),
+                                        'external_id': str(line_item['product_id']),
                                         'external_sale_order_id': external_sale_order_obj.id,
                                         'currency_id': external_sale_order_obj.currency_id.id,
                                         'title': str(line_item['title']),
-                                        'quantity': line_item['quantity'],
-                                        'sku': str(line_item['sku'])
+                                        'quantity': line_item['quantity']
                                     }
+                                    #external_variant_id
+                                    if 'variant_id' in line_item:
+                                        if line_item['variant_id']!='':
+                                            external_sale_order_line_vals['external_variant_id'] = str(line_item['variant_id'])
+                                    #sku
+                                    if 'sku' in line_item:
+                                        external_sale_order_line_vals['sku'] = str(line_item['sku']) 
                                     #price
                                     if 'price_set' in line_item:
                                         if 'shop_money' in line_item['price_set']:

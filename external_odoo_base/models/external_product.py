@@ -25,19 +25,11 @@ class ExternalProduct(models.Model):
     )
     name = fields.Char(
         string='Name'
-    )            
-    source = fields.Selection(
-        [
-            ('custom', 'Custom'),
-            ('shopify', 'Shopify'),
-            ('woocommerce', 'Woocommerce'),
-        ],
-        string='Source',
-        default='custom'
     )
-    source_url = fields.Char(
-        string='Source Url'
-    )
+    external_source_id = fields.Many2one(
+        comodel_name='external.source',
+        string='External Source'
+    )                
     product_template_id = fields.Many2one(
         comodel_name='product.template',
         string='Product Template'

@@ -26,19 +26,11 @@ class ExternalStockPicking(models.Model):
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
         string='External Customer'
-    )            
-    source = fields.Selection(
-        [
-            ('custom', 'Custom'),
-            ('shopify', 'Shopify'),
-            ('woocommerce', 'Woocommerce'),
-        ],
-        string='Source',
-        default='custom'
     )
-    source_url = fields.Char(
-        string='Source Url'
-    )    
+    external_source_id = fields.Many2one(
+        comodel_name='external.source',
+        string='External Source'
+    )                    
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
         string='Albaran'
@@ -73,24 +65,19 @@ class ExternalStockPicking(models.Model):
                         if external_stock_picking_line_id.external_product_id.id==0:
                             allow_create = False
                     #operations
-                    if allow_create==True:
-                        #params
-                        external_odoo_external_stock_picking_picking_type_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_external_stock_picking_picking_type_id'))
-                        external_odoo_carrier_id = int(self.env['ir.config_parameter'].sudo().get_param('external_odoo_carrier_id'))
-                        #stock_picking_type
-                        stock_picking_type_id = self.env['stock.picking.type'].sudo().browse(external_odoo_external_stock_picking_picking_type_id)                    
+                    if allow_create==True:                    
                         #stock_picking
                         stock_picking_vals = {
-                            'picking_type_id' : stock_picking_type_id.id,
-                            'location_id': stock_picking_type_id.default_location_src_id.id,
+                            'picking_type_id' : self.external_source_id.external_stock_picking_picking_type_id.id,
+                            'location_id': self.external_source_id.external_stock_picking_picking_type_id.default_location_src_id.id,
                             'location_dest_id': 9,
                             'move_type' : 'one',
                             'partner_id': self.external_customer_id.partner_id.id,
                             'move_lines': []             
                         }
                         #carrier_id
-                        if external_odoo_carrier_id>0:
-                            stock_picking_vals['carrier_id'] = external_odoo_carrier_id
+                        if self.external_source_id.external_stock_picking_carrier_id.id>0:
+                            stock_picking_vals['carrier_id'] = self.external_source_id.external_stock_picking_carrier_id.id
                         #move_lines
                         for external_stock_picking_line_id in self.external_stock_picking_line_ids:
                             if external_stock_picking_line_id.external_product_id.id>0:

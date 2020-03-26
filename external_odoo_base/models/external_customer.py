@@ -19,19 +19,11 @@ class ExternalCustomer(models.Model):
 
     external_id = fields.Char(
         string='External Id'
-    )        
-    source = fields.Selection(
-        [
-            ('custom', 'Custom'),
-            ('shopify', 'Shopify'),
-            ('woocommerce', 'Woocommerce'),
-        ],
-        string='Source',
-        default='custom'
     )
-    source_url = fields.Char(
-        string='Source Url'
-    )
+    external_source_id = fields.Many2one(
+        comodel_name='external.source',
+        string='External Source'
+    )            
     partner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Partner'
@@ -96,19 +88,38 @@ class ExternalCustomer(models.Model):
     @api.one
     def operations_item(self):
         if self.partner_id.id==0:
-            #phone_mobile
-            phone = str(self.phone)
-            mobile = None
-            phone_first_char = str(self.phone)[:1]
-            if phone_first_char=='6':
-                mobile = str(phone)
-                phone = None
-            #search
+            #phone
+            phone = None
+            ##phone_mobile
             if self.phone!=False:
+                #phone vs mobile
+                phone = str(self.phone)
+                mobile = None
+                phone_first_char = str(self.phone)[:1]
+                if phone_first_char=='6':
+                    mobile = str(phone)
+                    phone = None
+                #search
                 if phone!=None:
-                    res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('phone', '=', str(self.phone))])
+                    res_partner_ids = self.env['res.partner'].sudo().search(
+                        [
+                            ('type', '=', 'contact'),
+                            ('email', '=', str(self.email)),
+                            ('active', '=', True),
+                            ('supplier', '=', False),
+                            ('phone', '=', str(phone))
+                        ]
+                    )
                 else:
-                    res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False),('mobile', '=', str(mobile))])
+                    res_partner_ids = self.env['res.partner'].sudo().search(
+                        [
+                            ('type', '=', 'contact'),
+                            ('email', '=', str(self.email)),
+                            ('active', '=', True),
+                            ('supplier', '=', False),
+                            ('mobile', '=', str(mobile))
+                        ]
+                    )
             else:
                 res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False)])
             #if exists
@@ -139,6 +150,9 @@ class ExternalCustomer(models.Model):
                     res_partner_vals['phone'] = str(phone)
                 else:
                     res_partner_vals['mobile'] = str(mobile)
+                #vat
+                if self.vat!=False:
+                    res_partner_vals['vat'] = 'EU'+str(self.vat)                    
                 #country_id
                 if self.country_code!=False:
                     res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])

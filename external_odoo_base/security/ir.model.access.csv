@@ -13,6 +13,8 @@ access_external_sale_order_line_admin,external.sale.order.line,model_external_sa
 access_external_sale_order_line_group_user,external.sale.order.line.user,model_external_sale_order_line,base.group_user,1,1,1,1
 access_external_sale_order_shipping_admin,external.sale.order.shipping,model_external_sale_order_shipping,,1,1,1,1
 access_external_sale_order_shipping_group_user,external.sale.order.shipping.user,model_external_sale_order_shipping,base.group_user,1,1,1,1
+access_external_source_admin,external.source,model_external_source,,1,1,1,1
+access_external_source_group_user,external.source.user,model_external_source,base.group_user,1,1,1,1
 access_external_stock_picking_admin,external.stock.picking,model_external_stock_picking,,1,1,1,1
 access_external_stock_picking_group_user,external.stock.picking.user,model_external_stock_picking,base.group_user,1,1,1,1
 access_external_stock_picking_line_admin,external.stock.picking.line,model_external_stock_picking_line,,1,1,1,1

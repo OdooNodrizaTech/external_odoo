@@ -23,19 +23,11 @@ class ExternalAddress(models.Model):
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
         string='External Customer'
-    )                    
-    source = fields.Selection(
-        [
-            ('custom', 'Custom'),
-            ('shopify', 'Shopify'),
-            ('woocommerce', 'Woocommerce'),
-        ],
-        string='Source',
-        default='custom'
     )
-    source_url = fields.Char(
-        string='Source Url'
-    )
+    external_source_id = fields.Many2one(
+        comodel_name='external.source',
+        string='External Source'
+    )                        
     type = fields.Selection(
         [
             ('invoice', 'Invoice'),

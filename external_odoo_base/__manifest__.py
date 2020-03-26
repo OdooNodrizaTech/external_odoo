@@ -8,7 +8,6 @@
     'license': 'AGPL-3',
     'depends': ['base', 'sale', 'website_quote', 'utm_websites', 'tracking_arelux', 'arelux_partner_questionnaire', 'delivery'],
     'data': [
-        'data/ir_configparameter_data.xml',
         'data/ir_cron.xml',
         'security/ir.model.access.csv',
         'views/external_odoo_view.xml',
