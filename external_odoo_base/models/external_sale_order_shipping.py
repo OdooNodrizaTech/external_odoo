@@ -32,6 +32,15 @@ class ExternalSaleOrderShipping(models.Model):
     )
     discounted_price = fields.Monetary(
         string='Discounted Price'
+    )
+    tax_amount = fields.Monetary(
+        string='Tax Amount'
+    )
+    unit_price_without_tax = fields.Monetary(
+        string='Unit price Without Tax'
+    )
+    total_price_without_tax = fields.Monetary(
+        string='Total price Without Tax'
     )    
     external_sale_order_id = fields.Many2one(
         comodel_name='external.sale.order',
@@ -45,6 +54,11 @@ class ExternalSaleOrderShipping(models.Model):
 
     @api.one
     def operations_item(self):
+        #calculate_tax
+        if self.tax_amount>0:
+            self.total_price_without_tax = self.price-self.tax_amount
+            self.unit_price_without_tax = self.total_price_without_tax/1
+        #return
         return False        
 
     @api.model

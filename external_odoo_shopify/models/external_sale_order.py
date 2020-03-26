@@ -250,33 +250,41 @@ class ExternalSaleOrder(models.Model):
                                             external_sale_order_discount_obj = self.env['external.sale.order.discount'].sudo(6).create(external_sale_order_discount_vals)
                                 #line_items
                                 for line_item in message_body['line_items']:
-                                    external_sale_order_line_vals = {
-                                        'line_id': str(line_item['id']),
-                                        'external_id': str(line_item['product_id']),
-                                        'external_sale_order_id': external_sale_order_obj.id,
-                                        'currency_id': external_sale_order_obj.currency_id.id,
-                                        'title': str(line_item['title']),
-                                        'quantity': line_item['quantity']
-                                    }
-                                    #external_variant_id
-                                    if 'variant_id' in line_item:
-                                        if line_item['variant_id']!='':
-                                            external_sale_order_line_vals['external_variant_id'] = str(line_item['variant_id'])
-                                    #sku
-                                    if 'sku' in line_item:
-                                        external_sale_order_line_vals['sku'] = str(line_item['sku']) 
-                                    #price
-                                    if 'price_set' in line_item:
-                                        if 'shop_money' in line_item['price_set']:
-                                            if 'amount' in line_item['price_set']['shop_money']:
-                                                external_sale_order_line_vals['price'] = line_item['price_set']['shop_money']['amount']
-                                    #price
-                                    if 'total_discount_set' in line_item:
-                                        if 'shop_money' in line_item['total_discount_set']:
-                                            if 'amount' in line_item['total_discount_set']['shop_money']:
-                                                external_sale_order_line_vals['total_discount'] = line_item['total_discount_set']['shop_money']['amount']
-                                    #create
-                                    external_sale_order_line_obj = self.env['external.sale.order.line'].sudo(6).create(external_sale_order_line_vals)
+                                    #product_exists
+                                    if 'product_exists' in line_item:
+                                        if line_item['product_exists']==True:
+                                            #vals
+                                            external_sale_order_line_vals = {
+                                                'line_id': str(line_item['id']),
+                                                'external_id': str(line_item['product_id']),
+                                                'external_sale_order_id': external_sale_order_obj.id,
+                                                'currency_id': external_sale_order_obj.currency_id.id,
+                                                'title': str(line_item['title']),
+                                                'quantity': int(line_item['quantity'])
+                                            }
+                                            #external_variant_id
+                                            if 'variant_id' in line_item:
+                                                if line_item['variant_id']!='':
+                                                    external_sale_order_line_vals['external_variant_id'] = str(line_item['variant_id'])
+                                            #sku
+                                            if 'sku' in line_item:
+                                                external_sale_order_line_vals['sku'] = str(line_item['sku']) 
+                                            #price
+                                            if 'price_set' in line_item:
+                                                if 'shop_money' in line_item['price_set']:
+                                                    if 'amount' in line_item['price_set']['shop_money']:
+                                                        external_sale_order_line_vals['price'] = line_item['price_set']['shop_money']['amount']
+                                            #price
+                                            if 'total_discount_set' in line_item:
+                                                if 'shop_money' in line_item['total_discount_set']:
+                                                    if 'amount' in line_item['total_discount_set']['shop_money']:
+                                                        external_sale_order_line_vals['total_discount'] = line_item['total_discount_set']['shop_money']['amount']
+                                            #tax_amount
+                                            if 'tax_lines' in line_item:
+                                                for tax_line in line_item['tax_lines']:
+                                                    external_sale_order_line_vals['tax_amount'] = tax_line['price']                                                                                                                                                                                                          
+                                            #create
+                                            external_sale_order_line_obj = self.env['external.sale.order.line'].sudo(6).create(external_sale_order_line_vals)
                                 #shipping_lines
                                 if 'shipping_lines' in message_body: 
                                     for shipping_line in message_body['shipping_lines']:                                        
@@ -291,6 +299,10 @@ class ExternalSaleOrder(models.Model):
                                         for shipping_line_field_need_check in shipping_line_fields_need_check:
                                             if shipping_line_field_need_check in shipping_line:
                                                 external_sale_order_shipping_vals[shipping_line_field_need_check] = str(shipping_line[shipping_line_field_need_check])
+                                        #tax_amount
+                                        if 'tax_lines' in shipping_line:
+                                            for tax_line in shipping_line['tax_lines']:
+                                                external_sale_order_shipping_vals['tax_amount'] = tax_line['price']                                                
                                         #create
                                         external_sale_order_shipping_obj = self.env['external.sale.order.shipping'].sudo(6).create(external_sale_order_shipping_vals)                                                
                                 #action_run

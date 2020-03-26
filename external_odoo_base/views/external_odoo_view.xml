@@ -281,6 +281,9 @@
                         <field name="sku"/>
                         <field name="price"/>
                         <field name="total_discount"/>
+                        <field name="tax_amount"/>
+                        <field name="unit_price_without_tax"/>
+                        <field name="total_price_without_tax"/>
                         <field name="sale_order_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                           
                     </group>
                 </sheet>
@@ -318,6 +321,9 @@
                         <field name="title"/>
                         <field name="price"/>
                         <field name="discounted_price"/>
+                        <field name="tax_amount"/>
+                        <field name="unit_price_without_tax"/>
+                        <field name="total_price_without_tax"/>
                         <field name="sale_order_line_id" options='{"no_create": True, "no_create_edit": True}'/>                                                                                
                     </group>
                 </sheet>
