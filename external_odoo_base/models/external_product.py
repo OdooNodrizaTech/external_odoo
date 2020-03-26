@@ -9,9 +9,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
 
-import boto3
-from botocore.exceptions import ClientError
-
 class ExternalProduct(models.Model):
     _name = 'external.product'
     _description = 'External Product'
@@ -36,7 +33,8 @@ class ExternalProduct(models.Model):
     )
     invoice_partner_id = fields.Many2one(
         comodel_name='res.partner',
-        string='Partner id (Auto-invoice in stock.picking)'
+        string='Partner id',
+        help='Partner id (Auto-invoice in stock.picking)'
     )    
 
     @api.one

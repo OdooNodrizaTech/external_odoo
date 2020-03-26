@@ -7,6 +7,9 @@
     'category': 'Tools',
     'license': 'AGPL-3',
     'depends': ['external_odoo_base'],
+    'external_dependencies': {
+        'python' : ['woocommerce'],
+    },
     'data': [
         'data/ir_cron.xml',
     ],

@@ -21,6 +21,28 @@
             <field name="model" eval="'external.stock.picking'" />
             <field name="function" eval="'cron_sqs_external_stock_picking_woocommerce'" />
             <field name="args" eval="" />
+        </record>
+        <record id="cron_external_sale_order_update_shipping_expedition_woocommerce" model="ir.cron">
+            <field name="name">External Sale Order Update Shipping Expedition (Woocommerce)</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'external.sale.order'" />
+            <field name="function" eval="'cron_external_sale_order_update_shipping_expedition_woocommerce'" />
+            <field name="args" eval="" />
+        </record>
+        <record id="cron_external_stock_picking_update_shipping_expedition_woocommerce" model="ir.cron">
+            <field name="name">External Stock Picking Update Shipping Expedition (Woocommerce)</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'external.stock.picking'" />
+            <field name="function" eval="'cron_external_stock_picking_update_shipping_expedition_woocommerce'" />
+            <field name="args" eval="" />
         </record>                                        
     </data>
 </openerp>

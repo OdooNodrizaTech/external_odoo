@@ -9,9 +9,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
 
-import boto3
-from botocore.exceptions import ClientError
-
 class ExternalAddress(models.Model):
     _name = 'external.address'
     _description = 'External Address'

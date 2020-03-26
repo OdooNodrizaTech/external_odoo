@@ -14,11 +14,49 @@ from botocore.exceptions import ClientError
 
 class ExternalSaleOrder(models.Model):
     _inherit = 'external.sale.order'             
-    
+        
     @api.one
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item
+        
+    @api.multi
+    def cron_external_sale_order_update_shipping_expedition_woocommerce(self, cr=None, uid=False, context=None):
+        _logger.info('cron_external_sale_order_update_shipping_expedition_woocommerce')
+        #search
+        external_source_ids = self.env['external.source'].sudo().search([('type', '=', 'woocommerce'),('api_status', '=', 'valid')])
+        if len(external_source_ids)>0:
+            for external_source_id in external_source_ids:
+                #external_sale_order_ids
+                external_sale_order_ids = self.env['external.sale.order'].sudo().search(
+                    [   
+                        ('external_source_id', '=', external_source_id.id),
+                        ('state', '!=', 'completed'),
+                        ('sale_order_id', '!=', False),
+                        ('sale_order_id.state', 'in', ('sale', 'done'))
+                    ]
+                )
+                if len(external_sale_order_ids)>0:
+                    for external_sale_order_id in external_sale_order_ids:
+                        #wcapi (init)
+                        wcapi = external_source_id.init_api_woocommerce()[0]
+                        #stock_picking
+                        stock_picking_ids = self.env['stock.picking'].sudo().search(
+                            [   
+                                ('origin', '=', str(external_sale_order_id.sale_order_id.name)),
+                                ('state', '=', 'done'),
+                                ('picking_type_id.code', '=', 'outgoing'),                                
+                                ('shipping_expedition_id', '!=', False),
+                                ('shipping_expedition_id.state', '=', 'delivered')
+                            ]
+                        )
+                        if len(stock_picking_ids)>0:                            
+                            #put (#OK, se actualiza)
+                            data = {"status": "completed"}                
+                            response = wcapi.put("orders/"+str(external_sale_order_id.number), data).json()
+                            if 'id' in response:
+                                #update OK
+                                external_sale_order_id.state = 'completed'        
     
     @api.multi
     def cron_sqs_external_sale_order_woocommerce(self, cr=None, uid=False, context=None):

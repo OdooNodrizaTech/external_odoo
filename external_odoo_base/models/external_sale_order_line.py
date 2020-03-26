@@ -9,9 +9,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
 
-import boto3
-from botocore.exceptions import ClientError
-
 class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
     _description = 'External Sale Order Line'

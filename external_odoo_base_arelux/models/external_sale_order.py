@@ -9,10 +9,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
 
-import boto3
-from botocore.exceptions import ClientError
-from woocommerce import API
-
 class ExternalSaleOrder(models.Model):
     _inherit = 'external.sale.order'             
         

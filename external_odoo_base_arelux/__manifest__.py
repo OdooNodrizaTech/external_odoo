@@ -7,13 +7,7 @@
     'category': 'Tools',
     'license': 'AGPL-3',
     'depends': ['external_odoo_base'],
-    'external_dependencies': {
-        'python' : ['woocommerce'],
-    },
-    'data': [
-        'data/ir_configparameter_data.xml',
-        'data/ir_cron.xml'
-    ],
+    'data': [],
     'installable': True,
     'auto_install': False,    
 }

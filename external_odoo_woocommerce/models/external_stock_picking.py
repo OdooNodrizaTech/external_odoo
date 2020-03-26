@@ -13,12 +13,42 @@ import boto3
 from botocore.exceptions import ClientError
 
 class ExternalStockPicking(models.Model):
-    _inherit = 'external.stock.picking'             
+    _inherit = 'external.stock.picking'        
     
     @api.one
     def action_run(self):
         return_item = super(ExternalStockPicking, self).action_run()        
         return return_item
+    
+    @api.multi
+    def cron_external_stock_picking_update_shipping_expedition_woocommerce(self, cr=None, uid=False, context=None):
+        _logger.info('cron_external_stock_picking_update_shipping_expedition_woocommerce')        
+        #search
+        external_source_ids = self.env['external.source'].sudo().search([('type', '=', 'woocommerce'),('api_status', '=', 'valid')])
+        if len(external_source_ids)>0:
+            for external_source_id in external_source_ids:
+                #external_stock_picking_ids
+                external_stock_picking_ids = self.env['external.stock.picking'].sudo().search(
+                    [   
+                        ('external_source_id', '=', external_source_id.id),
+                        ('state', '!=', 'completed'),
+                        ('picking_id', '!=', False),
+                        ('picking_id.state', '=', 'done'),
+                        ('picking_id.shipping_expedition_id', '!=', False),
+                        ('picking_id.shipping_expedition_id.state', '=', 'delivered')
+                    ]
+                )
+                if len(external_stock_picking_ids)>0:
+                    #wcapi (init)
+                    wcapi = external_source_id.init_api_woocommerce()[0]            
+                    #operations
+                    for external_stock_picking_id in external_stock_picking_ids:
+                        #put
+                        data = {"status": "completed"}                
+                        response = wcapi.put("orders/"+str(external_stock_picking_id.number), data).json()
+                        if 'id' in response:
+                            #update OK
+                            external_stock_picking_id.state = 'completed'
     
     @api.multi
     def cron_sqs_external_stock_picking_woocommerce(self, cr=None, uid=False, context=None):
