@@ -175,11 +175,6 @@ class ExternalSaleOrder(models.Model):
                         'delete_message': False,
                         'message': message_body
                     }
-                    #line_items
-                    if 'line_items' not in message_body:
-                        result_message['statusCode'] = 500
-                        result_message['delete_message'] = True
-                        result_message['return_body'] = {'error': 'Falta el campo line_items'}
                     #default
                     source = 'shopify'
                     # fields_need_check
@@ -272,8 +267,8 @@ class ExternalSaleOrder(models.Model):
                                 customer_default_address_fields_need_check = ['address1', 'address2', 'city', 'phone', 'company', 'country_code', 'province_code']
                                 for customer_default_address_field_need_check in customer_default_address_fields_need_check:
                                     if customer_default_address_field_need_check in message_body['customer']['default_address']:
-                                        if message_body['customer']['default_address'][customer_default_address_field_need_check]!='':
-                                            if message_body['customer']['default_address'][customer_default_address_field_need_check]!=None:
+                                        if message_body['customer']['default_address'][customer_default_address_field_need_check]!=None:
+                                            if str(message_body['customer']['default_address'][customer_default_address_field_need_check])!='':                                            
                                                 if customer_default_address_field_need_check not in external_customer_vals:
                                                     external_customer_vals[customer_default_address_field_need_check] = str(message_body['customer']['default_address'][customer_default_address_field_need_check])
                                 #customer_replace_fields
@@ -306,6 +301,7 @@ class ExternalSaleOrder(models.Model):
                             for address_type in address_types:
                                 if address_type in message_body:                                                                 
                                     external_address_vals = {
+                                        'external_id': external_sale_order_vals['external_id'],
                                         'external_customer_id': external_customer_obj.id,
                                         'external_source_id': external_source_id.id,
                                         'type': 'invoice'                                
@@ -324,11 +320,14 @@ class ExternalSaleOrder(models.Model):
                                     #type
                                     if address_type=='shipping_address':
                                         external_address_vals['type'] = 'delivery'
+                                    #fix_external_address_vals
+                                    external_address_vals['external_id'] += '_'+str(external_address_vals['type'])
                                     #search_previous
                                     external_address_ids = self.env['external.address'].sudo().search(
                                         [
                                             ('external_source_id', '=', external_source_id.id),
                                             ('external_customer_id', '=', external_address_vals['external_customer_id']),
+                                            ('external_id', '=', external_address_vals['external_id']),
                                             ('type', '=', external_address_vals['type'])                                    
                                         ]
                                     )

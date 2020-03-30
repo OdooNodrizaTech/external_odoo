@@ -13,19 +13,30 @@ class ExternalProduct(models.Model):
     _name = 'external.product'
     _description = 'External Product'
     _order = 'create_date desc'
-
+    
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.external_id
+    #fields
     external_id = fields.Char(
         string='External Id'
     )    
     external_variant_id = fields.Char(
-        string='External Variant Id'
+        string='Variant Id'
     )
     name = fields.Char(
         string='Name'
     )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
-        string='External Source'
+        string='Source'
     )                
     product_template_id = fields.Many2one(
         comodel_name='product.template',

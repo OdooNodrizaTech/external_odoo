@@ -12,7 +12,18 @@ import pytz
 class ExternalStockPicking(models.Model):
     _name = 'external.stock.picking'
     _description = 'External Stock Picking'
-    _order = 'create_date desc'    
+    _order = 'create_date desc'
+    
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.external_id    
     #fields    
     woocommerce_state = fields.Selection(
         [
@@ -34,11 +45,11 @@ class ExternalStockPicking(models.Model):
     )
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
-        string='External Customer'
+        string='Customer'
     )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
-        string='External Source'
+        string='Source'
     )                    
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
@@ -54,7 +65,7 @@ class ExternalStockPicking(models.Model):
         string='External Source Name',
         default='web'
     )
-    external_stock_picking_line_ids = fields.One2many('external.stock.picking.line', 'external_stock_picking_id', string='External Stock Picking Lines', copy=True)        
+    external_stock_picking_line_ids = fields.One2many('external.stock.picking.line', 'external_stock_picking_id', string='Lines', copy=True)        
 
     @api.multi
     def action_run_multi(self):

@@ -68,7 +68,22 @@ class ExternalSource(models.Model):
         else:
             for response_item in response:
                 if response_item['status']=='publish':                    
-                    if len(response_item['variations'])>0:
+                    if len(response_item['variations'])==0:
+                        external_product_ids = self.env['external.product'].sudo().search(
+                            [
+                                ('external_source_id', '=', self.id),
+                                ('external_id', '=', str(response_item['id'])),
+                                ('external_variant_id', '=', False)
+                            ]
+                        )
+                        if len(external_product_ids)==0:  
+                            external_product_vals = {
+                                'external_source_id': self.id,
+                                'external_id': str(response_item['id']),
+                                'name': response_item['name'],
+                            }
+                            external_product_obj = self.env['external.product'].create(external_product_vals)
+                    else:
                         for variation in response_item['variations']:
                             external_product_ids = self.env['external.product'].sudo().search(
                                 [

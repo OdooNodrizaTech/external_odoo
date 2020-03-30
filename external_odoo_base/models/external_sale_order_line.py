@@ -14,22 +14,33 @@ class ExternalSaleOrderLine(models.Model):
     _description = 'External Sale Order Line'
     _order = 'create_date desc'
     
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.line_id
+    #fields
     line_id = fields.Char(
         string='Line Id'
     )
     external_id = fields.Char(
-        string='External Id (Product_id)'
+        string='Id (Product_id)'
     )
     external_variant_id = fields.Char(
-        string='External Variant Id (Variant_id)'
+        string='Variant Id (Variant_id)'
     )
     external_product_id = fields.Many2one(
         comodel_name='external.product',
-        string='External Product'
+        string='Product'
     )
     external_sale_order_id = fields.Many2one(
         comodel_name='external.sale.order',
-        string='External Sale Order',
+        string='Sale Order',
         ondelete='cascade'
     )
     currency_id = fields.Many2one(
@@ -66,7 +77,7 @@ class ExternalSaleOrderLine(models.Model):
     ) 
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
-        string='Sale Order Line'
+        string='sale_order_line'
     )        
 
     @api.one

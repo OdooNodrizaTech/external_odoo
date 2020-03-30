@@ -46,12 +46,12 @@ class ExternalSaleOrderDiscount(models.Model):
     )    
     external_sale_order_id = fields.Many2one(
         comodel_name='external.sale.order',
-        string='External Sale Order',
+        string='Sale Order',
         ondelete='cascade'
     )
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
-        string='Sale Order Line'
+        string='sale_order_line_id'
     )    
 
     @api.one

@@ -14,22 +14,33 @@ class ExternalStockPickingLine(models.Model):
     _description = 'External Stock Picking Line'
     _order = 'create_date desc'
     
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.line_id
+    #fields
     line_id = fields.Char(
         string='Line Id'
     )
     external_id = fields.Char(
-        string='External Id (Product id)'
+        string='Id (Product id)'
     )
     external_variant_id = fields.Char(
-        string='External Variant Id (Variant Id)'
+        string='Variant Id (Variant Id)'
     )
     external_product_id = fields.Many2one(
         comodel_name='external.product',
-        string='External Product'
+        string='Product'
     )
     external_stock_picking_id = fields.Many2one(
         comodel_name='external.stock.picking',
-        string='External Sale Order',
+        string='Sale Order',
         ondelete='cascade'
     )    
     title = fields.Char(
@@ -40,11 +51,11 @@ class ExternalStockPickingLine(models.Model):
     )    
     move_id = fields.Many2one(
         comodel_name='stock.move',
-        string='Stock Move'
+        string='move_id'
     )
     invoice_line_id = fields.Many2one(
         comodel_name='account.invoice.line',
-        string='Account Invoice Line'
+        string='invoice_line_id'
     )        
 
     @api.one

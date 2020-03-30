@@ -14,21 +14,31 @@ class ExternalSaleOrder(models.Model):
     _description = 'External Sale Order'
     _order = 'create_date desc'
     
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.external_id    
     #fields
     external_id = fields.Char(
         string='External Id'
     )
     external_billing_address_id = fields.Many2one(
         comodel_name='external.address',
-        string='External Billing Address'
+        string='Billing Address'
     )
     external_shipping_address_id = fields.Many2one(
         comodel_name='external.address',
-        string='External Shipping Address'
+        string='Shipping Address'
     )
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
-        string='External Customer'
+        string='Customer'
     )    
     woocommerce_state = fields.Selection(
         [
@@ -68,7 +78,12 @@ class ExternalSaleOrder(models.Model):
     )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
-        string='External Source'
+        string='Source'
+    )
+    external_source_type = fields.Char(
+        compute='_get_external_source_type',
+        store=False,
+        string='Source Type'
     )            
     account_payment_id = fields.Many2one(
         comodel_name='account.payment',
@@ -103,9 +118,15 @@ class ExternalSaleOrder(models.Model):
     total_shipping_price = fields.Monetary(
         string='Total Shipping Price'
     )
-    external_sale_order_discount_ids = fields.One2many('external.sale.order.discount', 'external_sale_order_id', string='External Sale Order Discounts', copy=True)
-    external_sale_order_line_ids = fields.One2many('external.sale.order.line', 'external_sale_order_id', string='External Sale Order Lines', copy=True)
-    external_sale_order_shipping_ids = fields.One2many('external.sale.order.shipping', 'external_sale_order_id', string='External Sale Order Shipping Lines', copy=True)    
+    external_sale_order_discount_ids = fields.One2many('external.sale.order.discount', 'external_sale_order_id', string='Discounts', copy=True)
+    external_sale_order_line_ids = fields.One2many('external.sale.order.line', 'external_sale_order_id', string='Lines', copy=True)
+    external_sale_order_shipping_ids = fields.One2many('external.sale.order.shipping', 'external_sale_order_id', string='Shipping Lines', copy=True)
+    
+    @api.one        
+    def _get_external_source_type(self):            
+        for obj in self:
+            if obj.external_source_id.id>0:
+                obj.external_source_type = obj.external_source_id.type    
     
     @api.multi
     def action_run_multi(self):

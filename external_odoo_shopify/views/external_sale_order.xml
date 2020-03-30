@@ -7,10 +7,10 @@
         <field name="priority" eval="20"/>                
         <field name="arch" type="xml">
             <field name="number" position="after">
-                <field name="shopify_source_name"/>
-                <field name="shopify_cancelled_at" readonly="1"/>
-                <field name="shopify_fulfillment_id"/>
-                <field name="shopify_fulfillment_status"/>                                
+                <field name="shopify_source_name" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
+                <field name="shopify_cancelled_at" readonly="1" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
+                <field name="shopify_fulfillment_id" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
+                <field name="shopify_fulfillment_status" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>                                
             </field>                                                            
         </field>
     </record>                           

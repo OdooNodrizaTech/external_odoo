@@ -137,8 +137,8 @@ class ExternalStockPicking(models.Model):
                                 'country_code': str(message_body['shipping']['country'])                                        
                             }
                             #vat
-                            if 'meta_data' in external_customer_vals:
-                                for meta_data_item in external_customer_vals['meta_data']:
+                            if 'meta_data' in message_body:
+                                for meta_data_item in message_body['meta_data']:
                                     if meta_data_item['key']=='NIF':
                                         external_customer_vals['vat'] = str(meta_data_item['value'])                                                            
                             #fields_billing

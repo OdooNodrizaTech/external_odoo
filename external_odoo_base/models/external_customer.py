@@ -14,12 +14,26 @@ class ExternalCustomer(models.Model):
     _description = 'External Customer'
     _order = 'create_date desc'
 
+    name = fields.Char(        
+        compute='_get_name',
+        string='Nombre',
+        store=False
+    )
+    
+    @api.one        
+    def _get_name(self):            
+        for obj in self:
+            obj.name = obj.first_name
+            #Fix
+            if obj.last_name!=False:
+                obj.name += ' '+str(self.last_name)
+    #fields
     external_id = fields.Char(
         string='External Id'
     )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
-        string='External Source'
+        string='Source'
     )            
     partner_id = fields.Many2one(
         comodel_name='res.partner',
