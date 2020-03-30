@@ -31,7 +31,7 @@ class ExternalStockPicking(models.Model):
                 external_stock_picking_ids = self.env['external.stock.picking'].sudo().search(
                     [   
                         ('external_source_id', '=', external_source_id.id),
-                        ('state', '!=', 'completed'),
+                        ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('picking_id', '!=', False),
                         ('picking_id.state', '=', 'done'),
                         ('picking_id.shipping_expedition_id', '!=', False),
@@ -48,7 +48,7 @@ class ExternalStockPicking(models.Model):
                         response = wcapi.put("orders/"+str(external_stock_picking_id.number), data).json()
                         if 'id' in response:
                             #update OK
-                            external_stock_picking_id.state = 'completed'
+                            external_stock_picking_id.woocommerce_state = 'completed'
     
     @api.multi
     def cron_sqs_external_stock_picking_woocommerce(self, cr=None, uid=False, context=None):
@@ -121,7 +121,7 @@ class ExternalStockPicking(models.Model):
                         else:
                             external_source_id = external_source_ids[0]                        
                         #status
-                        if message_body['status'] not in ['processing', 'completed']:
+                        if message_body['status'] not in ['processing', 'completed', 'shipped', 'refunded']:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
                             result_message['return_body'] = {'error': 'El pedido no esta completado'}
@@ -174,19 +174,30 @@ class ExternalStockPicking(models.Model):
                                 'external_id': str(message_body['id']),
                                 'external_customer_id': external_customer_obj.id,
                                 'external_source_id': external_source_id.id,
-                                'state': str(message_body['status']),
+                                'woocommerce_state': str(message_body['status']),
                                 'number': str(message_body['number']),
                                 'external_source_name': 'web'    
                             }
                             #search_previous
-                            external_stock_picking_ids = self.env['external.stock.picking'].sudo().search([('external_id', '=', str(self.external_id)),('external_source_id', '=', external_source_id.id)])
+                            external_stock_picking_ids = self.env['external.stock.picking'].sudo().search(
+                                [
+                                    ('external_id', '=', str(self.external_id)),
+                                    ('external_source_id', '=', external_source_id.id)
+                                ]
+                            )
                             if len(external_stock_picking_ids)>0:
+                                external_stock_picking_id = external_stock_picking_ids[0]
+                                external_stock_picking_id.woocommerce_state = str(message_body['status'])
+                                #action_run (only if need)
+                                external_stock_picking_obj.action_run()
+                                #result_message
                                 result_message['delete_message'] = True
-                                result_message['return_body'] = {'message': 'Raro de narices, ya existe'}
+                                result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
                             else:                                
                                 external_stock_picking_obj = self.env['external.stock.picking'].sudo(6).create(external_stock_picking_vals)
                                 #lines
                                 for line_item in message_body['line_items']:
+                                    #vals
                                     external_stock_picking_line_vals = {
                                         'line_id': str(line_item['id']),
                                         'external_id': str(line_item['product_id']),

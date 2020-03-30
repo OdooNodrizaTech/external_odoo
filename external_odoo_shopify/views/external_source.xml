@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="shopify_external_source_form_view" model="ir.ui.view">
+        <field name="name">shopify_external_source_form_view</field>
+        <field name="model">external.source</field>
+        <field name="inherit_id" ref="external_odoo_base.external_source_form_view" />
+        <field name="priority" eval="20"/>                
+        <field name="arch" type="xml">
+            <field name="api_secret" position="after">
+                <field name="authorize_url" widget="url" readonly="1" attrs="{'invisible': [('type', '!=', 'shopify')]}"/>
+                <field name="shopify_location_id" attrs="{'invisible': [('type', '!=', 'shopify')]}"/>                                
+            </field>                                                            
+        </field>
+    </record>                       
+</odoo>

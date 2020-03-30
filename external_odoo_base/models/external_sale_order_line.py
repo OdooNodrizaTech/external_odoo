@@ -46,19 +46,23 @@ class ExternalSaleOrderLine(models.Model):
         string='Sku'
     )
     price = fields.Monetary(
-        string='Price'
+        string='Price',
+        help='Unit price (with tax)'
     )
     total_discount = fields.Monetary(
         string='Total Discount'
     )
     tax_amount = fields.Monetary(
-        string='Tax Amount'
+        string='Tax Amount',
+        help='Total tax amount (line)'
     )
     unit_price_without_tax = fields.Monetary(
-        string='Unit price Without Tax'
+        string='Unit price Without Tax',
+        help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
-        string='Total price Without Tax'
+        string='Total price Without Tax',
+        help='Calculate (price*quantity)-tax_amount'
     ) 
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
@@ -93,8 +97,8 @@ class ExternalSaleOrderLine(models.Model):
                     self.external_product_id = external_product_id.id
         #calculate_tax
         if self.tax_amount>0:
-            self.total_price_without_tax = self.price-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax
+            self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
+            self.unit_price_without_tax = self.total_price_without_tax/self.quantity
         #return
         return False        
 

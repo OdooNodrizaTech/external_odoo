@@ -23,8 +23,10 @@
                         <field name="external_sale_order_account_payment_mode_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="external_sale_order_account_payment_term_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="external_sale_order_shipping_product_template_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                
-                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
-                        <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                        
+                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
+                        <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="invoice_partner_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="invoice_journal_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                                        
                         <field name="create_uid" readonly="1"/>
                         <field name="create_date" readonly="1"/>                        
                     </group>
@@ -64,7 +66,6 @@
                         <field name="name"/>
                         <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="product_template_id" options='{"no_create": True, "no_create_edit": True}'/>
-                        <field name="invoice_partner_id" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="create_uid" readonly="1"/>
                         <field name="create_date" readonly="1"/>                        
                     </group>
@@ -406,11 +407,11 @@
                         <field name="sale_order_id" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="account_payment_id" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="number"/>
-                        <field name="external_source_name"/>
                         <field name="external_sale_order_discount_ids"/>
                         <field name="external_sale_order_line_ids"/>
                         <field name="external_sale_order_shipping_ids"/>
-                        <field name="state"/>
+                        <field name="woocommerce_state"/>
+                        <field name="shopify_state" />
                         <field name="create_uid" readonly="1"/>
                         <field name="create_date" readonly="1"/>                                                                                                                                                                                            
                     </group>
@@ -431,8 +432,8 @@
                 <field name="sale_order_id"/>
                 <field name="account_payment_id"/>
                 <field name="number"/>
-                <field name="external_source_name"/>
-                <field name="state"/>
+                <field name="woocommerce_state"/>
+                <field name="shopify_state"/>
             </tree>
         </field>            
     </record>        
@@ -462,7 +463,7 @@
                         <field name="number"/>
                         <field name="external_source_name"/>
                         <field name="external_stock_picking_line_ids"/>
-                        <field name="state"/>
+                        <field name="woocommerce_state"/>                        
                         <field name="create_uid" readonly="1"/>
                         <field name="create_date" readonly="1"/>                                                                                                                                                                                            
                     </group>
@@ -481,7 +482,7 @@
                 <field name="picking_id"/>
                 <field name="number"/>
                 <field name="external_source_name"/>
-                <field name="state"/>
+                <field name="woocommerce_state"/>
             </tree>
         </field>            
     </record>        

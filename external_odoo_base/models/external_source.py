@@ -59,6 +59,16 @@ class ExternalSource(models.Model):
         string='Delivery Carrier Id',
         help='Delivery Carrier Id (external.stock.picking)'
     )
+    invoice_partner_id = fields.Many2one(
+        comodel_name='res.partner',
+        string='Partner Id',
+        help='Partner id (Auto-invoice in stock.picking)'
+    )
+    invoice_journal_id = fields.Many2one(
+        comodel_name='account.journal',
+        string='Journal Id',
+        help='Journal id (Auto-invoice in stock.picking)'
+    )
     api_status = fields.Selection(
         [
             ('draft', 'Borrador'),
@@ -78,7 +88,11 @@ class ExternalSource(models.Model):
     def action_api_status_draft_multi(self):
         for obj in self:
             if obj.api_status=='valid':
-                obj.api_status = 'draft'
+                obj.action_api_status_draft()
+                
+    @api.one
+    def action_api_status_draft(self):
+        self.api_status = 'draft'                        
     
     @api.multi
     def action_api_status_valid_multi(self):
@@ -106,4 +120,84 @@ class ExternalSource(models.Model):
         
     @api.one
     def action_operations_get_products(self):
-        return False                                            
+        return False
+        
+    @api.multi
+    def cron_external_stock_picking_line_generate_invoice_lines(self, cr=None, uid=False, context=None):
+        _logger.info('cron_external_stock_picking_line_generate_invoice_lines')
+        #source
+        external_source_ids = self.env['external.source'].sudo().search(
+            [
+                ('type', '=', 'woocommerce'),
+                ('invoice_partner_id', '!=', False),
+                ('invoice_journal_id', '!=', False)                
+            ]
+        )
+        if len(external_source_ids)>0:
+            for external_source_id in external_source_ids:
+                #external_stock_picking_line_ids
+                external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search(
+                    [
+                        ('external_source_id', '=', external_source_ids.id),
+                        ('invoice_line_id', '=', False),
+                        ('external_stock_picking_id.picking_id', '!=', False),
+                        ('external_stock_picking_id.picking_id.state', '=', 'done'),
+                        ('external_product_id', '!=', False),
+                        ('external_product_id.invoice_partner_id', '!=', False)
+                    ]
+                )
+                if len(external_stock_picking_line_ids)>0:
+                    #search draft invoice
+                    account_invoice_ids = self.env['account.invoice'].sudo().search(
+                        [
+                            ('partner_id', '=', external_source_id.invoice_partner_id.id),
+                            ('state', '=', 'draft'),
+                            ('type', '=', 'out_invoice'),
+                            ('journal_id', '=', external_source_id.invoice_journal_id.id)
+                        ]
+                    )
+                    if len(account_invoice_ids)>0:
+                        account_invoice_id = account_invoice_ids[0]
+                    else:
+                        #create_proccess
+                        account_invoice_vals = {
+                            'partner_id': external_source_id.invoice_partner_id.id,
+                            'partner_shipping_id': external_source_id.invoice_partner_id.id,
+                            'state': 'draft',
+                            'type': 'out_invoice',
+                            'journal_id': external_source_id.invoice_journal_id.id,
+                            'user_id': 0, 
+                        }
+                        #property_payment_term_id
+                        if external_source_id.invoice_partner_id.property_payment_term_id.id>=0:
+                            account_invoice_vals['payment_term_id'] = external_source_id.invoice_partner_id.property_payment_term_id.id
+                        #customer_payment_mode_id
+                        if external_source_id.invoice_partner_id.customer_payment_mode_id.id>0:
+                            account_invoice_vals['payment_mode_id'] = external_source_id.invoice_partner_id.customer_payment_mode_id.id 
+                        #create
+                        account_invoice_obj = self.env['account.invoice'].create(account_invoice_vals)
+                        account_invoice_id = account_invoice_obj
+                    #add_lines
+                    for external_stock_picking_line_id in external_stock_picking_line_ids:
+                        #vals
+                        account_invoice_line_vals = {
+                            'invoice_id': account_invoice_id.id,
+                            'product_id': external_stock_picking_line_id.external_product_id.product_template_id.id,
+                            'name': str(external_stock_picking_line_id.title) + ' ('+str(external_stock_picking_line_id.external_stock_picking_id.picking_id.name)+')',
+                            'quantity': external_stock_picking_line_id.quantity,
+                            'price_unit': external_stock_picking_line_id.external_product_id.product_template_id.list_price,                        
+                            'currency_id': account_invoice_id.currency_id.id,                        
+                        }
+                        #account_id
+                        if external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id.id>0:
+                            account_invoice_line_vals['account_id'] = external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id.id
+                        else:
+                            account_invoice_line_vals['account_id'] = external_stock_picking_line_id.external_product_id.product_template_id.categ_id.property_account_income_categ_id.id
+                        #create
+                        account_invoice_line_obj = self.env['account.invoice.line'].create(account_invoice_line_vals)
+                        #onchange
+                        account_invoice_line_obj._onchange_product_id()
+                        account_invoice_line_obj._onchange_account_id()
+                        account_invoice_line_obj.name = str(external_stock_picking_line_id.title) + ' ('+str(external_stock_picking_line_id.external_stock_picking_id.picking_id.name)+')'
+                        #update
+                        external_stock_picking_line_id.invoice_line_id = account_invoice_line_obj.id                                                    

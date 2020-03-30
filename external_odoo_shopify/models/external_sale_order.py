@@ -11,14 +11,125 @@ import pytz
 
 import boto3
 from botocore.exceptions import ClientError
+import shopify
 
 class ExternalSaleOrder(models.Model):
     _inherit = 'external.sale.order'             
+    
+    shopify_source_name = fields.Selection(
+        [
+            ('web', 'Web'),
+            ('pos', 'Pos'),            
+            ('shopify_draft_order', 'Shopify Draft Order'),
+            ('iphone', 'Iphone'),
+            ('android', 'Android'),
+        ],
+        string='Shopify Source Name',
+        default='web'
+    )
+    shopify_cancelled_at = fields.Datetime(
+        string='Shopify Cancelled At'
+    )
+    shopify_fulfillment_id = fields.Char(
+        string='Shopify Fulfillment Id'
+    )
+    shopify_fulfillment_status = fields.Selection(
+        [
+            ('none', 'None'),
+            ('fulfilled', 'Fulfilled'),            
+            ('null', 'Null'),
+            ('partial', 'Partial'),
+            ('restocked', 'Restocked'),
+        ],
+        string='Shopify Fulfillment Status',
+        default='none'
+    )        
     
     @api.one
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item
+        
+    @api.one
+    def action_run(self):
+        return_item = super(ExternalSaleOrder, self).action_run()
+        return return_item        
+    
+    @api.multi
+    def cron_external_sale_order_update_shipping_expedition_shopify(self, cr=None, uid=False, context=None):
+        _logger.info('cron_external_sale_order_update_shipping_expedition_shopify')
+        #search
+        external_source_ids = self.env['external.source'].sudo().search(
+            [
+                ('type', '=', 'shopify'),
+                ('api_status', '=', 'valid'),
+                ('shopify_location_id', '!=', False)
+            ]
+        )
+        if len(external_source_ids)>0:
+            for external_source_id in external_source_ids:
+                #external_sale_order_ids
+                external_sale_order_ids = self.env['external.sale.order'].sudo().search(
+                    [   
+                        ('external_source_id', '=', external_source_id.id),
+                        ('shopify_state', '=', 'paid'),
+                        ('shopify_cancelled_at', '=', False),
+                        ('sale_order_id', '!=', False),                                                                        
+                        ('sale_order_id.state', 'in', ('sale', 'done')),
+                        ('shopify_fulfillment_status', '=', 'none')
+                    ]
+                )
+                if len(external_sale_order_ids)>0:
+                    for external_sale_order_id in external_sale_order_ids:
+                        #shopify (init)
+                        external_source_id.init_api_shopify()[0]
+                        #stock_picking
+                        stock_picking_ids = self.env['stock.picking'].sudo().search(
+                            [   
+                                ('origin', '=', str(external_sale_order_id.sale_order_id.name)),
+                                ('state', '=', 'done'),
+                                ('picking_type_id.code', '=', 'outgoing')
+                            ]
+                        )
+                        if len(stock_picking_ids)>0:
+                            order_id = str(external_sale_order_id.external_id)
+                            location_id = str(external_source_id.shopify_location_id)
+                            #order (line_items)
+                            order = shopify.Order.find(order_id)
+                            #cancelled_at
+                            if order.cancelled_at!=None:
+                                external_sale_order_id.shopify_cancelled_at = str(order.cancelled_at.replace('T', ' '))
+                            #Fix continue
+                            if external_sale_order_id.shopify_cancelled_at==False:                            
+                                #fullfiment
+                                if order.fulfillment_status!=None:                                    
+                                    #fulfillments
+                                    fulfillments = shopify.Fulfillment.find(order_id=order_id, limit=100)
+                                    if len(fulfillments)>0:
+                                        fullfiment_0 = fulfillments[0]
+                                        external_sale_order_id.shopify_fulfillment_id = fullfiment_0.id
+                                        external_sale_order_id.shopify_fulfillment_status = str(order.fulfillment_status)                                        
+                                #check need create
+                                if external_sale_order_id.shopify_fulfillment_status=='none':
+                                    #line_items
+                                    line_items = []
+                                    for line_item in order.line_items:
+                                        line_items.append({
+                                            'id': line_item.id
+                                        })
+                                    #Fulfillment create
+                                    new_fulfillment = shopify.Fulfillment(prefix_options = {'order_id': order_id})
+                                    new_fulfillment.location_id = location_id
+                                    new_fulfillment.line_items = line_items
+                                    #new_fulfillment.notify_customer = False
+                                    success = new_fulfillment.save()
+                                    #update (prevent-errors)
+                                    if new_fulfillment.errors:
+                                        _logger.info('Error al crear')
+                                    else:
+                                        external_sale_order_id.shopify_fulfillment_id = new_fulfillment.id                                
+                                        external_sale_order_id.shopify_fulfillment_status = 'fulfilled'#Ever fullfiled                                                                    
+                                                                                                                                         
     
     @api.multi
     def cron_sqs_external_sale_order_shopify(self, cr=None, uid=False, context=None):
@@ -100,9 +211,9 @@ class ExternalSaleOrder(models.Model):
                             external_sale_order_vals = {
                                 'external_id': str(message_body['id']),
                                 'external_source_id': external_source_id.id,
-                                'state': str(message_body['financial_status']),
+                                'shopify_state': str(message_body['financial_status']),
                                 'date': str(message_body['processed_at'])
-                            }
+                            }                            
                             #order_fields_need_check
                             order_fields_need_check = ['number', 'total_price', 'subtotal_price', 'total_tax', 'total_discounts', 'total_line_items_price', 'source_name']
                             for order_field_need_check in order_fields_need_check:
@@ -111,7 +222,7 @@ class ExternalSaleOrder(models.Model):
                                         external_sale_order_vals[order_field_need_check] = str(message_body[order_field_need_check])
                             #fix source_name
                             if 'source_name' in external_sale_order_vals:
-                                external_sale_order_vals['external_source_name'] = external_sale_order_vals['source_name'] 
+                                external_sale_order_vals['shopify_source_name'] = external_sale_order_vals['source_name'] 
                                 del external_sale_order_vals['source_name']
                             #total_shipping_price_set
                             if 'total_shipping_price_set' in message_body:
@@ -122,8 +233,17 @@ class ExternalSaleOrder(models.Model):
                             res_currency_ids = self.env['res.currency'].sudo().search([('name', '=', str(message_body['currency']))])
                             if len(res_currency_ids)>0:
                                 res_currency_id = res_currency_ids[0]
-                                external_sale_order_vals['currency_id'] = res_currency_id.id 
-                                                        
+                                external_sale_order_vals['currency_id'] = res_currency_id.id
+                            #shopify_fulfillment_id
+                            if 'fulfillments' in message_body:
+                                if len(message_body['fulfillments'])>0:
+                                    fulfillments_0 = message_body['fulfillments'][0]
+                                    external_sale_order_vals['shopify_fulfillment_id'] = str(fulfillments_0['id'])                                     
+                            #shopify_fulfillment_status
+                            if 'fulfillment_status' in message_body:
+                                if str(message_body['fulfillment_status'])!='':
+                                    if str(message_body['fulfillment_status'])!=None:
+                                        external_sale_order_vals['shopify_fulfillment_status'] = str(message_body['fulfillment_status'])
                             #external_customer
                             external_customer_vals = {
                                 'external_id': str(message_body['customer']['id']),
@@ -227,8 +347,19 @@ class ExternalSaleOrder(models.Model):
                                 ]
                             )
                             if len(external_sale_order_ids)>0:
+                                external_sale_order_id = external_sale_order_ids[0]
+                                external_sale_order_id.shopify_state = str(message_body['financial_status'])
+                                #update_shopify_fulfillment_id
+                                if 'shopify_fulfillment_id' in external_sale_order_vals:
+                                    external_sale_order_id['shopify_fulfillment_id'] = str(external_sale_order_vals['shopify_fulfillment_id'])
+                                #shopify_fulfillment_status
+                                if 'shopify_fulfillment_status' in external_sale_order_vals:
+                                    external_sale_order_id['shopify_fulfillment_status'] = str(external_sale_order_vals['shopify_fulfillment_status'])
+                                #action_run (only if need)
+                                external_sale_order_id.action_run()
+                                #result_message
                                 result_message['delete_message'] = True
-                                result_message['return_body'] = {'message': 'Raro de narices, ya existe'}
+                                result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
                             else:
                                 #create
                                 external_sale_order_obj = self.env['external.sale.order'].sudo(6).create(external_sale_order_vals)

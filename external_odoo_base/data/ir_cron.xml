@@ -7,7 +7,7 @@
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
-            <field name="model" eval="'external.stock.picking.line'" />
+            <field name="model" eval="'external.source'" />
             <field name="function" eval="'cron_external_stock_picking_line_generate_invoice_lines'" />
             <field name="args" eval="" />
         </record>                                                

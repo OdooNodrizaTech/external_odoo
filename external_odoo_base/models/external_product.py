@@ -30,12 +30,7 @@ class ExternalProduct(models.Model):
     product_template_id = fields.Many2one(
         comodel_name='product.template',
         string='Product Template'
-    )
-    invoice_partner_id = fields.Many2one(
-        comodel_name='res.partner',
-        string='Partner id',
-        help='Partner id (Auto-invoice in stock.picking)'
-    )    
+    )        
 
     @api.one
     def operations_item(self):

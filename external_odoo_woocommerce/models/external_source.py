@@ -41,6 +41,8 @@ class ExternalSource(models.Model):
                     result_item = True
             #return        
             return result_item
+        else:
+            return super(ExternalSource, self).action_api_status_valid()            
     
     @api.one
     def action_operations_get_products(self):

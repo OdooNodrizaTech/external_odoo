@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="shopify_external_sale_order_form_view" model="ir.ui.view">
+        <field name="name">shopify_external_sale_order_form_view</field>
+        <field name="model">external.sale.order</field>
+        <field name="inherit_id" ref="external_odoo_base.external_sale_order_form_view" />
+        <field name="priority" eval="20"/>                
+        <field name="arch" type="xml">
+            <field name="number" position="after">
+                <field name="shopify_source_name"/>
+                <field name="shopify_cancelled_at" readonly="1"/>
+                <field name="shopify_fulfillment_id"/>
+                <field name="shopify_fulfillment_status"/>                                
+            </field>                                                            
+        </field>
+    </record>                           
+</odoo>

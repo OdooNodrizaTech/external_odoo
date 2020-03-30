@@ -7,8 +7,13 @@
     'category': 'Tools',
     'license': 'AGPL-3',
     'depends': ['external_odoo_base'],
+    'external_dependencies': {
+        'python' : ['shopify'],
+    },
     'data': [
         'data/ir_cron.xml',
+        'views/external_sale_order.xml',
+        'views/external_source.xml',
     ],
     'installable': True,
     'auto_install': False,    

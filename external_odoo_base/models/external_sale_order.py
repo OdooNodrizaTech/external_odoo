@@ -29,9 +29,35 @@ class ExternalSaleOrder(models.Model):
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
         string='External Customer'
+    )    
+    woocommerce_state = fields.Selection(
+        [
+            ('none', 'Ninguno'),
+            ('pending', 'Pending Payment'),
+            ('shipped', 'Shipped'),
+            ('processing', 'Processing'),
+            ('on-hold', 'On Hold'),
+            ('completed', 'Completed'),
+            ('cancelled', 'Cancelled'),
+            ('refunded', 'Refunded'),
+            ('failed', 'Failed')
+        ],
+        string='Woocommerce State',
+        default='none'
     )
-    state = fields.Char(
-        string='State'
+    shopify_state = fields.Selection(
+        [
+            ('none', 'Ninguno'),
+            ('pending', 'Pending'),
+            ('authorized', 'Authorized'),
+            ('paid', 'Paid'),
+            ('partially_paid', 'Partially Paid'),
+            ('refunded', 'Refunded'),
+            ('partially_refunded', 'Partially Refunded'),
+            ('voided', 'Voided'),            
+        ],
+        string='Shopify State',
+        default='none'
     )
     date = fields.Datetime(
         string='Date'
@@ -73,15 +99,7 @@ class ExternalSaleOrder(models.Model):
     )
     total_line_items_price = fields.Monetary(
         string='Total Line Items Price'
-    )
-    external_source_name = fields.Selection(
-        [
-            ('web', 'Web'),
-            ('shopify_draft_order', 'Shopify Draft Order')
-        ],
-        string='External Source Name',
-        default='web'
-    )
+    )    
     total_shipping_price = fields.Monetary(
         string='Total Shipping Price'
     )
@@ -96,13 +114,29 @@ class ExternalSaleOrder(models.Model):
                 obj.action_run()    
 
     @api.one
+    def allow_create(self):
+        return_item = False        
+        #operations
+        if self.external_source_id.id>0:
+            if self.external_source_id.type=='woocommerce':
+                if self.woocommerce_state in ['processing', 'shipped', 'completed']:
+                    return_item = True
+            elif self.external_source_id.type=='shopify':
+                if self.shopify_state=='paid':
+                    return_item = True
+        #return
+        return return_item
+    
+    @api.one
     def action_run(self):
-        #actions        
-        self.action_crm_lead_create()
-        self.action_sale_order_create()
-        #self.action_account_payment_create()
-        self.action_sale_order_done()
-        self.action_crm_lead_win()
+        #allow_create
+        allow_create_item = self.allow_create()[0]
+        if allow_create_item==True:
+            #actions        
+            self.action_crm_lead_create()
+            self.action_sale_order_create()
+            self.action_sale_order_done()
+            self.action_crm_lead_win()
         #return
         return False        
             
@@ -137,100 +171,90 @@ class ExternalSaleOrder(models.Model):
         
     @api.one
     def action_sale_order_create(self):
-        #allow_create
-        allow_create = True
         if self.sale_order_id.id==0:
-            if self.lead_id.id>0:
-                #external_customer_id
-                if self.external_customer_id.id==0:
-                    allow_create = False
-                else:
-                    if self.external_customer_id.partner_id.id==0:
-                        allow_create = False
-                #external_billing_address_id
-                if self.external_billing_address_id.id==0:
-                    allow_create = False
-                else:
-                    if self.external_billing_address_id.partner_id.id==0:
-                        allow_create = False
-                #external_shipping_address_id
-                if self.external_shipping_address_id.id==0:
-                    allow_create = False
-                else:
-                    if self.external_shipping_address_id.partner_id.id==0:
-                        allow_create = False
-                #lines
-                if allow_create==True:                                                     
-                    for external_sale_order_line_id in self.external_sale_order_line_ids:
-                        if external_sale_order_line_id.external_product_id.id==0:
-                            allow_create = False
-        #operations                
-        if allow_create==True:                        
-            #vals
-            sale_order_vals = {
-                'state': 'draft',
-                'opportunity_id': self.lead_id.id,
-                'team_id': self.lead_id.team_id.id,
-                'partner_id': self.lead_id.partner_id.id,
-                'partner_invoice_id': self.external_billing_address_id.partner_id.id,
-                'partner_shipping_id': self.external_shipping_address_id.partner_id.id,
-                'date_order': str(self.date),
-                'show_total': True,
-                'origin': str(self.lead_id.name)                                                
-            }
-            #user_id
-            if self.lead_id.user_id.id>0:
-                sale_order_vals['user_id'] = self.lead_id.user_id.id
-            #payment_mode_id
-            if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
-                sale_order_vals['payment_mode_id'] = self.external_source_id.external_sale_order_account_payment_mode_id.id
-            #payment_term_id
-            if self.external_source_id.external_sale_order_account_payment_term_id.id>0:
-                sale_order_vals['payment_term_id'] = self.external_source_id.external_sale_order_account_payment_term_id.id                            
-            #create
-            sale_order_obj = self.env['sale.order'].sudo(self.create_uid).create(sale_order_vals)
-            #define
-            self.sale_order_id = sale_order_obj.id
-            #external_sale_order_shipping_id
-            for external_sale_order_shipping_id in self.external_sale_order_shipping_ids:                    
-                #data
-                data_sale_order_line = {
-                    'order_id': self.sale_order_id.id,
-                    'product_id': self.external_source_id.external_sale_order_shipping_product_template_id.id,
-                    'name': str(external_sale_order_shipping_id.title),                    
-                    'product_uom_qty': 1,
-                    'product_uom': 1,
-                    'price_unit': external_sale_order_shipping_id.unit_price_without_tax,
-                    'discount': 0
+            #allow_create_sale_order
+            allow_create_sale_order = False
+            #external_customer_id
+            if self.external_customer_id.id>0:
+                if self.external_customer_id.partner_id.id>0:
+                    #external_billing_address_id
+                    if self.external_billing_address_id.id>0:
+                        if self.external_billing_address_id.partner_id.id>0:
+                            #external_shipping_address_id
+                            if self.external_shipping_address_id.id>0:
+                                if self.external_shipping_address_id.partner_id.id>0:
+                                    allow_create_sale_order = True
+                                    #external_sale_order_line_ids               
+                                    for external_sale_order_line_id in self.external_sale_order_line_ids:
+                                        if external_sale_order_line_id.external_product_id.id==0:
+                                            allow_create_sale_order = False
+            #operations                
+            if allow_create_sale_order==True:                        
+                #vals
+                sale_order_vals = {
+                    'state': 'draft',
+                    'opportunity_id': self.lead_id.id,
+                    'team_id': self.lead_id.team_id.id,
+                    'partner_id': self.lead_id.partner_id.id,
+                    'partner_invoice_id': self.external_billing_address_id.partner_id.id,
+                    'partner_shipping_id': self.external_shipping_address_id.partner_id.id,
+                    'date_order': str(self.date),
+                    'show_total': True,
+                    'origin': str(self.lead_id.name)                                                
                 }
-                #Fix product_uom
-                if self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id>0:
-                    data_sale_order_line['product_uom'] = self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id
+                #user_id
+                if self.lead_id.user_id.id>0:
+                    sale_order_vals['user_id'] = self.lead_id.user_id.id
+                #payment_mode_id
+                if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
+                    sale_order_vals['payment_mode_id'] = self.external_source_id.external_sale_order_account_payment_mode_id.id
+                #payment_term_id
+                if self.external_source_id.external_sale_order_account_payment_term_id.id>0:
+                    sale_order_vals['payment_term_id'] = self.external_source_id.external_sale_order_account_payment_term_id.id                            
                 #create
-                sale_order_line_obj = self.env['sale.order.line'].sudo(self.create_uid).create(data_sale_order_line)
-                #update
-                external_sale_order_shipping_id.sale_order_line_id = sale_order_line_obj.id                
-            #lines
-            for external_sale_order_line_id in self.external_sale_order_line_ids:
-                #data
-                data_sale_order_line = {
-                    'order_id': self.sale_order_id.id,
-                    'product_id': external_sale_order_line_id.external_product_id.product_template_id.id,
-                    'name': str(external_sale_order_line_id.title),
-                    'product_uom_qty': external_sale_order_line_id.quantity,
-                    'product_uom': 1,
-                    'price_unit': external_sale_order_line_id.unit_price_without_tax,
-                    'discount': 0                
-                } 
-                #Fix product_uom
-                if external_sale_order_line_id.external_product_id.product_template_id.uom_id.id>0:
-                    data_sale_order_line['product_uom'] = external_sale_order_line_id.external_product_id.product_template_id.uom_id.id
-                #create
-                sale_order_line_obj = self.env['sale.order.line'].sudo(self.create_uid).create(data_sale_order_line)
-                #update
-                external_sale_order_line_id.sale_order_line_id = sale_order_line_obj.id
-            #action_sale_order_check_amounts
-            self.action_sale_order_check_amounts()                                                                                             
+                sale_order_obj = self.env['sale.order'].sudo(self.create_uid).create(sale_order_vals)
+                #define
+                self.sale_order_id = sale_order_obj.id
+                #external_sale_order_shipping_id
+                for external_sale_order_shipping_id in self.external_sale_order_shipping_ids:                    
+                    #data
+                    data_sale_order_line = {
+                        'order_id': self.sale_order_id.id,
+                        'product_id': self.external_source_id.external_sale_order_shipping_product_template_id.id,
+                        'name': str(external_sale_order_shipping_id.title),                    
+                        'product_uom_qty': 1,
+                        'product_uom': 1,
+                        'price_unit': external_sale_order_shipping_id.unit_price_without_tax,
+                        'discount': 0
+                    }
+                    #Fix product_uom
+                    if self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id>0:
+                        data_sale_order_line['product_uom'] = self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id
+                    #create
+                    sale_order_line_obj = self.env['sale.order.line'].sudo(self.create_uid).create(data_sale_order_line)
+                    #update
+                    external_sale_order_shipping_id.sale_order_line_id = sale_order_line_obj.id                
+                #lines
+                for external_sale_order_line_id in self.external_sale_order_line_ids:
+                    #data
+                    data_sale_order_line = {
+                        'order_id': self.sale_order_id.id,
+                        'product_id': external_sale_order_line_id.external_product_id.product_template_id.id,
+                        'name': str(external_sale_order_line_id.title),
+                        'product_uom_qty': external_sale_order_line_id.quantity,
+                        'product_uom': 1,
+                        'price_unit': external_sale_order_line_id.unit_price_without_tax,
+                        'discount': 0                
+                    } 
+                    #Fix product_uom
+                    if external_sale_order_line_id.external_product_id.product_template_id.uom_id.id>0:
+                        data_sale_order_line['product_uom'] = external_sale_order_line_id.external_product_id.product_template_id.uom_id.id
+                    #create                
+                    sale_order_line_obj = self.env['sale.order.line'].sudo(self.create_uid).create(data_sale_order_line)
+                    #update
+                    external_sale_order_line_id.sale_order_line_id = sale_order_line_obj.id
+                #action_sale_order_check_amounts
+                self.action_sale_order_check_amounts()                                                                                             
         #return
         return False
 
@@ -239,24 +263,22 @@ class ExternalSaleOrder(models.Model):
         if self.sale_order_id.id>0:
             if self.sale_order_id.state=='draft':
                 if self.sale_order_id.amount_total!=self.total_price:
-                    #external_sale_order_shipping_ids
-                    for external_sale_order_shipping_id in self.external_sale_order_shipping_ids:
-                        if external_sale_order_shipping_id.sale_order_line_id.id>0:
-                            if external_sale_order_shipping_id.sale_order_line_id.price_subtotal!=external_sale_order_shipping_id.total_price_without_tax:
-                                external_sale_order_shipping_id.sale_order_line_id.price_subtotal = external_sale_order_shipping_id.total_price_without_tax
-                                #Fix price_tax
-                                external_sale_order_shipping_id.sale_order_line_id.price_tax = external_sale_order_shipping_id.sale_order_line_id.price_total - external_sale_order_shipping_id.sale_order_line_id.price_subtotal
-                                #update order
-                                self.sale_order_id._amount_all()
-                    #external_sale_order_line_ids
-                    for external_sale_order_line_id in self.external_sale_order_line_ids:
-                        if external_sale_order_line_id.sale_order_line_id.id>0:
-                            if external_sale_order_line_id.sale_order_line_id.price_subtotal!=external_sale_order_line_id.total_price_without_tax:
-                                external_sale_order_line_id.sale_order_line_id.price_subtotal = external_sale_order_line_id.total_price_without_tax
-                                #Fix price_tax
-                                #external_sale_order_line_id.sale_order_line_id.price_tax = external_sale_order_line_id.sale_order_line_id.price_total - external_sale_order_line_id.sale_order_line_id.price_subtotal
-                                #update order
-                                self.sale_order_id._amount_all()
+                    #calculate
+                    if self.sale_order_id.amount_total>self.total_price:
+                        diference = self.sale_order_id.amount_total-self.total_price
+                        #define
+                        amount_tax_new = self.sale_order_id.amount_tax-diference
+                        amount_total_new = self.sale_order_id.amount_total-diference                        
+                    else:
+                        diference = self.total_price-self.sale_order_id.amount_total
+                        #define
+                        amount_tax_new = self.sale_order_id.amount_tax+diference
+                        amount_total_new = self.sale_order_id.amount_total+diference                    
+                    #update (sale.order)                    
+                    self.sale_order_id.sudo(self.create_uid).write({                        
+                        'amount_tax': amount_tax_new,
+                        'amount_total': amount_total_new
+                    })                               
         #return
         return False                                
         
@@ -290,11 +312,11 @@ class ExternalSaleOrder(models.Model):
                 if self.sale_order_id.partner_id.vat==False:
                     _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque el cliente NO tiene CIF')
                 else:
-                    self.sale_order_id.action_confirm()
+                    self.sale_order_id.sudo(self.create_uid).action_confirm()
     
     @api.one
     def action_crm_lead_win(self):
         if self.lead_id.id>0:
             if self.sale_order_id.state=='sale':
                 if self.lead_id.probability<100:
-                    self.lead_id.action_set_won()
+                    self.lead_id.sudo(self.create_uid).action_set_won()

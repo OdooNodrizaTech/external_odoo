@@ -18,7 +18,7 @@ class ExternalSaleOrder(models.Model):
     @api.one
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
-        return return_item
+        return return_item        
         
     @api.multi
     def cron_external_sale_order_update_shipping_expedition_woocommerce(self, cr=None, uid=False, context=None):
@@ -31,7 +31,7 @@ class ExternalSaleOrder(models.Model):
                 external_sale_order_ids = self.env['external.sale.order'].sudo().search(
                     [   
                         ('external_source_id', '=', external_source_id.id),
-                        ('state', '!=', 'completed'),
+                        ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('sale_order_id', '!=', False),
                         ('sale_order_id.state', 'in', ('sale', 'done'))
                     ]
@@ -56,7 +56,7 @@ class ExternalSaleOrder(models.Model):
                             response = wcapi.put("orders/"+str(external_sale_order_id.number), data).json()
                             if 'id' in response:
                                 #update OK
-                                external_sale_order_id.state = 'completed'        
+                                external_sale_order_id.woocommerce_state = 'completed'        
     
     @api.multi
     def cron_sqs_external_sale_order_woocommerce(self, cr=None, uid=False, context=None):
