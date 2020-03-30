@@ -151,12 +151,14 @@ class ExternalCustomer(models.Model):
                     'customer': True,
                     'supplier': False,
                     'name': str(self.first_name)+' '+str(self.last_name),
-                    'email': str(self.email),
                     'street': str(self.address_1),
                     'street2': str(self.address_2),
                     'city': str(self.city),
                     'zip': str(self.postcode)
                 }
+                #email
+                if self.email!=False:
+                    res_partner_vals['email'] = str(self.email) 
                 #phone_mobile
                 if phone!=None:
                     res_partner_vals['phone'] = str(phone)

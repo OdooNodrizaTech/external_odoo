@@ -125,9 +125,11 @@ class ExternalAddress(models.Model):
                         'customer': True,
                         'supplier': False,
                         'name': str(name),
-                        'email': str(self.external_customer_id.partner_id.email),
                         'city': str(self.city)
                     }
+                    #email
+                    if self.external_customer_id.partner_id.email!=False:
+                        res_partner_vals['email'] = str(self.external_customer_id.partner_id.email)
                     #street
                     if self.address1!=False:
                         res_partner_vals['street'] = str(self.address1) 
