@@ -21,12 +21,10 @@ class ExternalStockPicking(models.Model):
             self.picking_id.ar_qt_activity_type = 'arelux'
             self.picking_id.ar_qt_customer_type = 'particular'
             #carrier_id (nacex only if 1kg)
-            if self.external_source_id.id>0:
-                if 'www.orache.shop' in self.external_source_id.url:
-                    if self.picking_id.weight<=1: 
-                        delivery_carrier_ids = self.env['delivery.carrier'].sudo().search([('carrier_type', '=', 'nacex')])
-                        if len(delivery_carrier_ids)>0:
-                            delivery_carrier_id = delivery_carrier_ids[0]
-                            self.picking_id.carrier_id = delivery_carrier_id.id#Nacex 
+            if self.picking_id.weight<=10: 
+                delivery_carrier_ids = self.env['delivery.carrier'].sudo().search([('carrier_type', '=', 'nacex')])
+                if len(delivery_carrier_ids)>0:
+                    delivery_carrier_id = delivery_carrier_ids[0]
+                    self.picking_id.carrier_id = delivery_carrier_id.id#Nacex 
         #return
         return return_item

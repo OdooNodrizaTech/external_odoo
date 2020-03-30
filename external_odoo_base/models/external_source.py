@@ -49,6 +49,11 @@ class ExternalSource(models.Model):
         string='Product Template id',
         help='Product Template id (external.sale.order.shipping)',
     )
+    external_sale_order_carrier_id = fields.Many2one(
+        comodel_name='delivery.carrier',
+        string='Delivery Carrier Id',
+        help='Delivery Carrier Id (external.sale.order)'
+    )
     external_stock_picking_picking_type_id = fields.Many2one(
         comodel_name='stock.picking.type',
         string='Stock Picking Type Id',

@@ -18,6 +18,7 @@ class ExternalSaleOrder(models.Model):
     
     shopify_source_name = fields.Selection(
         [
+            ('unknown', 'Unknown'),
             ('web', 'Web'),
             ('pos', 'Pos'),            
             ('shopify_draft_order', 'Shopify Draft Order'),
@@ -25,7 +26,7 @@ class ExternalSaleOrder(models.Model):
             ('android', 'Android'),
         ],
         string='Shopify Source Name',
-        default='web'
+        default='unknown'
     )
     shopify_cancelled_at = fields.Datetime(
         string='Shopify Cancelled At'
@@ -224,6 +225,9 @@ class ExternalSaleOrder(models.Model):
                             if 'source_name' in external_sale_order_vals:
                                 external_sale_order_vals['shopify_source_name'] = external_sale_order_vals['source_name'] 
                                 del external_sale_order_vals['source_name']
+                                #Fix
+                                if external_sale_order_vals['shopify_source_name'] not in ['web', 'pos', 'shopify_draft_order', 'iphone', 'android']:
+                                    external_sale_order_vals['shopify_source_name'] = 'unknown'#Force imposible value                                
                             #total_shipping_price_set
                             if 'total_shipping_price_set' in message_body:
                                 if 'shop_money' in message_body['total_shipping_price_set']:
@@ -241,8 +245,8 @@ class ExternalSaleOrder(models.Model):
                                     external_sale_order_vals['shopify_fulfillment_id'] = str(fulfillments_0['id'])                                     
                             #shopify_fulfillment_status
                             if 'fulfillment_status' in message_body:
-                                if str(message_body['fulfillment_status'])!='':
-                                    if str(message_body['fulfillment_status'])!=None:
+                                if message_body['fulfillment_status']!=None:
+                                    if str(message_body['fulfillment_status'])!='':                                    
                                         external_sale_order_vals['shopify_fulfillment_status'] = str(message_body['fulfillment_status'])
                             #external_customer
                             external_customer_vals = {
