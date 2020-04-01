@@ -145,12 +145,16 @@ class ExternalCustomer(models.Model):
                 if self.partner_id.state_id.id>0:
                     self.country_state_id = self.partner_id.state_id.id
             else:
+                #name
+                name = self.first_name
+                if self.last_name!=False:
+                    name += ' '+str(name)
                 #create
                 res_partner_vals = {
                     'active': True,
                     'customer': True,
                     'supplier': False,
-                    'name': str(self.first_name)+' '+str(self.last_name),
+                    'name': str(name),
                     'street': str(self.address_1),
                     'street2': str(self.address_2),
                     'city': str(self.city),

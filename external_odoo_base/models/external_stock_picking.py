@@ -78,9 +78,12 @@ class ExternalStockPicking(models.Model):
         return_item = False        
         #operations
         if self.external_source_id.id>0:
+            #woocommerce
             if self.external_source_id.type=='woocommerce':
                 if self.woocommerce_state in ['processing', 'shipped', 'completed']:
                     return_item = True
+            elif self.external_source_id.type=='custom':
+                return_item = True
         #return
         return return_item
         

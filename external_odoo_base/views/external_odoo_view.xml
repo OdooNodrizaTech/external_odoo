@@ -24,8 +24,8 @@
                         <field name="external_sale_order_account_payment_term_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="external_sale_order_shipping_product_template_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="external_sale_order_carrier_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                        
-                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
-                        <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>                        
+                        <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="invoice_partner_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="invoice_journal_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                                        
                         <field name="create_uid" readonly="1"/>
@@ -178,9 +178,9 @@
                 </header>                                                
                 <sheet string="child">
                     <group>
-                        <field name="external_id"/>
-                        <field name="external_customer_id"/>
-                        <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>                                                
+                        <field name="external_id"/>                        
+                        <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_customer_id" domain="[('external_source_id','=', external_source_id)]"/>                                                
                         <field name="type"/>
                         <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="first_name"/>
@@ -400,11 +400,11 @@
                 </header>                                                
                 <sheet string="child">
                     <group>
-                        <field name="external_id"/>
-                        <field name="external_billing_address_id" options='{"no_create": True, "no_create_edit": True}'/>
-                        <field name="external_shipping_address_id" options='{"no_create": True, "no_create_edit": True}'/>                        
-                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_id"/>                                                
                         <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}' domain="[('external_source_id','=', external_source_id)]"/>
+                        <field name="external_billing_address_id" options='{"no_create": True, "no_create_edit": True}' domain="[('external_customer_id','=', external_customer_id)]"/>
+                        <field name="external_shipping_address_id" options='{"no_create": True, "no_create_edit": True}' domain="[('external_customer_id','=', external_customer_id)]"/>                        
                         <field name="external_source_type" invisible="1" />
                         <field name="date"/>
                         <field name="lead_id" options='{"no_create": True, "no_create_edit": True}'/>
@@ -461,9 +461,9 @@
                 </header>                                                
                 <sheet string="child">
                     <group>
-                        <field name="external_id"/>
-                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_id"/>                        
                         <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_customer_id" options='{"no_create": True, "no_create_edit": True}' domain="[('external_source_id','=', external_source_id)]"/>
                         <field name="picking_id" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="number"/>
                         <field name="external_source_name"/>
