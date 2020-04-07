@@ -23,7 +23,24 @@ class ExternalStockPicking(models.Model):
     @api.one        
     def _get_name(self):            
         for obj in self:
-            obj.name = obj.external_id    
+            obj.name = obj.external_id
+            
+    external_url = fields.Char(        
+        compute='_get_external_url',
+        string='External Url',
+        store=False
+    )
+    
+    @api.one        
+    def _get_external_url(self):            
+        for obj in self:
+            if obj.external_source_id.id>0:
+                if obj.external_id!=False:
+                    obj.external_url = ''
+                    if obj.external_source_id.type=='shopify':
+                        obj.external_url = 'https://'+str(obj.external_source_id.url)+'/admin/orders/'+str(obj.external_id)
+                    elif obj.external_source_id.type=='woocommerce':
+                        obj.external_url = str(obj.external_source_id.url)+'wp-admin/post.php?post='+str(obj.external_id)+'&action=edit'                
     #fields    
     woocommerce_state = fields.Selection(
         [

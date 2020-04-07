@@ -27,6 +27,21 @@ class ExternalCustomer(models.Model):
             #Fix
             if obj.last_name!=False:
                 obj.name += ' '+str(self.last_name)
+    
+    external_url = fields.Char(        
+        compute='_get_external_url',
+        string='External Url',
+        store=False
+    )
+    
+    @api.one        
+    def _get_external_url(self):            
+        for obj in self:
+            if obj.external_source_id.id>0:
+                if obj.external_id!=False:
+                    obj.external_url = ''
+                    if obj.external_source_id.type=='shopify':
+                        obj.external_url = 'https://'+str(obj.external_source_id.url)+'/admin/customers/'+str(obj.external_id)                    
     #fields
     external_id = fields.Char(
         string='External Id'
