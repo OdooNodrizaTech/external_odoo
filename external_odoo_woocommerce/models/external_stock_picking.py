@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
-import pytz
+import dateutil.parser
 
 import boto3
 from botocore.exceptions import ClientError

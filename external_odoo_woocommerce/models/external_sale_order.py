@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
-import pytz
+import dateutil.parser
 
 import boto3
 from botocore.exceptions import ClientError
@@ -133,12 +133,15 @@ class ExternalSaleOrder(models.Model):
                                 'external_id': str(message_body['id']),
                                 'external_source_id': external_source_id.id,
                                 'woocommerce_state': str(message_body['status']),
-                                'date': str(message_body['date_created'].replace('T', ' ')),
                                 'number': str(message_body['number']),
                                 'total_price': str(message_body['total']),                                                                
                                 'total_tax': str(message_body['total_tax']),
                                 'total_discounts': str(message_body['discount_total'])
-                            }                            
+                            }
+                            #Fix date
+                            date_created = dateutil.parser.parse(str(message_body['date_created']))
+                            date_created = date_created.replace() - date_created.utcoffset()
+                            external_sale_order_vals['date'] = date_created.strftime("%Y-%m-%d %H:%M:%S")                            
                             #currency
                             res_currency_ids = self.env['res.currency'].sudo().search([('name', '=', str(message_body['currency']))])
                             if len(res_currency_ids)>0:

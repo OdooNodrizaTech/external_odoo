@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
-import pytz
+import dateutil.parser
 
 import boto3
 from botocore.exceptions import ClientError
@@ -202,14 +202,17 @@ class ExternalSaleOrder(models.Model):
                             result_message['return_body'] = {'error': 'El pedido no esta pagado (financial_status)'}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            #operaciones varias para crearlos
+                            #operaciones varias para crearlos                            
                             #external_sale_order
                             external_sale_order_vals = {
                                 'external_id': str(message_body['id']),
                                 'external_source_id': external_source_id.id,
                                 'shopify_state': str(message_body['financial_status']),
-                                'date': str(message_body['processed_at'])
-                            }                            
+                            }
+                            #fix date
+                            processed_at = dateutil.parser.parse(str(message_body['processed_at']))
+                            processed_at = processed_at.replace() - processed_at.utcoffset()
+                            external_sale_order_vals['date'] = processed_at.strftime("%Y-%m-%d %H:%M:%S")                            
                             #order_fields_need_check
                             order_fields_need_check = ['number', 'total_price', 'subtotal_price', 'total_tax', 'total_discounts', 'total_line_items_price', 'source_name']
                             for order_field_need_check in order_fields_need_check:
