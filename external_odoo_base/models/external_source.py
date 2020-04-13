@@ -59,6 +59,11 @@ class ExternalSource(models.Model):
         string='Account Journal Id',
         help='Account Journal Id (external.sale.order)'
     )
+    external_sale_payment_acquirer_id = fields.Many2one(
+        comodel_name='payment.acquirer',
+        string='Payment Acquirer Id',
+        help='Payment Acquirer Id (external.sale.order)'
+    )
     external_stock_picking_picking_type_id = fields.Many2one(
         comodel_name='stock.picking.type',
         string='Stock Picking Type Id',

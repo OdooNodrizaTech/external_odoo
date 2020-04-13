@@ -344,6 +344,18 @@ class ExternalSaleOrder(models.Model):
                     if self.external_customer_id.partner_id.id>0:
                         if self.external_source_id.external_sale_account_journal_id.id>0:
                             if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
+                                #payment_transaction
+                                payment_transaction_vals = {
+                                    'reference': self.sale_order_id.name,
+                                    'sale_order_id': self.sale_order_id.id,
+                                    'amount': self.total_price,
+                                    'currency_id': self.currency_id.id,
+                                    'partner_id': self.external_customer_id.partner_id.id,
+                                    'acquirer_id': self.external_source_id.external_sale_payment_acquirer_id.id,
+                                    'date_validate': self.date,
+                                    'state': 'done',
+                                }
+                                payment_transaction_obj = self.env['payment.transaction'].sudo(self.create_uid).create(payment_transaction_vals)
                                 #account_payment_mode
                                 account_payment_mode = self.env['account.payment.mode'].sudo().browse(self.external_source_id.external_sale_order_account_payment_mode_id.id)
                                 #vals
@@ -356,7 +368,8 @@ class ExternalSaleOrder(models.Model):
                                     'currency_id': self.currency_id.id,
                                     'payment_date': self.date,
                                     'communication': self.sale_order_id.name,
-                                    'payment_method_id': account_payment_mode.payment_method_id.id                  
+                                    'payment_method_id': account_payment_mode.payment_method_id.id,
+                                    'payment_transaction_id': payment_transaction_obj.id                  
                                 }
                                 #create
                                 account_payment_obj = self.env['account.payment'].sudo(self.create_uid).create(account_payment_vals)
@@ -370,4 +383,4 @@ class ExternalSaleOrder(models.Model):
         if self.lead_id.id>0:
             if self.sale_order_id.state=='sale':
                 if self.lead_id.probability<100:
-                    self.lead_id.sudo(self.create_uid).action_set_won()
+                    self.lead_id.sudo(self.create_uid).action_set_won() 
