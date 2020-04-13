@@ -174,6 +174,7 @@ class ExternalSaleOrder(models.Model):
             self.action_crm_lead_create()
             self.action_sale_order_create()
             self.action_sale_order_done()
+            self.action_account_payment_create()
             self.action_crm_lead_win()
         #return
         return False        
@@ -318,30 +319,7 @@ class ExternalSaleOrder(models.Model):
                         'amount_total': amount_total_new
                     })                               
         #return
-        return False                                
-        
-    @api.one
-    def action_account_payment_create(self):
-        if self.account_payment_id.id==0:
-            if self.sale_order_id.id>0:
-                if self.external_customer_id.id>0:
-                    if self.external_customer_id.partner_id.id>0:
-                        #vals
-                        account_payment_vals = {
-                            'payment_type': 'inbound',
-                            'partner_type': 'customer',
-                            'partner_id': self.external_customer_id.partner_id.id,
-                            'journal_id': 1,
-                            'amount': self.total_price,
-                            'currency_id': self.currency_id,
-                            'payment_date': self.date,
-                            'communication': self.sale_order_id.name,
-                            #'payment_method_id': 1                  
-                        }
-                        #create
-                        account_payment_obj = self.env['account.payment'].sudo(self.create_uid).create(account_payment_vals)
-                        #update
-                        self.account_payment_id = account_payment_obj.id
+        return False
                         
     @api.one
     def action_sale_order_done(self):
@@ -351,6 +329,41 @@ class ExternalSaleOrder(models.Model):
                     _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque el cliente NO tiene CIF')
                 else:
                     self.sale_order_id.sudo(self.create_uid).action_confirm()
+            
+    @api.multi
+    def action_account_payment_create_multi(self):
+        for obj in self:
+            if obj.account_payment_id.id==0:
+                obj.action_account_payment_create()
+    
+    @api.one
+    def action_account_payment_create(self):
+        if self.account_payment_id.id==0:
+            if self.sale_order_id.id>0:
+                if self.external_customer_id.id>0:
+                    if self.external_customer_id.partner_id.id>0:
+                        if self.external_source_id.external_sale_account_journal_id.id>0:
+                            if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
+                                #account_payment_mode
+                                account_payment_mode = self.env['account.payment.mode'].sudo().browse(self.external_source_id.external_sale_order_account_payment_mode_id.id)
+                                #vals
+                                account_payment_vals = {
+                                    'payment_type': 'inbound',
+                                    'partner_type': 'customer',
+                                    'partner_id': self.external_customer_id.partner_id.id,
+                                    'journal_id': self.external_source_id.external_sale_account_journal_id.id,
+                                    'amount': self.total_price,
+                                    'currency_id': self.currency_id.id,
+                                    'payment_date': self.date,
+                                    'communication': self.sale_order_id.name,
+                                    'payment_method_id': account_payment_mode.payment_method_id.id                  
+                                }
+                                #create
+                                account_payment_obj = self.env['account.payment'].sudo(self.create_uid).create(account_payment_vals)
+                                #update
+                                self.account_payment_id = account_payment_obj.id
+                                #post
+                                account_payment_obj.post()            
     
     @api.one
     def action_crm_lead_win(self):

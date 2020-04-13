@@ -23,7 +23,8 @@
                         <field name="external_sale_order_account_payment_mode_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="external_sale_order_account_payment_term_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="external_sale_order_shipping_product_template_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
-                        <field name="external_sale_order_carrier_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                        
+                        <field name="external_sale_order_carrier_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_sale_account_journal_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                
                         <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="invoice_partner_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
@@ -398,6 +399,7 @@
             <form string="Sale Order">
                 <header>
                     <button name="action_run_multi" attrs="{'invisible': [('sale_order_id', '!=', False)]}" string="Ejecutar" type="object"/>
+                    <button name="action_account_payment_create_multi" attrs="{'invisible': [('account_payment_id', '!=', False)]}" string="Crear Pago" type="object"/>
                 </header>                                                
                 <sheet string="child">
                     <group>
