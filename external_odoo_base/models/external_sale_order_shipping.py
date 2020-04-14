@@ -8,6 +8,7 @@ import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
+import odoo.addons.decimal_precision as dp
 
 class ExternalSaleOrderShipping(models.Model):
     _name = 'external.sale.order.shipping'
@@ -33,8 +34,10 @@ class ExternalSaleOrderShipping(models.Model):
     tax_amount = fields.Monetary(
         string='Tax Amount'
     )
-    unit_price_without_tax = fields.Monetary(
-        string='Unit price Without Tax'
+    unit_price_without_tax = fields.Float(
+        string='Unit price Without Tax',
+        digits=dp.get_precision('Price Unit'),        
+        help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
         string='Total price Without Tax'

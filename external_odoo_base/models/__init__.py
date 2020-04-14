@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import account_invoice
 import external_address
 import external_customer
 import external_product

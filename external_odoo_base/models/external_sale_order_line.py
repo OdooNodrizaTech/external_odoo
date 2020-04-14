@@ -8,6 +8,7 @@ import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import pytz
+import odoo.addons.decimal_precision as dp
 
 class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
@@ -67,8 +68,9 @@ class ExternalSaleOrderLine(models.Model):
         string='Tax Amount',
         help='Total tax amount (line)'
     )
-    unit_price_without_tax = fields.Monetary(
+    unit_price_without_tax = fields.Float(
         string='Unit price Without Tax',
+        digits=dp.get_precision('Price Unit'),        
         help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
@@ -109,7 +111,7 @@ class ExternalSaleOrderLine(models.Model):
         #calculate_tax
         if self.tax_amount>0:
             self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/self.quantity
+            self.unit_price_without_tax = self.total_price_without_tax/self.quantity            
         #return
         return False        
 

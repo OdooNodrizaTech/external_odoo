@@ -291,33 +291,7 @@ class ExternalSaleOrder(models.Model):
                     #create                
                     sale_order_line_obj = self.env['sale.order.line'].sudo(self.create_uid).create(data_sale_order_line)
                     #update
-                    external_sale_order_line_id.sale_order_line_id = sale_order_line_obj.id
-                #action_sale_order_check_amounts
-                self.action_sale_order_check_amounts()                                                                                             
-        #return
-        return False
-
-    @api.one
-    def action_sale_order_check_amounts(self):
-        if self.sale_order_id.id>0:
-            if self.sale_order_id.state=='draft':
-                if self.sale_order_id.amount_total!=self.total_price:
-                    #calculate
-                    if self.sale_order_id.amount_total>self.total_price:
-                        diference = self.sale_order_id.amount_total-self.total_price
-                        #define
-                        amount_tax_new = self.sale_order_id.amount_tax-diference
-                        amount_total_new = self.sale_order_id.amount_total-diference                        
-                    else:
-                        diference = self.total_price-self.sale_order_id.amount_total
-                        #define
-                        amount_tax_new = self.sale_order_id.amount_tax+diference
-                        amount_total_new = self.sale_order_id.amount_total+diference                    
-                    #update (sale.order)                    
-                    self.sale_order_id.sudo(self.create_uid).write({                        
-                        'amount_tax': amount_tax_new,
-                        'amount_total': amount_total_new
-                    })                               
+                    external_sale_order_line_id.sale_order_line_id = sale_order_line_obj.id                                                                                             
         #return
         return False
                         
