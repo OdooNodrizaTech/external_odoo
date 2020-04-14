@@ -16,6 +16,12 @@ Con los pedidos de venta encontrados se buscará si hacen referencia a algún pe
 
 En caso de que exista diferencia (positiva o negativa) se aplicará esa diferencia en el importe (amount) de las 1ª línea de impuesto de la factura para que cuadraran los importes correctamente.
 
+## Requisitos
+Será necesario crear en Configuración > Técnico > Estructura de la base de datos > Precisión decimal un nuevo registro
+
+Uso: Price Unit
+
+Dígitos: 5
 
 
 ## Crones
