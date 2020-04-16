@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="external_odoo_base_arelux_external_source_form_view" model="ir.ui.view">
+        <field name="name">external_odoo_base_arelux_external_source_form_view</field>
+        <field name="model">external.source</field>
+        <field name="inherit_id" ref="external_odoo_base.external_source_form_view" />
+        <field name="priority" eval="20"/>                
+        <field name="arch" type="xml">
+            <field name="api_secret" position="after">
+                <field name="external_customer_ar_qt_activity_type"/>
+                <field name="external_customer_ar_qt_customer_type"/>                
+                <field name="external_customer_res_partner_category_id" options='{"no_create": True, "no_create_edit": True}'/>
+                <field name="external_customer_res_partner_contact_form" options='{"no_create": True, "no_create_edit": True}'/>                                
+            </field>                                                            
+        </field>
+    </record>                       
+</odoo>
