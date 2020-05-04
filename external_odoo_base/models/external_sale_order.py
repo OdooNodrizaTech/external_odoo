@@ -307,7 +307,7 @@ class ExternalSaleOrder(models.Model):
     @api.multi
     def action_payment_transaction_create_multi(self):
         for obj in self:
-            if obj.account_payment_id.id==0:
+            if obj.payment_transaction_id.id==0:
                 obj.action_payment_transaction_create()
     
     @api.one
@@ -325,9 +325,13 @@ class ExternalSaleOrder(models.Model):
                             'partner_id': self.external_customer_id.partner_id.id,
                             'acquirer_id': self.external_source_id.external_sale_payment_acquirer_id.id,
                             'date_validate': self.date,
-                            'state': 'done',
+                            'state': 'draft',
                         }
                         payment_transaction_obj = self.env['payment.transaction'].sudo(self.create_uid).create(payment_transaction_vals)
+                        #write
+                        payment_transaction_obj.write({
+                            'state': 'done'
+                        })
                         #update
                         self.payment_transaction_id = payment_transaction_obj.id            
     
