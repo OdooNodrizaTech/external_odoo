@@ -102,9 +102,9 @@ class ExternalSaleOrder(models.Model):
         store=False,
         string='Source Type'
     )            
-    account_payment_id = fields.Many2one(
-        comodel_name='account.payment',
-        string='Payment'
+    payment_transaction_id = fields.Many2one(
+        comodel_name='payment.transaction',
+        string='Payment Transaction'
     )
     lead_id = fields.Many2one(
         comodel_name='crm.lead',
@@ -174,7 +174,7 @@ class ExternalSaleOrder(models.Model):
             self.action_crm_lead_create()
             self.action_sale_order_create()
             self.action_sale_order_done()
-            self.action_account_payment_create()
+            self.action_payment_transaction_create()
             self.action_crm_lead_win()
         #return
         return False        
@@ -305,52 +305,31 @@ class ExternalSaleOrder(models.Model):
                     self.sale_order_id.sudo(self.create_uid).action_confirm()
             
     @api.multi
-    def action_account_payment_create_multi(self):
+    def action_payment_transaction_create_multi(self):
         for obj in self:
             if obj.account_payment_id.id==0:
-                obj.action_account_payment_create()
+                obj.action_payment_transaction_create()
     
     @api.one
-    def action_account_payment_create(self):
-        if self.account_payment_id.id==0:
+    def action_payment_transaction_create(self):
+        if self.payment_transaction_id.id==0:
             if self.sale_order_id.id>0:
                 if self.external_customer_id.id>0:
                     if self.external_customer_id.partner_id.id>0:
-                        if self.external_source_id.external_sale_account_journal_id.id>0:
-                            if self.external_source_id.external_sale_order_account_payment_mode_id.id>0:
-                                #payment_transaction
-                                payment_transaction_vals = {
-                                    'reference': self.sale_order_id.name,
-                                    'sale_order_id': self.sale_order_id.id,
-                                    'amount': self.total_price,
-                                    'currency_id': self.currency_id.id,
-                                    'partner_id': self.external_customer_id.partner_id.id,
-                                    'acquirer_id': self.external_source_id.external_sale_payment_acquirer_id.id,
-                                    'date_validate': self.date,
-                                    'state': 'done',
-                                }
-                                payment_transaction_obj = self.env['payment.transaction'].sudo(self.create_uid).create(payment_transaction_vals)
-                                #account_payment_mode
-                                account_payment_mode = self.env['account.payment.mode'].sudo().browse(self.external_source_id.external_sale_order_account_payment_mode_id.id)
-                                #vals
-                                account_payment_vals = {
-                                    'payment_type': 'inbound',
-                                    'partner_type': 'customer',
-                                    'partner_id': self.external_customer_id.partner_id.id,
-                                    'journal_id': self.external_source_id.external_sale_account_journal_id.id,
-                                    'amount': self.total_price,
-                                    'currency_id': self.currency_id.id,
-                                    'payment_date': self.date,
-                                    'communication': self.sale_order_id.name,
-                                    'payment_method_id': account_payment_mode.payment_method_id.id,
-                                    'payment_transaction_id': payment_transaction_obj.id                  
-                                }
-                                #create
-                                account_payment_obj = self.env['account.payment'].sudo(self.create_uid).create(account_payment_vals)
-                                #update
-                                self.account_payment_id = account_payment_obj.id
-                                #post
-                                account_payment_obj.post()            
+                        #payment_transaction
+                        payment_transaction_vals = {
+                            'reference': self.sale_order_id.name,
+                            'sale_order_id': self.sale_order_id.id,
+                            'amount': self.total_price,
+                            'currency_id': self.currency_id.id,
+                            'partner_id': self.external_customer_id.partner_id.id,
+                            'acquirer_id': self.external_source_id.external_sale_payment_acquirer_id.id,
+                            'date_validate': self.date,
+                            'state': 'done',
+                        }
+                        payment_transaction_obj = self.env['payment.transaction'].sudo(self.create_uid).create(payment_transaction_vals)
+                        #update
+                        self.payment_transaction_id = payment_transaction_obj.id            
     
     @api.one
     def action_crm_lead_win(self):
