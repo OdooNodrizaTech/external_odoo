@@ -28,6 +28,14 @@ class ExternalSaleOrder(models.Model):
         return return_item
     
     @api.one
+    def action_sale_order_done_error_external_shipping_address_id_without_country_id(self):
+        _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque la direccion de envio del cliente NO tiene PAIS mapeado')
+        
+    @api.one
+    def action_sale_order_done_error_external_shipping_address_id_without_country_state_id(self):
+        _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque la direccion de envio del cliente NO tiene PROVINCIA mapeada')        
+    
+    @api.one
     def action_sale_order_done(self):
         #antes
         if self.sale_order_id.id>0:
@@ -44,7 +52,16 @@ class ExternalSaleOrder(models.Model):
                     if self.external_source_id.external_sale_order_carrier_id.id>0:
                         if weight_total<=10:
                             self.sale_order_id.carrier_id = self.external_source_id.external_sale_order_carrier_id.id
-        #despues
-        return_item = super(ExternalSaleOrder, self).action_sale_order_done()        
-        #return
-        return return_item            
+        #check country_id and state_id
+        allow_confirm = True
+        if self.external_shipping_address_id.id>0:
+            #check_country_id
+            if self.external_shipping_address_id.country_id.id==0:
+                self.action_sale_order_done_error_external_shipping_address_id_without_country_id()
+                allow_confirm = False
+            if self.external_shipping_address_id.country_state_id.id==0:
+                self.action_sale_order_done_error_external_shipping_address_id_without_country_state_id()
+                allow_confirm = False                
+        #allow_confirm
+        if allow_confirm==True:
+            return super(ExternalSaleOrder, self).action_sale_order_done()            

@@ -294,13 +294,17 @@ class ExternalSaleOrder(models.Model):
                     external_sale_order_line_id.sale_order_line_id = sale_order_line_obj.id                                                                                             
         #return
         return False
-                        
+    
+    @api.one
+    def action_sale_order_done_error_partner_id_without_vat(self):
+        _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque el cliente NO tiene CIF')
+                            
     @api.one
     def action_sale_order_done(self):
         if self.sale_order_id.id>0:
             if self.sale_order_id.state in ['draft', 'sent']:
                 if self.sale_order_id.partner_id.vat==False:
-                    _logger.info('No se puede confirmar el pedido '+str(self.sale_order_id.name)+' porque el cliente NO tiene CIF')
+                    self.action_sale_order_done_error_partner_id_without_vat()
                 else:
                     self.sale_order_id.sudo(self.create_uid).action_confirm()
             
