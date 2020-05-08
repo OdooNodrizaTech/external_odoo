@@ -161,9 +161,9 @@ class ExternalStockPicking(models.Model):
                             external_customer_ids = self.env['external.customer'].sudo().search(
                                 [
                                     ('external_source_id', '=', external_source_id.id),
-                                    ('external_id', '=', str(message_body['customer_id']))                                    
+                                    ('external_id', '=', str(external_customer_vals['external_id']))                                    
                                 ]
-                            )
+                            )                                                        
                             if len(external_customer_ids)>0:
                                 external_customer_obj = external_customer_ids[0]
                             else:
@@ -181,7 +181,7 @@ class ExternalStockPicking(models.Model):
                             #search_previous
                             external_stock_picking_ids = self.env['external.stock.picking'].sudo().search(
                                 [
-                                    ('external_id', '=', str(self.external_id)),
+                                    ('external_id', '=', str(external_stock_picking_vals['external_id'])),
                                     ('external_source_id', '=', external_source_id.id)
                                 ]
                             )
@@ -189,7 +189,7 @@ class ExternalStockPicking(models.Model):
                                 external_stock_picking_id = external_stock_picking_ids[0]
                                 external_stock_picking_id.woocommerce_state = str(message_body['status'])
                                 #action_run (only if need)
-                                external_stock_picking_obj.action_run()
+                                external_stock_picking_id.action_run()
                                 #result_message
                                 result_message['delete_message'] = True
                                 result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
