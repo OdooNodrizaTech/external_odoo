@@ -4,10 +4,7 @@ from odoo import api, fields, models, tools
 import logging
 _logger = logging.getLogger(__name__)
 
-import requests, json
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
-import dateutil.parser
+import json
 
 import boto3
 from botocore.exceptions import ClientError
@@ -20,8 +17,8 @@ class ExternalStockPicking(models.Model):
         return_item = super(ExternalStockPicking, self).action_run()        
         return return_item
     
-    @api.multi
-    def cron_external_stock_picking_update_shipping_expedition_woocommerce(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_external_stock_picking_update_shipping_expedition_woocommerce(self):
         _logger.info('cron_external_stock_picking_update_shipping_expedition_woocommerce')        
         #search
         external_source_ids = self.env['external.source'].sudo().search([('type', '=', 'woocommerce'),('api_status', '=', 'valid')])
@@ -50,8 +47,8 @@ class ExternalStockPicking(models.Model):
                             #update OK
                             external_stock_picking_id.woocommerce_state = 'completed'
     
-    @api.multi
-    def cron_sqs_external_stock_picking_woocommerce(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_sqs_external_stock_picking_woocommerce(self):
         _logger.info('cron_sqs_external_stock_picking_woocommerce')
 
         sqs_url = tools.config.get('sqs_external_stock_picking_woocommerce_url')

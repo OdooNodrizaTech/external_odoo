@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'External Odoo Woocommerce',
-    'version': '10.0.1.0.0',    
+    'version': '12.0.1.0.0',    
     'author': 'Odoo Nodriza Tech (ONT)',
     'website': 'https://nodrizatech.com/',
     'category': 'Tools',
     'license': 'AGPL-3',
-    'depends': ['external_odoo_base'],
+    'depends': ['external_odoo_base', 'ir_attachment_s3'],
     'external_dependencies': {
-        'python' : ['woocommerce'],
+        'python3' : ['woocommerce'],
     },
     'data': [
         'data/ir_cron.xml',

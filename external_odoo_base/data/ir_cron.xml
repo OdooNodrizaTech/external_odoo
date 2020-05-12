@@ -1,15 +1,15 @@
-<openerp>
-    <data noupdate="1">
-        <record id="cron_external_stock_picking_line_generate_invoice_lines" model="ir.cron">
-            <field name="name">External Stock Picking Line Generate Invoice Lines</field>
-            <field name="active" eval="False" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="model" eval="'external.source'" />
-            <field name="function" eval="'cron_external_stock_picking_line_generate_invoice_lines'" />
-            <field name="args" eval="" />
-        </record>                                                
-    </data>
-</openerp>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_external_stock_picking_line_generate_invoice_lines" forcecreate="True" model="ir.cron">
+        <field name="name">External Stock Picking Line Generate Invoice Lines</field>
+        <field name="active" eval="False"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="model_id" ref="model_external_source"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_external_stock_picking_line_generate_invoice_lines()</field>
+    </record>
+</odoo>

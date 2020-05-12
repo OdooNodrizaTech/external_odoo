@@ -4,9 +4,7 @@ from odoo import api, fields, models, tools
 import logging
 _logger = logging.getLogger(__name__)
 
-import requests, json
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
+import json
 import dateutil.parser
 
 import boto3
@@ -20,8 +18,8 @@ class ExternalSaleOrder(models.Model):
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item        
         
-    @api.multi
-    def cron_external_sale_order_update_shipping_expedition_woocommerce(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_external_sale_order_update_shipping_expedition_woocommerce(self):
         _logger.info('cron_external_sale_order_update_shipping_expedition_woocommerce')
         #search
         external_source_ids = self.env['external.source'].sudo().search([('type', '=', 'woocommerce'),('api_status', '=', 'valid')])
@@ -58,8 +56,8 @@ class ExternalSaleOrder(models.Model):
                                 #update OK
                                 external_sale_order_id.woocommerce_state = 'completed'        
     
-    @api.multi
-    def cron_sqs_external_sale_order_woocommerce(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_sqs_external_sale_order_woocommerce(self):
         _logger.info('cron_sqs_external_sale_order_woocommerce')
 
         sqs_url = tools.config.get('sqs_external_sale_order_woocommerce_url')

@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-import logging
-import pprint
-import werkzeug
-
 from odoo import http
 from odoo.http import request
 
+import logging
 _logger = logging.getLogger(__name__)
 
 class ExternalSaleOrderWoocommerceController(http.Controller):

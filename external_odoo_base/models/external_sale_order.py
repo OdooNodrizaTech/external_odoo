@@ -4,10 +4,8 @@ from odoo import api, fields, models, tools
 import logging
 _logger = logging.getLogger(__name__)
 
-import requests, json
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
-import pytz
 
 class ExternalSaleOrder(models.Model):
     _name = 'external.sale.order'

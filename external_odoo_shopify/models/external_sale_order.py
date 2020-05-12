@@ -4,10 +4,9 @@ from odoo import api, fields, models, tools
 import logging
 _logger = logging.getLogger(__name__)
 
-import requests, json
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
+import json
 import dateutil.parser
+from urllib.parse import urlparse
 
 import boto3
 from botocore.exceptions import ClientError
@@ -56,8 +55,8 @@ class ExternalSaleOrder(models.Model):
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item        
     
-    @api.multi
-    def cron_external_sale_order_update_shipping_expedition_shopify(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_external_sale_order_update_shipping_expedition_shopify(self):
         _logger.info('cron_external_sale_order_update_shipping_expedition_shopify')
         #search
         external_source_ids = self.env['external.source'].sudo().search(
@@ -132,8 +131,8 @@ class ExternalSaleOrder(models.Model):
                                         external_sale_order_id.shopify_fulfillment_status = 'fulfilled'#Ever fullfiled                                                                    
                                                                                                                                          
     
-    @api.multi
-    def cron_sqs_external_sale_order_shopify(self, cr=None, uid=False, context=None):
+    @api.model
+    def cron_sqs_external_sale_order_shopify(self):
         _logger.info('cron_sqs_external_sale_order_shopify')
 
         sqs_url = tools.config.get('sqs_external_sale_order_shopify_url')

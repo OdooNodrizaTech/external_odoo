@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import external_address
-import external_customer
-import external_product
-import external_sale_order
-import external_sale_order_discount
-import external_sale_order_line
-import external_sale_order_shipping
-import external_source
-import external_stock_picking
-import external_stock_picking_line
+from . import external_address
+from . import external_customer
+from . import external_product
+from . import external_sale_order
+from . import external_sale_order_discount
+from . import external_sale_order_line
+from . import external_sale_order_shipping
+from . import external_source
+from . import external_stock_picking
+from . import external_stock_picking_line 

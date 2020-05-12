@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, tools
+import odoo.addons.decimal_precision as dp
 
 import logging
 _logger = logging.getLogger(__name__)
-
-import requests, json
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
-import pytz
-import odoo.addons.decimal_precision as dp
 
 class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'

@@ -1,48 +1,51 @@
-<openerp>
-    <data noupdate="1">
-        <record id="cron_sqs_external_sale_order_woocommerce" model="ir.cron">
-            <field name="name">SQS External Sale Order Woocommerce</field>
-            <field name="active" eval="False" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">10</field>
-            <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="model" eval="'external.sale.order'" />
-            <field name="function" eval="'cron_sqs_external_sale_order_woocommerce'" />
-            <field name="args" eval="" />
-        </record>
-        <record id="cron_sqs_external_stock_picking_woocommerce" model="ir.cron">
-            <field name="name">SQS External Stock Picking Woocommerce</field>
-            <field name="active" eval="False" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">10</field>
-            <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="model" eval="'external.stock.picking'" />
-            <field name="function" eval="'cron_sqs_external_stock_picking_woocommerce'" />
-            <field name="args" eval="" />
-        </record>
-        <record id="cron_external_sale_order_update_shipping_expedition_woocommerce" model="ir.cron">
-            <field name="name">External Sale Order Update Shipping Expedition (Woocommerce)</field>
-            <field name="active" eval="False" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">1</field>
-            <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
-            <field name="model" eval="'external.sale.order'" />
-            <field name="function" eval="'cron_external_sale_order_update_shipping_expedition_woocommerce'" />
-            <field name="args" eval="" />
-        </record>
-        <record id="cron_external_stock_picking_update_shipping_expedition_woocommerce" model="ir.cron">
-            <field name="name">External Stock Picking Update Shipping Expedition (Woocommerce)</field>
-            <field name="active" eval="False" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">1</field>
-            <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
-            <field name="model" eval="'external.stock.picking'" />
-            <field name="function" eval="'cron_external_stock_picking_update_shipping_expedition_woocommerce'" />
-            <field name="args" eval="" />
-        </record>                                        
-    </data>
-</openerp>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_sqs_external_sale_order_woocommerce" forcecreate="True" model="ir.cron">
+        <field name="name">SQS External Sale Order Woocommerce</field>
+        <field name="active" eval="False"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="model_id" ref="model_external_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sqs_external_sale_order_woocommerce()</field>
+    </record>
+    <record id="cron_sqs_external_stock_picking_woocommerce" forcecreate="True" model="ir.cron">
+        <field name="name">SQS External Stock Picking Woocommerce</field>
+        <field name="active" eval="False"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="model_id" ref="model_external_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sqs_external_stock_picking_woocommerce()</field>
+    </record>
+    <record id="cron_external_sale_order_update_shipping_expedition_woocommerce" forcecreate="True" model="ir.cron">
+        <field name="name">External Sale Order Update Shipping Expedition (Woocommerce)</field>
+        <field name="active" eval="False"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="model_id" ref="model_external_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_external_sale_order_update_shipping_expedition_woocommerce()</field>
+    </record>
+    <record id="cron_external_stock_picking_update_shipping_expedition_woocommerce" forcecreate="True" model="ir.cron">
+        <field name="name">External Stock Picking Update Shipping Expedition (Woocommerce)</field>
+        <field name="active" eval="False"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="model_id" ref="model_external_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_external_stock_picking_update_shipping_expedition_woocommerce()</field>
+    </record>
+</odoo>
