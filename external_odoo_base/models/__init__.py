@@ -9,3 +9,4 @@ import external_sale_order_shipping
 import external_source
 import external_stock_picking
 import external_stock_picking_line
+import stock_picking
