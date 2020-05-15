@@ -24,6 +24,7 @@ class ExternalSaleOrderDiscount(models.Model):
     type = fields.Selection(
         [
             ('manual', 'Manual'),
+            ('discount_code', 'Discount code')            
         ],
         string='Type',
         default='manual'
