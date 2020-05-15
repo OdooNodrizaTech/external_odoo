@@ -29,6 +29,8 @@ class ExternalSaleOrderDiscount(models.Model):
     value_type = fields.Selection(
         [
             ('fixed_amount', 'Fixed Amount'),
+            ('percentage', 'Percentage'),
+            ('shipping', 'Shipping')            
         ],
         string='Value type',
         default='fixed_amount'
