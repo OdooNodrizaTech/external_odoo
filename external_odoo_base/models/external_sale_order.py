@@ -200,7 +200,11 @@ class ExternalSaleOrder(models.Model):
                     crm_lead_obj = self.env['crm.lead'].sudo(self.create_uid).create(crm_lead_vals)
                     #update_partner_id
                     crm_lead_obj.partner_id = self.external_customer_id.partner_id.id
-                    crm_lead_obj._onchange_partner_id()                                        
+                    crm_lead_obj._onchange_partner_id()
+                    # user_id (partner_id)
+                    if self.external_source_id.external_sale_order_user_id.id > 0:
+                        if crm_lead_obj.partner_id.user_id.id == 0:
+                            crm_lead_obj.partner_id.user_id = self.external_source_id.external_sale_order_user_id.id
                     #lead_id
                     self.lead_id = crm_lead_obj.id                                        
         #return
