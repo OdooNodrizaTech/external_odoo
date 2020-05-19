@@ -189,6 +189,7 @@ class ExternalSaleOrder(models.Model):
                     date_deadline = current_date + relativedelta(days=1)
                     #vals
                     crm_lead_vals = {
+                        'external_sale_order_id': self.id,
                         'type': 'opportunity',
                         'name': str(self.external_source_id.type)+' '+str(self.number),
                         'team_id': 1,
@@ -235,6 +236,7 @@ class ExternalSaleOrder(models.Model):
             if allow_create_sale_order==True:                        
                 #vals
                 sale_order_vals = {
+                    'external_sale_order_id': self.id,
                     'state': 'draft',
                     'opportunity_id': self.lead_id.id,
                     'team_id': self.lead_id.team_id.id,

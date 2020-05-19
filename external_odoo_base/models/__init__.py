@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import crm_lead
 import external_address
 import external_customer
 import external_product
@@ -9,4 +10,5 @@ import external_sale_order_shipping
 import external_source
 import external_stock_picking
 import external_stock_picking_line
+import sale_order
 import stock_picking
