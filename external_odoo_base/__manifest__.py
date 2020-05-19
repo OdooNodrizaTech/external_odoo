@@ -7,6 +7,9 @@
     'category': 'Tools',
     'license': 'AGPL-3',
     'depends': ['base', 'sale', 'utm_websites', 'delivery', 'stock'],
+    'external_dependencies': {
+        'python3' : ['boto3'],
+    },
     'data': [
         'data/ir_cron.xml',
         'security/ir.model.access.csv',
