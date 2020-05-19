@@ -122,6 +122,7 @@ class ExternalStockPicking(models.Model):
             if allow_create_stock_picking==True:                                        
                 #stock_picking
                 stock_picking_vals = {
+                    'external_stock_picking_id': self.id,
                     'picking_type_id' : self.external_source_id.external_stock_picking_picking_type_id.id,
                     'location_id': self.external_source_id.external_stock_picking_picking_type_id.default_location_src_id.id,
                     'location_dest_id': 9,

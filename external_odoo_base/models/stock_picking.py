@@ -9,6 +9,11 @@ from lxml import etree
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    external_stock_picking_id = fields.Many2one(
+        comodel_name='external.stock.picking',
+        string='External Stock Picking Id'
+    )
+
     @api.model
     def create(self, vals):
         #check
