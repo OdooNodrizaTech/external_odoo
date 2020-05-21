@@ -9,7 +9,9 @@ class SaleOrder(models.Model):
 
     @api.multi
     def action_confirm(self):
-       # operations
+        # action_confirm
+        return_data = super(SaleOrder, self).action_confirm()
+        # operations
         for item in self:
             if item.state == 'sale':
                 for picking_id in item.picking_ids:
