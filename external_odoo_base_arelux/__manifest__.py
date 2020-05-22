@@ -6,7 +6,7 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Tools',
     'license': 'AGPL-3',
-    'depends': ['external_odoo_base', 'arelux_partner_questionnaire', 'sale', 'stock'],
+    'depends': ['external_odoo_base', 'arelux_partner_questionnaire', 'sale', 'stock', 'shipping_expedition'],
     'data': [
         'views/external_source.xml',
     ],
