@@ -2,6 +2,9 @@ Realiza la integración sobre Shopify para integrarlo con el addon external_odoo
 
 ## odoo.conf
 ```
+aws_access_key_id=xxxx
+aws_secret_key_id=xxxxx
+aws_region_name=eu-west-1
 #external_odoo_woocommerce
 sqs_external_sale_order_shopify_url=https://sqs.eu-west-1.amazonaws.com/381857310472/arelux-odoo-command-external-sale-order-shopify
 ```
