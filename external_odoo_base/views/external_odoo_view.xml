@@ -26,7 +26,8 @@
                         <field name="external_sale_order_carrier_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="external_sale_order_picking_type_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="external_sale_payment_acquirer_id" attrs="{'invisible': [('type','=', 'custom')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                                        
-                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>                        
+                        <field name="external_stock_picking_user_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>
+                        <field name="external_stock_picking_picking_type_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="external_stock_picking_carrier_id" attrs="{'invisible': [('type','not in', ('woocommerce', 'custom'))]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="invoice_partner_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="invoice_journal_id" attrs="{'invisible': [('type','!=', 'woocommerce')]}" options='{"no_create": True, "no_create_edit": True}'/>                                                                                                                        
