@@ -6,9 +6,9 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Tools',
     'license': 'AGPL-3',
-    'depends': ['external_odoo_base', 'ir_attachment_s3'],
+    'depends': ['external_odoo_base'],
     'external_dependencies': {
-        'python3' : ['woocommerce'],
+        'python3' : ['woocommerce', 'boto3'],
     },
     'data': [
         'data/ir_cron.xml',
