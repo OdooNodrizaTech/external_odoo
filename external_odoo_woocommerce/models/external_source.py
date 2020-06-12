@@ -48,22 +48,28 @@ class ExternalSource(models.Model):
         return_item = super(ExternalSource, self).action_operations_get_products()
         # return
         return return_item
-            
+
     @api.one
     def action_operations_get_products_woocommerce(self):
-        _logger.info('action_operations_get_products_woocommerce')        
-        #wcapi
+        _logger.info('action_operations_get_products_woocommerce')
+        # wcapi
         wcapi = self.init_api_woocommerce()[0]
-        _logger.info(wcapi)        
-        #get
-        response = wcapi.get("products").json()
-        if 'message' in response:
-            _logger.info('Error en la consulta')
-            _logger.info(response)
-        else:
-            for response_item in response:
-                if response_item['status']=='publish':                    
-                    if len(response_item['variations'])==0:
+        _logger.info(wcapi)
+        # get
+        # response = wcapi.get("products").json()
+        page = 1
+        while True:
+            response = wcapi.get("products?per_page=100&page=" + str(page) + "&status=publish").json()
+            if 'message' in response:
+                _logger.info('Error en la consulta')
+                _logger.info(response)
+                break
+            else:
+                if len(response) == 0:  # no more products
+                    break
+                # operations
+                for response_item in response:
+                    if len(response_item['variations']) == 0:
                         external_product_ids = self.env['external.product'].sudo().search(
                             [
                                 ('external_source_id', '=', self.id),
@@ -71,7 +77,7 @@ class ExternalSource(models.Model):
                                 ('external_variant_id', '=', False)
                             ]
                         )
-                        if len(external_product_ids)==0:  
+                        if len(external_product_ids) == 0:
                             external_product_vals = {
                                 'external_source_id': self.id,
                                 'external_id': str(response_item['id']),
@@ -87,11 +93,13 @@ class ExternalSource(models.Model):
                                     ('external_variant_id', '=', str(variation))
                                 ]
                             )
-                            if len(external_product_ids)==0:  
+                            if len(external_product_ids) == 0:
                                 external_product_vals = {
                                     'external_source_id': self.id,
                                     'external_id': str(response_item['id']),
                                     'external_variant_id': str(variation),
                                     'name': response_item['name'],
                                 }
-                                external_product_obj = self.env['external.product'].create(external_product_vals)                                                            
+                                external_product_obj = self.env['external.product'].create(external_product_vals)
+                # increase_page
+                page = page + 1
