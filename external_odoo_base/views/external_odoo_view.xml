@@ -69,6 +69,7 @@
                         <field name="external_url" widget="url" readonly="1"/>
                         <field name="external_variant_id"/>
                         <field name="name"/>
+                        <field name="sku"/>
                         <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="product_template_id" options='{"no_create": True, "no_create_edit": True}'/>
                         <field name="create_uid" readonly="1"/>
@@ -85,6 +86,7 @@
             <tree string="Product"> 
                 <field name="external_id"/>
                 <field name="external_variant_id"/>
+                <field name="sku"/>
                 <field name="name"/>
                 <field name="external_source_id"/>
                 <field name="product_template_id"/>

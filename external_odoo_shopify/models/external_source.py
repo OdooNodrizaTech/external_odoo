@@ -113,6 +113,7 @@ class ExternalSource(models.Model):
                         'external_source_id': self.id,
                         'external_id': str(product.id),
                         'external_variant_id': str(variant.id),
+                        'sku': str(variant.sku),
                         'name': str(product.title)+' '+str(variant.title),
                     }
                     external_product_obj = self.env['external.product'].create(external_product_vals)

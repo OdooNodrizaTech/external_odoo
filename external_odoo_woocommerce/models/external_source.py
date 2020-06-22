@@ -86,6 +86,7 @@ class ExternalSource(models.Model):
                             external_product_vals = {
                                 'external_source_id': self.id,
                                 'external_id': str(response_item['id']),
+                                'sku': str(response_item['sku']),
                                 'name': response_item['name'],
                             }
                             external_product_obj = self.env['external.product'].create(external_product_vals)
@@ -102,6 +103,7 @@ class ExternalSource(models.Model):
                                 external_product_vals = {
                                     'external_source_id': self.id,
                                     'external_id': str(response_item['id']),
+                                    'sku': str(response_item['sku']),
                                     'external_variant_id': str(variation),
                                     'name': response_item['name'],
                                 }
