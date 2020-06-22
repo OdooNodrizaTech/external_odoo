@@ -29,6 +29,9 @@ class ExternalProduct(models.Model):
     name = fields.Char(
         string='Name'
     )
+    sku = fields.Char(
+        string='Sku'
+    )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
