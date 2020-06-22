@@ -35,7 +35,7 @@ class ExternalSource(models.Model):
         if self.api_key!=False and self.url!=False and self.type=='shopify':
             session = shopify.Session(self.url, '2020-01')
             session.api_key = self.api_key
-            scope=['write_orders', 'read_products']
+            scope = ['write_orders', 'read_products', 'write_inventory']
             url_redirect = str(self.env['ir.config_parameter'].sudo().get_param('web.base.url'))+'/shopify_permission'
             self.authorize_url = session.create_permission_url(scope, url_redirect)        
     
@@ -141,4 +141,44 @@ class ExternalSource(models.Model):
             #return        
             return result_item
         else:
-            return super(ExternalSource, self).action_api_status_valid()            
+            return super(ExternalSource, self).action_api_status_valid()
+
+    @api.multi
+    def cron_external_product_stock_sync_shopify(self, cr=None, uid=False, context=None):
+        _logger.info('cron_external_product_stock_sync')
+        external_source_ids = self.env['external.source'].sudo().search(
+            [
+                ('type', '=', 'shopify'),
+                ('api_status', '=', 'valid')
+            ]
+        )
+        if len(external_source_ids) > 0:
+            for external_source_id in external_source_ids:
+                external_product_ids = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=', external_source_id.id),
+                        ('product_template_id', '!=', False),
+                        ('stock_sync', '=', True)
+                    ]
+                )
+                if len(external_product_ids) > 0:
+                    # shopify (init)
+                    external_source_id.init_api_shopify()[0]
+                    #external_product_ids
+                    for external_product_id in external_product_ids:
+                        #stock_quant
+                        qty_item = 0
+                        stock_quant_ids = self.env['stock.quant'].sudo().search(
+                            [
+                                ('product_id', '=', external_product_id.product_template_id.id),
+                                ('location_id.usage', '=', 'internal')
+                            ]
+                        )
+                        if len(stock_quant_ids) > 0:
+                            for stock_quant_id in stock_quant_ids:
+                                qty_item += stock_quant_id.qty
+                        #qty_item
+                        product = shopify.Product.find(external_product_id.external_id)
+                        for variant in product.variants:
+                            if str(variant.id)==str(external_product_id.external_variant_id):
+                                inventory_level = shopify.InventoryLevel.set(location_id=42284515467, inventory_item_id=variant.inventory_item_id, available=int(qty_item), disconnect_if_necessary=False)
