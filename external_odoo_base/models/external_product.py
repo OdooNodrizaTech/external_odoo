@@ -36,7 +36,23 @@ class ExternalProduct(models.Model):
     product_template_id = fields.Many2one(
         comodel_name='product.template',
         string='Product Template'
-    )        
+    )
+    external_url = fields.Char(
+        compute='_get_external_url',
+        string='External Url',
+        store=False
+    )
+
+    @api.one
+    def _get_external_url(self):
+        for obj in self:
+            if obj.external_source_id.id > 0:
+                if obj.external_id != False:
+                    obj.external_url = ''
+                    if obj.external_source_id.type == 'shopify':
+                        obj.external_url = 'https://' + str(obj.external_source_id.url) + '/admin/products/' + str(obj.external_id)
+                    elif obj.external_source_id.type == 'woocommerce':
+                        obj.external_url = str(obj.external_source_id.url) + 'wp-admin/post.php?post=' + str(obj.external_id) + '&action=edit'
 
     @api.one
     def operations_item(self):
