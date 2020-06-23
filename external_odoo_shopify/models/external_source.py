@@ -149,7 +149,8 @@ class ExternalSource(models.Model):
         external_source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'shopify'),
-                ('api_status', '=', 'valid')
+                ('api_status', '=', 'valid'),
+                ('shopify_location_id', '!=', False)
             ]
         )
         if len(external_source_ids) > 0:
@@ -181,4 +182,9 @@ class ExternalSource(models.Model):
                         product = shopify.Product.find(external_product_id.external_id)
                         for variant in product.variants:
                             if str(variant.id)==str(external_product_id.external_variant_id):
-                                inventory_level = shopify.InventoryLevel.set(location_id=42284515467, inventory_item_id=variant.inventory_item_id, available=int(qty_item), disconnect_if_necessary=False)
+                                inventory_level = shopify.InventoryLevel.set(
+                                    location_id=external_source_id.shopify_location_id,
+                                    inventory_item_id=variant.inventory_item_id,
+                                    available=int(qty_item),
+                                    disconnect_if_necessary=False
+                                )
