@@ -105,3 +105,55 @@ class ExternalSource(models.Model):
                                 external_product_obj = self.env['external.product'].create(external_product_vals)
                 # increase_page
                 page = page + 1
+
+    @api.model
+    def cron_external_product_stock_sync_woocommerce(self):
+        _logger.info('cron_external_product_stock_sync_woocommerce')
+        external_source_ids = self.env['external.source'].sudo().search(
+            [
+                ('type', '=', 'woocommerce'),
+                ('api_status', '=', 'valid')
+            ]
+        )
+        if len(external_source_ids) > 0:
+            for external_source_id in external_source_ids:
+                external_product_ids = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=', external_source_id.id),
+                        ('product_template_id', '!=', False),
+                        ('stock_sync', '=', True)
+                    ]
+                )
+                if len(external_product_ids) > 0:
+                    # wcapi (init)
+                    wcapi = external_source_id.init_api_woocommerce()[0]
+                    # external_product_ids
+                    for external_product_id in external_product_ids:
+                        # stock_quant
+                        qty_item = 0
+                        stock_quant_ids = self.env['stock.quant'].sudo().search(
+                            [
+                                ('product_id', '=', external_product_id.product_template_id.id),
+                                ('location_id.usage', '=', 'internal')
+                            ]
+                        )
+                        if len(stock_quant_ids) > 0:
+                            for stock_quant_id in stock_quant_ids:
+                                qty_item += stock_quant_id.qty
+                        # data
+                        data = {
+                            'stock_status': 'instock'
+                        }
+                        if qty_item < 0:
+                            data['stock_status'] = 'outofstock'
+                        # operations_update
+                        if external_product_id.external_variant_id == False:
+                            response = wcapi.put("products/" + str(external_product_id.external_id), data).json()
+                        else:
+                            response = wcapi.put(
+                                "products/" + str(external_product_id.external_id) + "/variations/" + str(
+                                    external_product_id.external_variant_id), data).json()
+                        # response
+                        if 'id' not in response:
+                            _logger.info('Error al actualizar el stock')
+                            _logger.info(response)

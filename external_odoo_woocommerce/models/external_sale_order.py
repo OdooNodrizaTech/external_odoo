@@ -35,9 +35,10 @@ class ExternalSaleOrder(models.Model):
                     ]
                 )
                 if len(external_sale_order_ids)>0:
+                    # wcapi (init)
+                    wcapi = external_source_id.init_api_woocommerce()[0]
+                    #external_sale_order_ids
                     for external_sale_order_id in external_sale_order_ids:
-                        #wcapi (init)
-                        wcapi = external_source_id.init_api_woocommerce()[0]
                         #stock_picking
                         stock_picking_ids = self.env['stock.picking'].sudo().search(
                             [   
