@@ -32,6 +32,10 @@ class ExternalProduct(models.Model):
     sku = fields.Char(
         string='Sku'
     )
+    stock_sync = fields.Boolean(
+        string='Stock Sync',
+        default=False
+    )
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'

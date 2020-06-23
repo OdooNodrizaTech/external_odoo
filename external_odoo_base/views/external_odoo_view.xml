@@ -69,6 +69,7 @@
                         <field name="external_url" widget="url" readonly="1"/>
                         <field name="external_variant_id"/>
                         <field name="sku"/>
+                        <field name="stock_sync"/>
                         <field name="name"/>
                         <field name="external_source_id" options='{"no_create": True, "no_create_edit": True}'/>                        
                         <field name="product_template_id" options='{"no_create": True, "no_create_edit": True}'/>

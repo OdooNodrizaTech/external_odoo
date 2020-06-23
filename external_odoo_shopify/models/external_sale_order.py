@@ -80,9 +80,10 @@ class ExternalSaleOrder(models.Model):
                     ]
                 )
                 if len(external_sale_order_ids)>0:
+                    # shopify (init)
+                    external_source_id.init_api_shopify()[0]
+                    #external_sale_order_ids
                     for external_sale_order_id in external_sale_order_ids:
-                        #shopify (init)
-                        external_source_id.init_api_shopify()[0]
                         #stock_picking
                         stock_picking_ids = self.env['stock.picking'].sudo().search(
                             [   
