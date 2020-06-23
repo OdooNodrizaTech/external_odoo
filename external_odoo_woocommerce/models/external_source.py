@@ -145,4 +145,18 @@ class ExternalSource(models.Model):
                         if len(stock_quant_ids) > 0:
                             for stock_quant_id in stock_quant_ids:
                                 qty_item += stock_quant_id.qty
+                        #data
+                        data = {
+                            'stock_status': 'instock'
+                        }
+                        if qty_item<0:
+                            data['stock_status'] = 'outofstock'
                         #operations_update
+                        if external_product_id.external_variant_id==False:
+                            response = wcapi.put("products/"+str(external_product_id.external_id), data).json()
+                        else:
+                            response = wcapi.put("products/"+str(external_product_id.external_id)+"/variations/"+str(external_product_id.external_variant_id), data).json()
+                        #response
+                        if 'id' not in response:
+                            _logger.info('Error al actualizar el stock')
+                            _logger.info(response)
