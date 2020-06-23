@@ -43,6 +43,17 @@
             <field name="model" eval="'external.stock.picking'" />
             <field name="function" eval="'cron_external_stock_picking_update_shipping_expedition_woocommerce'" />
             <field name="args" eval="" />
-        </record>                                        
+        </record>
+        <record id="cron_external_product_stock_sync_woocommerce" model="ir.cron">
+            <field name="name">External Product Stock Sync (Woocommerce)</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'external.source'" />
+            <field name="function" eval="'cron_external_product_stock_sync_woocommerce'" />
+            <field name="args" eval="" />
+        </record>
     </data>
 </openerp>
