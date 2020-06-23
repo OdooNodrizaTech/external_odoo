@@ -29,7 +29,7 @@ nombre | version
 arelux-odoo-command-external-stock-picking-woocommerce | Prod
 arelux-odoo_dev-command-external-stock-picking-woocommerce | Dev
 
-### External Product Stock Sync (v)
+### External Product Stock Sync (Woocommerce)
 Frecuencia: 1 vez al día
 
 Descripción: Respecto a los productos de shopify que tienen marcado el "Stock Sync" y que tienen vinculado un producto de Odoo se actualizará en Woocommerce el stock que existan en ese momento en Odoo.
