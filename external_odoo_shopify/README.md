@@ -21,6 +21,11 @@ nombre | version
 arelux-odoo-command-external-sale-order-shopify | Dev
 arelux-odoo_dev-command-external-sale-order-shopify | Prod
 
+### External Product Stock Sync (Shopify)
+Frecuencia: 1 vez al día
+
+Descripción: Respecto a los productos de shopify que tienen marcado el "Stock Sync" y que tienen vinculado un producto de Odoo se actualizará en Shopify respecto al location_id definido a nivel de external_source el stock que existan en ese momento en Odoo.
+
 ### External Sale Order Update Shipping Expedition (Shopify) 
 Frecuencia: cada hora
 
