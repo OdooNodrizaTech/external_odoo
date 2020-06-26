@@ -143,13 +143,13 @@ class ExternalSaleOrder(models.Model):
         string='Landing Url'
     )
     landing_utm_campaign = fields.Char(
-        string='Landing Url campaign'
+        string='Landing Utm campaign'
     )
     landing_utm_medium = fields.Char(
-        string='Landing Url medium'
+        string='Landing Utm medium'
     )
     landing_utm_source = fields.Char(
-        string='Landing Url source'
+        string='Landing Utm source'
     )
     
     @api.one        
