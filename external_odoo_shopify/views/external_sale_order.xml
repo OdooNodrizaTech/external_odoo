@@ -10,7 +10,8 @@
                 <field name="shopify_source_name" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
                 <field name="shopify_cancelled_at" readonly="1" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
                 <field name="shopify_fulfillment_id" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
-                <field name="shopify_fulfillment_status" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>                                
+                <field name="shopify_fulfillment_status" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
+                <field name="shopify_landing_site" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
             </field>                                                            
         </field>
     </record>                           

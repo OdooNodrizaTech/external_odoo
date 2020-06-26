@@ -44,7 +44,10 @@ class ExternalSaleOrder(models.Model):
         ],
         string='Shopify Fulfillment Status',
         default='none'
-    )        
+    )
+    shopify_landing_site = fields.Char(
+        string='Shopify Landing Site'
+    )
     
     @api.one
     def action_run(self):
@@ -215,7 +218,7 @@ class ExternalSaleOrder(models.Model):
                             processed_at = processed_at.replace() - processed_at.utcoffset()
                             external_sale_order_vals['date'] = processed_at.strftime("%Y-%m-%d %H:%M:%S")                            
                             #order_fields_need_check
-                            order_fields_need_check = ['number', 'total_price', 'subtotal_price', 'total_tax', 'total_discounts', 'total_line_items_price', 'source_name']
+                            order_fields_need_check = ['number', 'total_price', 'subtotal_price', 'total_tax', 'total_discounts', 'total_line_items_price', 'source_name', 'landing_site']
                             for order_field_need_check in order_fields_need_check:
                                 if order_field_need_check in message_body:
                                     if message_body[order_field_need_check]!='':
@@ -226,7 +229,11 @@ class ExternalSaleOrder(models.Model):
                                 del external_sale_order_vals['source_name']
                                 #Fix
                                 if external_sale_order_vals['shopify_source_name'] not in ['web', 'pos', 'shopify_draft_order', 'iphone', 'android']:
-                                    external_sale_order_vals['shopify_source_name'] = 'unknown'#Force imposible value                                
+                                    external_sale_order_vals['shopify_source_name'] = 'unknown'#Force imposible value
+                            #shopify_landing_site
+                            if 'landing_site' in external_sale_order_vals:
+                                external_sale_order_vals['shopify_landing_site'] = external_sale_order_vals['landing_site']
+                                del external_sale_order_vals['landing_site']
                             #total_shipping_price_set
                             if 'total_shipping_price_set' in message_body:
                                 if 'shop_money' in message_body['total_shipping_price_set']:
