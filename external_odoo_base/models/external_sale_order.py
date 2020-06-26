@@ -138,13 +138,26 @@ class ExternalSaleOrder(models.Model):
     external_sale_order_discount_ids = fields.One2many('external.sale.order.discount', 'external_sale_order_id', string='Discounts', copy=True)
     external_sale_order_line_ids = fields.One2many('external.sale.order.line', 'external_sale_order_id', string='Lines', copy=True)
     external_sale_order_shipping_ids = fields.One2many('external.sale.order.shipping', 'external_sale_order_id', string='Shipping Lines', copy=True)
+    #extra landing
+    landing_url = fields.Char(
+        string='Landing Url'
+    )
+    landing_utm_campaign = fields.Char(
+        string='Landing Url campaign'
+    )
+    landing_utm_medium = fields.Char(
+        string='Landing Url medium'
+    )
+    landing_utm_source = fields.Char(
+        string='Landing Url source'
+    )
     
     @api.one        
     def _get_external_source_type(self):            
         for obj in self:
             if obj.external_source_id.id>0:
-                obj.external_source_type = obj.external_source_id.type    
-    
+                obj.external_source_type = obj.external_source_id.type
+
     @api.multi
     def action_run_multi(self):
         for obj in self:

@@ -12,6 +12,7 @@ import dateutil.parser
 import boto3
 from botocore.exceptions import ClientError
 import shopify
+import urlparse
 
 class ExternalSaleOrder(models.Model):
     _inherit = 'external.sale.order'             
@@ -48,6 +49,33 @@ class ExternalSaleOrder(models.Model):
     shopify_landing_site = fields.Char(
         string='Shopify Landing Site'
     )
+
+    @api.one
+    def write(self, vals):
+        return_object = super(ExternalSaleOrder, self).write(vals)
+        # Fix
+        if 'shopify_landing_site' in vals:
+            if self.shopify_landing_site != False:
+                # get params
+                params = {}
+                parsed = urlparse.urlparse(self.shopify_landing_site)
+                params_urlparse = urlparse.parse_qs(parsed.query)
+                if len(params_urlparse) > 0:
+                    for param_urlparse in params_urlparse:
+                        params[str(param_urlparse)] = str(params_urlparse[param_urlparse][0])
+                #landing_url
+                self.landing_url = parsed.path
+                #utm_campaign
+                if 'utm_campaign' in params:
+                    self.landing_utm_campaign = params['utm_campaign']
+                #utm_medium
+                if 'utm_medium' in params:
+                    self.landing_utm_medium = params['utm_medium']
+                #utm_source
+                if 'utm_source' in params:
+                    self.landing_utm_source = params['utm_source']
+        # return
+        return return_object
     
     @api.one
     def action_run(self):
@@ -133,9 +161,8 @@ class ExternalSaleOrder(models.Model):
                                         _logger.info('Error al crear')
                                     else:
                                         external_sale_order_id.shopify_fulfillment_id = new_fulfillment.id                                
-                                        external_sale_order_id.shopify_fulfillment_status = 'fulfilled'#Ever fullfiled                                                                    
-                                                                                                                                         
-    
+                                        external_sale_order_id.shopify_fulfillment_status = 'fulfilled'#Ever fullfiled
+
     @api.multi
     def cron_sqs_external_sale_order_shopify(self, cr=None, uid=False, context=None):
         _logger.info('cron_sqs_external_sale_order_shopify')
