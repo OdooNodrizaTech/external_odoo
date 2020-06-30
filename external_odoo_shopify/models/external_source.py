@@ -10,9 +10,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import dateutil.parser
 import pytz
-import hmac
-import hashlib
-import base64
 
 import requests, json
 import shopify
