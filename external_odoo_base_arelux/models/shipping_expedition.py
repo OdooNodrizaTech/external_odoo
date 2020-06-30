@@ -14,8 +14,8 @@ class ShippingExpedition(models.Model):
         if return_object.user_id.id==0:
             if return_object.picking_id.id>0:
                 if return_object.picking_id.external_stock_picking_id.id>0:
-                    if external_stock_picking_id.external_stock_picking_id.external_source_id.id>0:
-                        if external_stock_picking_id.external_stock_picking_id.external_source_id.external_stock_picking_user_id.id>0:
-                            return_object.user_id = external_stock_picking_id.external_stock_picking_id.external_source_id.external_stock_picking_user_id.id
+                    if return_object.picking_id.external_stock_picking_id.external_source_id.id>0:
+                        if return_object.picking_id.external_stock_picking_id.external_source_id.external_stock_picking_user_id.id>0:
+                            return_object.user_id = return_object.picking_id.external_stock_picking_id.external_source_id.external_stock_picking_user_id.id
         #return
         return return_object
