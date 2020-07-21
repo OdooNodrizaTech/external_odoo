@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+
     <record id="cron_external_stock_picking_line_generate_invoice_lines" forcecreate="True" model="ir.cron">
         <field name="name">External Stock Picking Line Generate Invoice Lines</field>
         <field name="active" eval="False"/>
@@ -12,4 +13,5 @@
         <field name="state">code</field>
         <field name="code">model.cron_external_stock_picking_line_generate_invoice_lines()</field>
     </record>
+
 </odoo>

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
 
-import logging
-_logger = logging.getLogger(__name__)
+from odoo import api, fields, models
+
 
 class ExternalSaleOrderDiscount(models.Model):
     _name = 'external.sale.order.discount'

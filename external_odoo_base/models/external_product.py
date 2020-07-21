@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
 
-import logging
-_logger = logging.getLogger(__name__)
+from odoo import api, fields, models
+
 
 class ExternalProduct(models.Model):
     _name = 'external.product'
@@ -20,7 +18,7 @@ class ExternalProduct(models.Model):
     def _get_name(self):            
         for obj in self:
             obj.name = obj.external_id
-    #fields
+    # fields
     external_id = fields.Char(
         string='External Id'
     )    
@@ -54,8 +52,8 @@ class ExternalProduct(models.Model):
     @api.one
     def _get_external_url(self):
         for obj in self:
-            if obj.external_source_id.id > 0:
-                if obj.external_id != False:
+            if obj.external_source_id:
+                if obj.external_id:
                     obj.external_url = ''
                     if obj.external_source_id.type == 'shopify':
                         obj.external_url = 'https://' + str(obj.external_source_id.url) + '/admin/products/' + str(obj.external_id)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import http
 from odoo.http import request
@@ -16,18 +15,23 @@ class ExternalSaleOrderShopifyController(http.Controller):
         
     @http.route(['/shopify_permission'], type='http', auth='public', methods=['GET'], website=True)
     def shopify_permission(self, **get):
-        #save_shopify_code
+        # save_shopify_code
         if 'code' in get:
             if 'shop' in get:
-                external_source_ids = request.env['external.source'].sudo().search([('type', '=', 'shopify'),('url', '=', str(get['shop']))])
-                if len(external_source_ids)>0:
+                external_source_ids = request.env['external.source'].sudo().search(
+                    [
+                        ('type', '=', 'shopify'),
+                        ('url', '=', str(get['shop']))
+                    ]
+                )
+                if external_source_ids:
                     external_source_id = external_source_ids[0]
-                    #shopify_request_token
+                    # shopify_request_token
                     external_source_id.shopify_request_token({
                         'code': str(get['code']),
                         'hmac': str(get['hmac']),
                         'shop': str(get['shop']),
                         'timestamp': str(get['timestamp'])
                     })                    
-        #return
+        # return
         return request.render('website.404')        

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, fields, models, tools
 
@@ -38,7 +37,7 @@ class ExternalSource(models.Model):
         external_sale_order_vals['date'] = date_created.strftime("%Y-%m-%d %H:%M:%S")
         # currency
         res_currency_ids = self.env['res.currency'].sudo().search([('name', '=', str(vals['currency']))])
-        if len(res_currency_ids) > 0:
+        if res_currency_ids:
             res_currency_id = res_currency_ids[0]
             external_sale_order_vals['currency_id'] = res_currency_id.id
         # external_customer
@@ -77,7 +76,7 @@ class ExternalSource(models.Model):
                 ('external_id', '=', str(vals['customer_id']))
             ]
         )
-        if len(external_customer_ids) > 0:
+        if external_customer_ids:
             external_customer_obj = external_customer_ids[0]
         else:
             # create
@@ -133,7 +132,7 @@ class ExternalSource(models.Model):
                     ('type', '=', external_address_vals['type'])
                 ]
             )
-            if len(external_address_ids) > 0:
+            if external_address_ids:
                 external_address_obj = external_address_ids[0]
             else:
                 # create
@@ -143,7 +142,7 @@ class ExternalSource(models.Model):
                 external_sale_order_vals['external_billing_address_id'] = external_address_obj.id
             else:
                 external_sale_order_vals['external_shipping_address_id'] = external_address_obj.id
-                # external_sale_order
+        # external_sale_order
         _logger.info(external_sale_order_vals)
         external_sale_order_ids = self.env['external.sale.order'].sudo().search(
             [
@@ -151,7 +150,7 @@ class ExternalSource(models.Model):
                 ('external_id', '=', str(external_sale_order_vals['external_id']))
             ]
         )
-        if len(external_sale_order_ids) > 0:
+        if external_sale_order_ids:
             external_sale_order_id = external_sale_order_ids[0]
             external_sale_order_id.woocommerce_state = str(vals['status'])
             # action_run (only if need)
@@ -183,8 +182,7 @@ class ExternalSource(models.Model):
                     if line_item['variation_id'] != '':
                         external_stock_picking_line_vals['external_variant_id'] = str(line_item['variation_id'])
                 # create
-                external_stock_picking_line_obj = self.env['external.sale.order.line'].sudo(6).create(
-                    external_stock_picking_line_vals)
+                self.env['external.sale.order.line'].sudo(6).create(external_stock_picking_line_vals)
             # shipping_lines
             for shipping_line in vals['shipping_lines']:
                 # vals
@@ -197,8 +195,7 @@ class ExternalSource(models.Model):
                     'tax_amount': shipping_line['total_tax']
                 }
                 # create
-                external_sale_order_shipping_obj = self.env['external.sale.order.shipping'].sudo(6).create(
-                    external_sale_order_shipping_vals)
+                self.env['external.sale.order.shipping'].sudo(6).create(external_sale_order_shipping_vals)
             # action_run
             external_sale_order_obj.action_run()
             # delete_message
@@ -251,7 +248,7 @@ class ExternalSource(models.Model):
                 ('external_id', '=', str(external_customer_vals['external_id']))
             ]
         )
-        if len(external_customer_ids) > 0:
+        if external_customer_ids:
             external_customer_obj = external_customer_ids[0]
         else:
             # create
@@ -272,7 +269,7 @@ class ExternalSource(models.Model):
                 ('external_source_id', '=', self.id)
             ]
         )
-        if len(external_stock_picking_ids) > 0:
+        if external_stock_picking_ids:
             external_stock_picking_id = external_stock_picking_ids[0]
             external_stock_picking_id.woocommerce_state = str(vals['status'])
             # action_run (only if need)
@@ -293,8 +290,7 @@ class ExternalSource(models.Model):
                     'title': str(line_item['name']),
                     'quantity': int(line_item['quantity'])
                 }
-                external_stock_picking_line_obj = self.env['external.stock.picking.line'].sudo(6).create(
-                    external_stock_picking_line_vals)
+                self.env['external.stock.picking.line'].sudo(6).create(external_stock_picking_line_vals)
             # action_run
             external_stock_picking_obj.action_run()
             # delete_message
@@ -316,28 +312,28 @@ class ExternalSource(models.Model):
     
     @api.one
     def action_api_status_valid(self):
-        #result_item        
-        if self.type=='woocommerce':
+        # result_item
+        if self.type == 'woocommerce':
             result_item = False
-            #operations
-            if self.url!=False and self.api_key!=False and self.api_secret!=False:
-                #wcapi
+            # operations
+            if self.url and self.api_key and self.api_secret:
+                # wcapi
                 wcapi = self.init_api_woocommerce()[0]                
-                #get
+                # get
                 response = wcapi.get("").json()
                 if 'routes' in response:
                     result_item = True
-            #return        
+            # return
             return result_item
         else:
             return super(ExternalSource, self).action_api_status_valid()            
     
     @api.one
     def action_operations_get_products(self):
-        #operations
-        if self.type=='woocommerce':
+        # operations
+        if self.type == 'woocommerce':
             self.action_operations_get_products_woocommerce()
-        #super            
+        # super
         return_item = super(ExternalSource, self).action_operations_get_products()
         # return
         return return_item
@@ -371,13 +367,13 @@ class ExternalSource(models.Model):
                             ]
                         )
                         if len(external_product_ids) == 0:
-                            external_product_vals = {
+                            vals = {
                                 'external_source_id': self.id,
                                 'external_id': str(response_item['id']),
                                 'sku': str(response_item['sku']),
                                 'name': response_item['name'],
                             }
-                            external_product_obj = self.env['external.product'].create(external_product_vals)
+                            self.env['external.product'].create(vals)
                     else:
                         for variation in response_item['variations']:
                             external_product_ids = self.env['external.product'].sudo().search(
@@ -388,14 +384,14 @@ class ExternalSource(models.Model):
                                 ]
                             )
                             if len(external_product_ids) == 0:
-                                external_product_vals = {
+                                vals = {
                                     'external_source_id': self.id,
                                     'external_id': str(response_item['id']),
                                     'external_variant_id': str(variation),
                                     'sku': str(response_item['sku']),
                                     'name': response_item['name'],
                                 }
-                                external_product_obj = self.env['external.product'].create(external_product_vals)
+                                self.env['external.product'].create(vals)
                 # increase_page
                 page = page + 1
 
@@ -408,7 +404,7 @@ class ExternalSource(models.Model):
                 ('api_status', '=', 'valid')
             ]
         )
-        if len(external_source_ids) > 0:
+        if external_source_ids:
             for external_source_id in external_source_ids:
                 external_product_ids = self.env['external.product'].sudo().search(
                     [
@@ -417,7 +413,7 @@ class ExternalSource(models.Model):
                         ('stock_sync', '=', True)
                     ]
                 )
-                if len(external_product_ids) > 0:
+                if external_product_ids:
                     # wcapi (init)
                     wcapi = external_source_id.init_api_woocommerce()[0]
                     # external_product_ids
@@ -430,7 +426,7 @@ class ExternalSource(models.Model):
                                 ('location_id.usage', '=', 'internal')
                             ]
                         )
-                        if len(stock_quant_ids) > 0:
+                        if stock_quant_ids:
                             for stock_quant_id in stock_quant_ids:
                                 qty_item += stock_quant_id.qty
                         # data
@@ -443,9 +439,10 @@ class ExternalSource(models.Model):
                         if external_product_id.external_variant_id == False:
                             response = wcapi.put("products/" + str(external_product_id.external_id), data).json()
                         else:
-                            response = wcapi.put(
-                                "products/" + str(external_product_id.external_id) + "/variations/" + str(
-                                    external_product_id.external_variant_id), data).json()
+                            response = wcapi.put("products/%s/variations/%s" % (
+                                external_product_id.external_id,
+                                external_product_id.external_variant_id
+                            ), data).json()
                         # response
                         if 'id' not in response:
                             _logger.info('Error al actualizar el stock')

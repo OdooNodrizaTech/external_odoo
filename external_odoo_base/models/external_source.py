@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, fields, models, tools
 from odoo.exceptions import Warning
@@ -103,7 +102,7 @@ class ExternalSource(models.Model):
     @api.multi
     def action_api_status_draft_multi(self):
         for obj in self:
-            if obj.api_status=='valid':
+            if obj.api_status == 'valid':
                 obj.action_api_status_draft()
                 
     @api.one
@@ -113,10 +112,10 @@ class ExternalSource(models.Model):
     @api.multi
     def action_api_status_valid_multi(self):
         for obj in self:
-            if obj.api_status=='draft':
-                if obj.url!=False and obj.api_key!=False and obj.api_secret!=False:
+            if obj.api_status == 'draft':
+                if obj.url and obj.api_key and obj.api_secret:
                     return_item = obj.action_api_status_valid()
-                    if return_item==False:
+                    if return_item == False:
                         raise Warning("No se ha podido validar la integracion con la API (quizas no esta disponible todavia)")
                     else:
                         obj.api_status = 'valid'
@@ -131,7 +130,7 @@ class ExternalSource(models.Model):
     @api.multi
     def action_operations_get_products_multi(self):
         for obj in self:
-            if obj.api_key!=False and obj.api_secret!=False:
+            if obj.api_key and obj.api_secret:
                 obj.action_operations_get_products()                
         
     @api.one
@@ -141,7 +140,7 @@ class ExternalSource(models.Model):
     @api.multi
     def cron_external_stock_picking_line_generate_invoice_lines(self, cr=None, uid=False, context=None):
         _logger.info('cron_external_stock_picking_line_generate_invoice_lines')
-        #source
+        # source
         external_source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'woocommerce'),
@@ -149,9 +148,9 @@ class ExternalSource(models.Model):
                 ('invoice_journal_id', '!=', False)                
             ]
         )
-        if len(external_source_ids)>0:
+        if external_source_ids:
             for external_source_id in external_source_ids:
-                #external_stock_picking_line_ids
+                # external_stock_picking_line_ids
                 external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search(
                     [
                         ('external_source_id', '=', external_source_ids.id),
@@ -162,8 +161,8 @@ class ExternalSource(models.Model):
                         ('external_product_id.invoice_partner_id', '!=', False)
                     ]
                 )
-                if len(external_stock_picking_line_ids)>0:
-                    #search draft invoice
+                if external_stock_picking_line_ids:
+                    # search draft invoice
                     account_invoice_ids = self.env['account.invoice'].sudo().search(
                         [
                             ('partner_id', '=', external_source_id.invoice_partner_id.id),
@@ -172,10 +171,10 @@ class ExternalSource(models.Model):
                             ('journal_id', '=', external_source_id.invoice_journal_id.id)
                         ]
                     )
-                    if len(account_invoice_ids)>0:
+                    if account_invoice_ids:
                         account_invoice_id = account_invoice_ids[0]
                     else:
-                        #create_proccess
+                        # create_proccess
                         account_invoice_vals = {
                             'partner_id': external_source_id.invoice_partner_id.id,
                             'partner_shipping_id': external_source_id.invoice_partner_id.id,
@@ -184,36 +183,42 @@ class ExternalSource(models.Model):
                             'journal_id': external_source_id.invoice_journal_id.id,
                             'user_id': 0, 
                         }
-                        #property_payment_term_id
-                        if external_source_id.invoice_partner_id.property_payment_term_id.id>=0:
+                        # property_payment_term_id
+                        if external_source_id.invoice_partner_id.property_payment_term_id:
                             account_invoice_vals['payment_term_id'] = external_source_id.invoice_partner_id.property_payment_term_id.id
-                        #customer_payment_mode_id
-                        if external_source_id.invoice_partner_id.customer_payment_mode_id.id>0:
+                        # customer_payment_mode_id
+                        if external_source_id.invoice_partner_id.customer_payment_mode_id:
                             account_invoice_vals['payment_mode_id'] = external_source_id.invoice_partner_id.customer_payment_mode_id.id 
-                        #create
+                        # create
                         account_invoice_obj = self.env['account.invoice'].create(account_invoice_vals)
                         account_invoice_id = account_invoice_obj
-                    #add_lines
+                    # add_lines
                     for external_stock_picking_line_id in external_stock_picking_line_ids:
-                        #vals
+                        # vals
                         account_invoice_line_vals = {
                             'invoice_id': account_invoice_id.id,
                             'product_id': external_stock_picking_line_id.external_product_id.product_template_id.id,
-                            'name': str(external_stock_picking_line_id.title) + ' ('+str(external_stock_picking_line_id.external_stock_picking_id.picking_id.name)+')',
+                            'name': '%s (%s)' % (
+                                external_stock_picking_line_id.title,
+                                external_stock_picking_line_id.external_stock_picking_id.picking_id.name
+                            ),
                             'quantity': external_stock_picking_line_id.quantity,
                             'price_unit': external_stock_picking_line_id.external_product_id.product_template_id.list_price,                        
                             'currency_id': account_invoice_id.currency_id.id,                        
                         }
-                        #account_id
-                        if external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id.id>0:
+                        # account_id
+                        if external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id:
                             account_invoice_line_vals['account_id'] = external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id.id
                         else:
                             account_invoice_line_vals['account_id'] = external_stock_picking_line_id.external_product_id.product_template_id.categ_id.property_account_income_categ_id.id
-                        #create
+                        # create
                         account_invoice_line_obj = self.env['account.invoice.line'].create(account_invoice_line_vals)
-                        #onchange
+                        # onchange
                         account_invoice_line_obj._onchange_product_id()
                         account_invoice_line_obj._onchange_account_id()
-                        account_invoice_line_obj.name = str(external_stock_picking_line_id.title) + ' ('+str(external_stock_picking_line_id.external_stock_picking_id.picking_id.name)+')'
-                        #update
+                        account_invoice_line_obj.name = '%s (%s)' % (
+                            external_stock_picking_line_id.title,
+                            external_stock_picking_line_id.external_stock_picking_id.picking_id.name
+                        )
+                        # update
                         external_stock_picking_line_id.invoice_line_id = account_invoice_line_obj.id                                                    

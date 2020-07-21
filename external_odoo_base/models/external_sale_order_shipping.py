@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+
+from odoo import api, fields, models
 import odoo.addons.decimal_precision as dp
 
-import logging
-_logger = logging.getLogger(__name__)
 
 class ExternalSaleOrderShipping(models.Model):
     _name = 'external.sale.order.shipping'
@@ -50,11 +48,11 @@ class ExternalSaleOrderShipping(models.Model):
 
     @api.one
     def operations_item(self):
-        #calculate_tax
+        # calculate_tax
         if self.tax_amount>0:
             self.total_price_without_tax = self.price-self.tax_amount
             self.unit_price_without_tax = self.total_price_without_tax/1
-        #return
+        # return
         return False        
 
     @api.model

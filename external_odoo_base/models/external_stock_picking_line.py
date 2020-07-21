@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -20,7 +19,7 @@ class ExternalStockPickingLine(models.Model):
     def _get_name(self):            
         for obj in self:
             obj.name = obj.line_id
-    #fields
+    # fields
     line_id = fields.Char(
         string='Line Id'
     )
@@ -56,9 +55,9 @@ class ExternalStockPickingLine(models.Model):
 
     @api.one
     def operations_item(self):
-        if self.external_product_id.id==0:
-            if self.external_stock_picking_id.id>0:
-                if self.external_variant_id!=False:
+        if self.external_product_id.id == 0:
+            if self.external_stock_picking_id:
+                if self.external_variant_id:
                     external_product_ids = self.env['external.product'].sudo().search(
                         [
                             ('external_source_id', '=', self.external_stock_picking_id.external_source_id.id),
@@ -73,13 +72,17 @@ class ExternalStockPickingLine(models.Model):
                             ('external_id', '=', str(self.external_id))
                         ]
                     )
-                #operations                                           
-                if len(external_product_ids)==0:
-                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id='+str(self.external_stock_picking_id.external_source_id.id)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
+                # operations
+                if external_product_ids:
+                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id=%s, external_id=%s y external_variant_id=%s' % (
+                        self.external_stock_picking_id.external_source_id.id,
+                        self.external_id,
+                        self.external_variant_id
+                    ))
                 else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
-        #return
+        # return
         return False        
 
     @api.model
