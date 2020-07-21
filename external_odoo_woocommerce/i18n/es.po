@@ -1,0 +1,115 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* external_odoo_woocommerce
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-21 07:20+0000\n"
+"PO-Revision-Date: 2020-07-21 07:20+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_source.py:160
+#: code:addons/external_odoo_woocommerce/models/external_source.py:279
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_source.py:160
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_source.py:279
+#, python-format
+msgid "As it already exists, we update its status only"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.actions.server,name:external_odoo_woocommerce.cron_external_product_stock_sync_woocommerce_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_woocommerce.cron_external_product_stock_sync_woocommerce
+#: model:ir.cron,name:external_odoo_woocommerce.cron_external_product_stock_sync_woocommerce
+msgid "External Product Stock Sync (Woocommerce)"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.model,name:external_odoo_woocommerce.model_external_sale_order
+msgid "External Sale Order"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.actions.server,name:external_odoo_woocommerce.cron_external_sale_order_update_shipping_expedition_woocommerce_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_woocommerce.cron_external_sale_order_update_shipping_expedition_woocommerce
+#: model:ir.cron,name:external_odoo_woocommerce.cron_external_sale_order_update_shipping_expedition_woocommerce
+msgid "External Sale Order Update Shipping Expedition (Woocommerce)"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.model,name:external_odoo_woocommerce.model_external_source
+msgid "External Source"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.model,name:external_odoo_woocommerce.model_external_stock_picking
+msgid "External Stock Picking"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.actions.server,name:external_odoo_woocommerce.cron_external_stock_picking_update_shipping_expedition_woocommerce_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_woocommerce.cron_external_stock_picking_update_shipping_expedition_woocommerce
+#: model:ir.cron,name:external_odoo_woocommerce.cron_external_stock_picking_update_shipping_expedition_woocommerce
+msgid "External Stock Picking Update Shipping Expedition (Woocommerce)"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_sale_order.py:131
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_sale_order.py:131
+#, python-format
+msgid "External_source id does not exist with this source=% s and url=%s"
+msgstr "External_source no existe con el  source=%s y url=%s"
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_stock_picking.py:128
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_stock_picking.py:128
+#, python-format
+msgid "External_source id does not exist with this source=%s and url =%s"
+msgstr "External_source id no existe con el source=%s y url=%s"
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_stock_picking.py:104
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_stock_picking.py:104
+#, python-format
+msgid "Line_items field missing"
+msgstr "El campo line_items no existe"
+
+#. module: external_odoo_woocommerce
+#: model:ir.actions.server,name:external_odoo_woocommerce.cron_sqs_external_sale_order_woocommerce_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_woocommerce.cron_sqs_external_sale_order_woocommerce
+#: model:ir.cron,name:external_odoo_woocommerce.cron_sqs_external_sale_order_woocommerce
+msgid "SQS External Sale Order Woocommerce"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: model:ir.actions.server,name:external_odoo_woocommerce.cron_sqs_external_stock_picking_woocommerce_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_woocommerce.cron_sqs_external_stock_picking_woocommerce
+#: model:ir.cron,name:external_odoo_woocommerce.cron_sqs_external_stock_picking_woocommerce
+msgid "SQS External Stock Picking Woocommerce"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_sale_order.py:116
+#: code:addons/external_odoo_woocommerce/models/external_stock_picking.py:113
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_sale_order.py:116
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_stock_picking.py:113
+#, python-format
+msgid "The field does not exist %s"
+msgstr ""
+
+#. module: external_odoo_woocommerce
+#: code:addons/external_odoo_woocommerce/models/external_sale_order.py:142
+#: code:addons/external_odoo_woocommerce/models/external_stock_picking.py:136
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_sale_order.py:142
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_woocommerce/models/external_stock_picking.py:136
+#, python-format
+msgid "The order is not completed"
+msgstr "El pedido no está completado"
+

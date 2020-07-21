@@ -1,0 +1,190 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* external_odoo_shopify
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-21 07:19+0000\n"
+"PO-Revision-Date: 2020-07-21 07:19+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Android"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_source.py:205
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_source.py:205
+#, python-format
+msgid "As it already exists, we update its status only"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_source__authorize_url
+msgid "Authorize Url"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.actions.server,name:external_odoo_shopify.cron_external_product_stock_sync_shopify_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_shopify.cron_external_product_stock_sync_shopify
+#: model:ir.cron,name:external_odoo_shopify.cron_external_product_stock_sync_shopify
+msgid "External Product Stock Sync (Shopify)"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model,name:external_odoo_shopify.model_external_sale_order
+msgid "External Sale Order"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.actions.server,name:external_odoo_shopify.cron_external_sale_order_update_shipping_expedition_shopify_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_shopify.cron_external_sale_order_update_shipping_expedition_shopify
+#: model:ir.cron,name:external_odoo_shopify.cron_external_sale_order_update_shipping_expedition_shopify
+msgid "External Sale Order Update Shipping Expedition (Shopify)"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model,name:external_odoo_shopify.model_external_source
+msgid "External Source"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_sale_order.py:232
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_sale_order.py:232
+#, python-format
+msgid "External_source id does not exist with this source=%s and url=%"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_fulfillment_status:0
+msgid "Fulfilled"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Iphone"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_source.py:397
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_source.py:397
+#, python-format
+msgid "It will be validated through the authorization link"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_fulfillment_status:0
+msgid "None"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_fulfillment_status:0
+msgid "Null"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_fulfillment_status:0
+msgid "Partial"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Pos"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_fulfillment_status:0
+msgid "Restocked"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.actions.server,name:external_odoo_shopify.cron_sqs_external_sale_order_shopify_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_shopify.cron_sqs_external_sale_order_shopify
+#: model:ir.cron,name:external_odoo_shopify.cron_sqs_external_sale_order_shopify
+msgid "SQS External Sale Order Shopify"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_source__shopify_access_token
+msgid "Shopify Access Token"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_sale_order__shopify_cancelled_at
+msgid "Shopify Cancelled At"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Shopify Draft Order"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_sale_order__shopify_fulfillment_id
+msgid "Shopify Fulfillment Id"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_sale_order__shopify_fulfillment_status
+msgid "Shopify Fulfillment Status"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_sale_order__shopify_landing_site
+msgid "Shopify Landing Site"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,help:external_odoo_shopify.field_external_source__shopify_location_id
+msgid "Shopify Location ID (Default)"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_source__shopify_location_id
+msgid "Shopify Location Id"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: model:ir.model.fields,field_description:external_odoo_shopify.field_external_sale_order__shopify_source_name
+msgid "Shopify Source Name"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_source.py:395
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_source.py:395
+#, python-format
+msgid "Shopify_code is missing"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_sale_order.py:217
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_sale_order.py:217
+#, python-format
+msgid "The field does not exist %s"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: code:addons/external_odoo_shopify/models/external_sale_order.py:240
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_shopify/models/external_sale_order.py:240
+#, python-format
+msgid "The order is not paid (financial_status)"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Unknown"
+msgstr ""
+
+#. module: external_odoo_shopify
+#: selection:external.sale.order,shopify_source_name:0
+msgid "Web"
+msgstr ""
+

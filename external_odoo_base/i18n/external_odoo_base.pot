@@ -1,0 +1,1078 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* external_odoo_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-21 07:18+0000\n"
+"PO-Revision-Date: 2020-07-21 07:18+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__accepts_marketing
+msgid "Accepts Marketing"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__active
+msgid "Active"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_address_action
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_address
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_address_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_address_tree
+msgid "Address"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__address_1
+msgid "Address 1"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__address_2
+msgid "Address 2"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__address1
+msgid "Address1"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__address2
+msgid "Address2"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__picking_id
+msgid "Albaran"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__api_key
+msgid "Api Key"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__api_secret
+msgid "Api Secret"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__api_status
+msgid "Api Status"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Authorized"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_billing_address_id
+msgid "Billing Address"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_sale_order_line__total_price_without_tax
+msgid "Calculate (price*quantity)-tax_amount"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_sale_order_line__unit_price_without_tax
+#: model:ir.model.fields,help:external_odoo_base.field_external_sale_order_shipping__unit_price_without_tax
+msgid "Calculate (total_price_without_tax/quantity)"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Cancelled"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__city
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__city
+msgid "City"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__company
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__company
+msgid "Company"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Completed"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__country_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__country_id
+msgid "Country"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__country_code
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__country_code
+msgid "Country Code"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__country_state_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__country_state_id
+msgid "Country State"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_form_view
+msgid "Crear Transaccion"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__create_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__create_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__currency_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__currency_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__currency_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.source,type:0
+msgid "Custom"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_customer_action
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__external_customer_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_customer_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_customer_id
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_customer
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_customer_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_customer_tree
+msgid "Customer"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__date
+msgid "Date"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.address,type:0
+msgid "Delivery"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_carrier_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_stock_picking_carrier_id
+msgid "Delivery Carrier Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_carrier_id
+msgid "Delivery Carrier Id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_stock_picking_carrier_id
+msgid "Delivery Carrier Id (external.stock.picking)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__description
+msgid "Description"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order.discount,type:0
+msgid "Discount code"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__discounted_price
+msgid "Discounted Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_sale_order_discount_ids
+msgid "Discounts"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__display_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.source,api_status:0
+msgid "Draft"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_address_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_customer_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_form_view
+msgid "Ejecutar"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__email
+msgid "Email"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_address
+msgid "External Address"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_customer
+msgid "External Customer"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__external_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_id
+msgid "External Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.ui.menu,name:external_odoo_base.menu_odoo_external_odoo
+msgid "External Odoo"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_product
+msgid "External Product"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_sale_order
+msgid "External Sale Order"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_sale_order_discount
+msgid "External Sale Order Discount"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_crm_lead__external_sale_order_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_sale_order__external_sale_order_id
+msgid "External Sale Order Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_sale_order_line
+msgid "External Sale Order Line"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_sale_order_shipping
+msgid "External Sale Order Shipping"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_source
+msgid "External Source"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_source_name
+msgid "External Source Name"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_stock_picking
+msgid "External Stock Picking"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_stock_picking__external_stock_picking_id
+msgid "External Stock Picking Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_external_stock_picking_line
+msgid "External Stock Picking Line"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.server,name:external_odoo_base.cron_external_stock_picking_line_generate_invoice_lines_ir_actions_server
+#: model:ir.cron,cron_name:external_odoo_base.cron_external_stock_picking_line_generate_invoice_lines
+#: model:ir.cron,name:external_odoo_base.cron_external_stock_picking_line_generate_invoice_lines
+msgid "External Stock Picking Line Generate Invoice Lines"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__external_url
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__external_url
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_url
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_url
+msgid "External Url"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Failed"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__first_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__first_name
+msgid "First Name"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order.discount,value_type:0
+msgid "Fixed Amount"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__id
+msgid "ID"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__external_id
+msgid "Id (Product id)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__external_id
+msgid "Id (Product_id)"
+msgstr ""
+
+#. module: external_odoo_base
+#: code:addons/external_odoo_base/models/external_source.py:120
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_base/models/external_source.py:120
+#, python-format
+msgid "Integration with API could not be validated (perhaps not yet available)"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.address,type:0
+msgid "Invoice"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__invoice_journal_id
+msgid "Journal Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__invoice_journal_id
+msgid "Journal id (Auto-invoice in stock.picking)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__landing_url
+msgid "Landing Url"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__landing_utm_campaign
+msgid "Landing Utm campaign"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__landing_utm_medium
+msgid "Landing Utm medium"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__landing_utm_source
+msgid "Landing Utm source"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking____last_update
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__last_name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__last_name
+msgid "Last Name"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__write_uid
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__write_date
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__latitude
+msgid "Latitude"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__lead_id
+msgid "Lead"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__line_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__line_id
+msgid "Line Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_sale_order_line_ids
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_stock_picking_line_ids
+msgid "Lines"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__longitude
+msgid "Longitude"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order.discount,type:0
+msgid "Manual"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__name
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__name
+msgid "Name"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+#: selection:external.sale.order,woocommerce_state:0
+msgid "Ninguno"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "None"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__number
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__number
+msgid "Number"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_form_view
+msgid "Obtener productos"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "On Hold"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Paid"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Partially Paid"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Partially Refunded"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__partner_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__invoice_partner_id
+msgid "Partner Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__invoice_partner_id
+msgid "Partner id (Auto-invoice in stock.picking)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_payment_acquirer_id
+msgid "Payment Acquirer Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_payment_acquirer_id
+msgid "Payment Acquirer Id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__payment_transaction_id
+msgid "Payment Transaction"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_account_payment_mode_id
+msgid "Payment mode id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_account_payment_mode_id
+msgid "Payment mode id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_account_payment_term_id
+msgid "Payment term id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_account_payment_term_id
+msgid "Payment term id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__sale_order_id
+msgid "Pedido de venta"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Pending"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Pending Payment"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order.discount,value_type:0
+msgid "Percentage"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__phone
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__phone
+msgid "Phone"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__postcode
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__postcode
+msgid "Postcode"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__price
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__price
+msgid "Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Processing"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_product_action
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__external_product_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__external_product_id
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_product
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_product_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_product_tree
+msgid "Product"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__product_template_id
+msgid "Product Template"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_shipping_product_template_id
+msgid "Product Template id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_shipping_product_template_id
+msgid "Product Template id (external.sale.order.shipping)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__province_code
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__province_code
+msgid "Province Code"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__quantity
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__quantity
+msgid "Quantity"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_form_view
+msgid "Rebocar API"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Refunded"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_sale_order_action
+#: model:ir.model,name:external_odoo_base.model_sale_order
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__external_sale_order_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__external_sale_order_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__external_sale_order_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__external_stock_picking_id
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_sale_order
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_tree
+msgid "Sale Order"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_discount_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_discounte_tree
+msgid "Sale Order Discount"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_line_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_line_tree
+msgid "Sale Order Line"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_shipping_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_shipping_tree
+msgid "Sale Order Shipping"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,woocommerce_state:0
+#: selection:external.stock.picking,woocommerce_state:0
+msgid "Shipped"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order.discount,value_type:0
+msgid "Shipping"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_shipping_address_id
+msgid "Shipping Address"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_sale_order_shipping_ids
+msgid "Shipping Lines"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.source,type:0
+msgid "Shopify"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__shopify_state
+msgid "Shopify State"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__sku
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__sku
+msgid "Sku"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_source_action
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__external_source_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__external_source_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__external_source_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_source_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__external_source_id
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_source
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_tree
+msgid "Source"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__external_source_type
+msgid "Source Type"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.actions.act_window,name:external_odoo_base.external_stock_picking_action
+#: model:ir.ui.menu,name:external_odoo_base.menuitem_external_stock_picking
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_tree
+msgid "Stock Picking"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_line_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_line_tree
+msgid "Stock Picking Line"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_picking_type_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_stock_picking_picking_type_id
+msgid "Stock Picking Type Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_picking_type_id
+msgid "Stock Picking Type Id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_stock_picking_picking_type_id
+msgid "Stock Picking Type Id (external.stock.picking)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__stock_sync
+msgid "Stock Sync"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__subtotal_price
+msgid "Subtotal Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__tax_amount
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__tax_amount
+msgid "Tax Amount"
+msgstr ""
+
+#. module: external_odoo_base
+#: code:addons/external_odoo_base/models/external_source.py:124
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_base/models/external_source.py:124
+#, python-format
+msgid "The api_key and api_secret fields are required"
+msgstr ""
+
+#. module: external_odoo_base
+#: code:addons/external_odoo_base/models/external_sale_order.py:307
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_base/models/external_sale_order.py:307
+#, python-format
+msgid "The order %s cannot be confirmed because the client does NOT have a CIF"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__title
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__title
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__title
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__title
+msgid "Title"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__total_discount
+msgid "Total Discount"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__total_discounts
+msgid "Total Discounts"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__total_line_items_price
+msgid "Total Line Items Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__total_price
+msgid "Total Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__total_shipping_price
+msgid "Total Shipping Price"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__total_tax
+msgid "Total Tax"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__total_price_without_tax
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__total_price_without_tax
+msgid "Total price Without Tax"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_sale_order_line__tax_amount
+msgid "Total tax amount (line)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model,name:external_odoo_base.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_address__type
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__type
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__type
+msgid "Type"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_sale_order_line__price
+msgid "Unit price (with tax)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__unit_price_without_tax
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__unit_price_without_tax
+msgid "Unit price Without Tax"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__url
+msgid "Url"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_sale_order_user_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_source__external_stock_picking_user_id
+msgid "User id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_sale_order_user_id
+msgid "User id (external.sale.order)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,help:external_odoo_base.field_external_source__external_stock_picking_user_id
+msgid "User id (external.stock.picking)"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.source,api_status:0
+msgid "Valid"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_form_view
+msgid "Validar API"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__value
+msgid "Value"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__value_type
+msgid "Value type"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_product__external_variant_id
+msgid "Variant Id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__external_variant_id
+msgid "Variant Id (Variant Id)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__external_variant_id
+msgid "Variant Id (Variant_id)"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_customer__vat
+msgid "Vat"
+msgstr ""
+
+#. module: external_odoo_base
+#: code:addons/external_odoo_base/models/external_sale_order_line.py:96
+#: code:addons/external_odoo_base/models/external_stock_picking_line.py:67
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_base/models/external_sale_order_line.py:96
+#: code:addonsOdooNodrizaTech/external_odoo/12.0/external_odoo_base/models/external_stock_picking_line.py:67
+#, python-format
+msgid "Very strange, external_product_id not found regarding external_source_id=%s, external_id=%s and external_variant_id=%s"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.sale.order,shopify_state:0
+msgid "Voided"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.stock.picking,external_source_name:0
+msgid "Web"
+msgstr ""
+
+#. module: external_odoo_base
+#: selection:external.source,type:0
+msgid "Woocommerce"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order__woocommerce_state
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking__woocommerce_state
+msgid "Woocommerce State"
+msgstr ""
+
+#. module: external_odoo_base
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_address_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_customer_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_product_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_discount_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_line_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_sale_order_shipping_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_source_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_form_view
+#: model_terms:ir.ui.view,arch_db:external_odoo_base.external_stock_picking_line_form_view
+msgid "child"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__invoice_line_id
+msgid "invoice_line_id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_stock_picking_line__move_id
+msgid "move_id"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_line__sale_order_line_id
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_shipping__sale_order_line_id
+msgid "sale_order_line"
+msgstr ""
+
+#. module: external_odoo_base
+#: model:ir.model.fields,field_description:external_odoo_base.field_external_sale_order_discount__sale_order_line_id
+msgid "sale_order_line_id"
+msgstr ""
+
