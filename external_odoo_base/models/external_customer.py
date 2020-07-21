@@ -10,7 +10,7 @@ class ExternalCustomer(models.Model):
 
     name = fields.Char(        
         compute='_get_name',
-        string='Nombre',
+        string='Name',
         store=False
     )
     
@@ -35,7 +35,7 @@ class ExternalCustomer(models.Model):
                 if obj.external_id:
                     obj.external_url = ''
                     if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://'+str(obj.external_source_id.url)+'/admin/customers/'+str(obj.external_id)                    
+                        obj.external_url = 'https://%s/admin/customers/%s' % (obj.external_source_id.url, obj.external_id)
     # fields
     external_id = fields.Char(
         string='External Id'
@@ -142,7 +142,13 @@ class ExternalCustomer(models.Model):
                         ]
                     )
             else:
-                res_partner_ids = self.env['res.partner'].sudo().search([('email', '=', str(self.email)),('active', '=', True),('supplier', '=', False)])
+                res_partner_ids = self.env['res.partner'].sudo().search(
+                    [
+                        ('email', '=', str(self.email)),
+                        ('active', '=', True),
+                        ('supplier', '=', False)
+                    ]
+                )
             # if exists
             if res_partner_ids:
                 res_partner_id = res_partner_ids[0]
@@ -186,7 +192,11 @@ class ExternalCustomer(models.Model):
                     vals['vat'] = 'EU'+str(self.vat)
                 # country_id
                 if self.country_code:
-                    res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])
+                    res_country_ids = self.env['res.country'].sudo().search(
+                        [
+                            ('code', '=', str(self.country_code))
+                        ]
+                    )
                     if res_country_ids:
                         res_country_id = res_country_ids[0]
                         # country_id
@@ -194,7 +204,12 @@ class ExternalCustomer(models.Model):
                         vals['country_id'] = res_country_id.id
                         # state_id
                         if self.province_code:
-                            res_country_state_ids = self.env['res.country.state'].sudo().search([('country_id', '=', res_country_id.id),('code', '=', str(self.province_code))])
+                            res_country_state_ids = self.env['res.country.state'].sudo().search(
+                                [
+                                    ('country_id', '=', res_country_id.id),
+                                    ('code', '=', str(self.province_code))
+                                ]
+                            )
                             if res_country_state_ids:
                                 res_country_state_id = res_country_state_ids[0]
                                 #state_id
@@ -202,11 +217,16 @@ class ExternalCustomer(models.Model):
                                 vals['state_id'] = res_country_state_id.id
                             else:
                                 if self.postcode:
-                                    res_better_zip_ids = self.env['res.better.zip'].sudo().search([('country_id', '=', res_country_id.id),('name', '=', str(self.postcode))])
+                                    res_better_zip_ids = self.env['res.better.zip'].sudo().search(
+                                        [
+                                            ('country_id', '=', res_country_id.id),
+                                            ('name', '=', str(self.postcode))
+                                        ]
+                                    )
                                     if res_better_zip_ids:
                                         res_better_zip_id = res_better_zip_ids[0]
                                         if res_better_zip_id.state_id:
-                                            #update_state_id
+                                            # update_state_id
                                             self.country_state_id = res_better_zip_id.state_id.id
                                             vals['state_id'] = res_better_zip_id.state_id.id
                 # create

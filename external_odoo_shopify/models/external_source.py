@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import Warning
 
 import logging
@@ -202,7 +202,7 @@ class ExternalSource(models.Model):
             external_sale_order_id.action_run()
             # result_message
             result_message['delete_message'] = True
-            result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
+            result_message['return_body'] = {'message': _('As it already exists, we update its status only')}
         else:
             # create
             external_sale_order_obj = self.env['external.sale.order'].sudo(6).create(order_vals)
@@ -259,7 +259,7 @@ class ExternalSource(models.Model):
                             for tax_line in line_item['tax_lines']:
                                 order_line_vals['tax_amount'] = tax_line['price']
                         # create
-                        external_sale_order_line_obj = self.env['external.sale.order.line'].sudo(6).create(order_line_vals)
+                        self.env['external.sale.order.line'].sudo(6).create(order_line_vals)
             # shipping_lines
             if 'shipping_lines' in vals:
                 for shipping_line in vals['shipping_lines']:
@@ -392,9 +392,9 @@ class ExternalSource(models.Model):
             result_item = False
             # operations
             if self.shopify_code == False:
-                raise Warning("Falta el shopify_code")
+                raise Warning(_('Shopify_code is missing'))
             else:
-                raise Warning("Se validara a traves del link de autorizacion")                                
+                raise Warning(_('It will be validated through the authorization link'))
             # return
             return result_item
         else:

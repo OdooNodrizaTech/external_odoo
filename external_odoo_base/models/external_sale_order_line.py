@@ -1,6 +1,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 import odoo.addons.decimal_precision as dp
 
 import logging
@@ -10,18 +10,8 @@ class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
     _description = 'External Sale Order Line'
     _order = 'create_date desc'
-    
-    name = fields.Char(        
-        compute='_get_name',
-        string='Nombre',
-        store=False
-    )
-    
-    @api.one        
-    def _get_name(self):            
-        for obj in self:
-            obj.name = obj.line_id
-    # fields
+    _rec_name = 'line_id'
+
     line_id = fields.Char(
         string='Line Id'
     )
@@ -103,7 +93,7 @@ class ExternalSaleOrderLine(models.Model):
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
                 else:
-                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id=%s, external_id=%s y external_variant_id=%s' % (
+                    _logger.info(_('Very strange, external_product_id not found regarding external_source_id=%s, external_id=%s and external_variant_id=%s') % (
                         self.external_sale_order_id.external_source_id.id,
                         self.external_id,
                         self.external_variant_id

@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -101,7 +101,7 @@ class ExternalStockPicking(models.Model):
                     if 'line_items' not in message_body:
                         result_message['statusCode'] = 500
                         result_message['delete_message'] = True
-                        result_message['return_body'] = {'error': 'Falta el campo line_items'}
+                        result_message['return_body'] = {'error': _('Line_items field missing')}
                     # default
                     source = 'woocommerce'
                     # fields_need_check
@@ -110,7 +110,7 @@ class ExternalStockPicking(models.Model):
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = 'No existe el campo %s' % field_need_check
+                            result_message['return_body'] = _('The field does not exist %s') % field_need_check
                     # operations_1
                     if result_message['statusCode'] == 200:
                         # source_url
@@ -125,7 +125,7 @@ class ExternalStockPicking(models.Model):
                         if len(external_source_ids) == 0:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
-                                'error': 'No existe external_source id con este source=%s y url=%s' % (source, source_url)
+                                'error': _('External_source id does not exist with this source=%s and url =%s') % (source, source_url)
                             }
                         else:
                             external_source_id = external_source_ids[0]                        
@@ -133,7 +133,7 @@ class ExternalStockPicking(models.Model):
                         if message_body['status'] not in ['processing', 'completed', 'shipped', 'refunded']:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = {'error': 'El pedido no esta completado'}
+                            result_message['return_body'] = {'error': _('The order is not completed')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
                             result_message = external_source_id.generate_external_stock_picking_woocommerce(message_body)[0]

@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -8,18 +8,8 @@ class ExternalStockPickingLine(models.Model):
     _name = 'external.stock.picking.line'
     _description = 'External Stock Picking Line'
     _order = 'create_date desc'
-    
-    name = fields.Char(        
-        compute='_get_name',
-        string='Nombre',
-        store=False
-    )
-    
-    @api.one        
-    def _get_name(self):            
-        for obj in self:
-            obj.name = obj.line_id
-    # fields
+    _rec_name = 'line_id'
+
     line_id = fields.Char(
         string='Line Id'
     )
@@ -74,7 +64,7 @@ class ExternalStockPickingLine(models.Model):
                     )
                 # operations
                 if external_product_ids:
-                    _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id=%s, external_id=%s y external_variant_id=%s' % (
+                    _logger.info(_('Very strange, external_product_id not found regarding external_source_id=%s, external_id=%s and external_variant_id=%s') % (
                         self.external_stock_picking_id.external_source_id.id,
                         self.external_id,
                         self.external_variant_id

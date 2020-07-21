@@ -10,7 +10,7 @@ class ExternalAddress(models.Model):
     
     name = fields.Char(        
         compute='_get_name',
-        string='Nombre',
+        string='Name',
         store=False
     )
     
@@ -109,7 +109,7 @@ class ExternalAddress(models.Model):
                     # name
                     name = str(self.first_name)
                     # fix_last_name
-                    if self.last_name != False:
+                    if self.last_name:
                         name += ' '+str(self.last_name)                    
                     # create
                     vals = {
@@ -140,7 +140,11 @@ class ExternalAddress(models.Model):
                         vals['mobile'] = str(mobile)
                     # country_id
                     if self.country_code:
-                        res_country_ids = self.env['res.country'].sudo().search([('code', '=', str(self.country_code))])
+                        res_country_ids = self.env['res.country'].sudo().search(
+                            [
+                                ('code', '=', str(self.country_code))
+                            ]
+                        )
                         if res_country_ids:
                             res_country_id = res_country_ids[0]
                             # update_country_id
@@ -148,7 +152,12 @@ class ExternalAddress(models.Model):
                             vals['country_id'] = res_country_id.id
                             # state_id
                             if self.province_code:
-                                res_country_state_ids = self.env['res.country.state'].sudo().search([('country_id', '=', res_country_id.id),('code', '=', str(self.province_code))])
+                                res_country_state_ids = self.env['res.country.state'].sudo().search(
+                                    [
+                                        ('country_id', '=', res_country_id.id),
+                                        ('code', '=', str(self.province_code))
+                                    ]
+                                )
                                 if res_country_state_ids:
                                     res_country_state_id = res_country_state_ids[0]
                                     # update_state_id
@@ -156,7 +165,12 @@ class ExternalAddress(models.Model):
                                     vals['state_id'] = res_country_state_id.id
                                 else:
                                     if self.postcode:
-                                        res_better_zip_ids = self.env['res.better.zip'].sudo().search([('country_id', '=', res_country_id.id),('name', '=', str(self.postcode))])
+                                        res_better_zip_ids = self.env['res.better.zip'].sudo().search(
+                                            [
+                                                ('country_id', '=', res_country_id.id),
+                                                ('name', '=', str(self.postcode))
+                                            ]
+                                        )
                                         if res_better_zip_ids:
                                             res_better_zip_id = res_better_zip_ids[0]
                                             if res_better_zip_id.state_id.id>0:

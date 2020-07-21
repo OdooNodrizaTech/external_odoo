@@ -1,5 +1,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import Warning
 
 import logging
@@ -86,8 +87,8 @@ class ExternalSource(models.Model):
     )
     api_status = fields.Selection(
         [
-            ('draft', 'Borrador'),
-            ('valid', 'Valida')
+            ('draft', 'Draft'),
+            ('valid', 'Valid')
         ],
         string='Api Status',
         default='draft'
@@ -116,11 +117,11 @@ class ExternalSource(models.Model):
                 if obj.url and obj.api_key and obj.api_secret:
                     return_item = obj.action_api_status_valid()
                     if return_item == False:
-                        raise Warning("No se ha podido validar la integracion con la API (quizas no esta disponible todavia)")
+                        raise Warning(_('Integration with API could not be validated (perhaps not yet available)'))
                     else:
                         obj.api_status = 'valid'
                 else:
-                    raise Warning("Los campos de api_key y api_secret son necesarios")                        
+                    raise Warning(_('The api_key and api_secret fields are required'))
                     
                     
     @api.one

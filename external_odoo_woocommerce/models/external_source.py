@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -157,7 +157,7 @@ class ExternalSource(models.Model):
             external_sale_order_id.action_run()
             # result_message
             result_message['delete_message'] = True
-            result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
+            result_message['return_body'] = {'message': _('As it already exists, we update its status only')}
         else:
             # create
             external_sale_order_obj = self.env['external.sale.order'].sudo(6).create(external_sale_order_vals)
@@ -276,7 +276,7 @@ class ExternalSource(models.Model):
             external_stock_picking_id.action_run()
             # result_message
             result_message['delete_message'] = True
-            result_message['return_body'] = {'message': 'Como ya existe, actualizamos el estado del mismo unicamente'}
+            result_message['return_body'] = {'message': _('As it already exists, we update its status only')}
         else:
             external_stock_picking_obj = self.env['external.stock.picking'].sudo(6).create(external_stock_picking_vals)
             # lines
@@ -350,7 +350,7 @@ class ExternalSource(models.Model):
         while True:
             response = wcapi.get("products?per_page=100&page=" + str(page) + "&status=publish").json()
             if 'message' in response:
-                _logger.info('Error en la consulta')
+                _logger.info('Query error')
                 _logger.info(response)
                 break
             else:
@@ -437,7 +437,7 @@ class ExternalSource(models.Model):
                             data['stock_status'] = 'outofstock'
                         # operations_update
                         if external_product_id.external_variant_id == False:
-                            response = wcapi.put("products/" + str(external_product_id.external_id), data).json()
+                            response = wcapi.put("products/%s" % external_product_id.external_id, data).json()
                         else:
                             response = wcapi.put("products/%s/variations/%s" % (
                                 external_product_id.external_id,
@@ -445,5 +445,5 @@ class ExternalSource(models.Model):
                             ), data).json()
                         # response
                         if 'id' not in response:
-                            _logger.info('Error al actualizar el stock')
+                            _logger.info('Failed to update stock')
                             _logger.info(response)
