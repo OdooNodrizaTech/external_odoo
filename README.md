@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/OdooNodrizaTech/external_odoo.svg?branch=12.0)](https://travis-ci.org/OdooNodrizaTech/external_odoo)
+[![Coverage Status](https://coveralls.io/repos/OdooNodrizaTech/external_odoo/badge.svg?branch=12.0)](https://coveralls.io/r/OdooNodrizaTech/external_odoo?branch=12.0)
+
 external_sale_order
 =========
 Módulos relacionados con External Sale Order
