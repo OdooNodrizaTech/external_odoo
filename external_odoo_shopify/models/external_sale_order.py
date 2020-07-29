@@ -9,7 +9,6 @@ import dateutil.parser
 from urllib.parse import urlparse
 
 import boto3
-from botocore.exceptions import ClientError
 import shopify
 import urllib.parse as urlparse
 from urllib.parse import parse_qs

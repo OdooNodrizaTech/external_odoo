@@ -6,7 +6,6 @@ import json
 import dateutil.parser
 
 import boto3
-from botocore.exceptions import ClientError
 _logger = logging.getLogger(__name__)
 
 

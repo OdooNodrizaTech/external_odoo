@@ -13,7 +13,7 @@ class ExternalSaleOrder(models.Model):
     _order = 'create_date desc'
     _rec_name = 'external_id'
 
-    external_url = fields.Char(        
+    external_url = fields.Char(
         compute='_compute_external_url',
         string='External Url',
         store=False
@@ -229,7 +229,9 @@ class ExternalSaleOrder(models.Model):
                             self.external_source_id.\
                                 external_sale_order_user_id.id
                     # create
-                    crm_lead_obj = self.env['crm.lead'].sudo(self.create_uid).create(crm_lead_vals)
+                    crm_lead_obj = self.env['crm.lead'].sudo(
+                        self.create_uid
+                    ).create(crm_lead_vals)
                     # update_partner_id
                     crm_lead_obj.partner_id = self.external_customer_id.partner_id.id
                     crm_lead_obj._onchange_partner_id()
@@ -301,7 +303,7 @@ class ExternalSaleOrder(models.Model):
                 self.sale_order_id = obj.id
                 # external_sale_order_shipping_id
                 for line_id in self.external_sale_order_shipping_ids:
-                    #data
+                    # data
                     line_vals = {
                         'order_id': self.sale_order_id.id,
                         'product_id':
@@ -331,22 +333,24 @@ class ExternalSaleOrder(models.Model):
                         'product_id':
                             line_id.external_product_id.product_template_id.id,
                         'name': str(line_id.title),
-                        'product_uom_qty': external_sale_order_line_id.quantity,
+                        'product_uom_qty': line_id.quantity,
                         'product_uom': 1,
                         'price_unit': line_id.unit_price_without_tax,
-                        'discount': 0                
-                    } 
+                        'discount': 0
+                    }
                     # Fix product_uom
                     if line_id.external_product_id.product_template_id.uom_id:
                         line_vals['product_uom'] = \
                             line_id.external_product_id.product_template_id.uom_id.id
                     # create
-                    obj = self.env['sale.order.line'].sudo(self.create_uid).create(line_vals)
+                    obj = self.env['sale.order.line'].sudo(
+                        self.create_uid
+                    ).create(line_vals)
                     # update
                     line_id.sale_order_line_id = obj.id
         # return
         return False
-    
+
     @api.multi
     def action_sale_order_done_error_partner_id_without_vat(self):
         self.ensure_one()
@@ -364,13 +368,13 @@ class ExternalSaleOrder(models.Model):
                     self.action_sale_order_done_error_partner_id_without_vat()
                 else:
                     self.sale_order_id.sudo(self.create_uid).action_confirm()
-            
+
     @api.multi
     def action_payment_transaction_create_multi(self):
         self.ensure_one()
         if self.payment_transaction_id.id == 0:
             self.action_payment_transaction_create()
-    
+
     @api.multi
     def action_payment_transaction_create(self):
         self.ensure_one()
@@ -384,13 +388,17 @@ class ExternalSaleOrder(models.Model):
                             'sale_order_id': self.sale_order_id.id,
                             'amount': self.total_price,
                             'currency_id': self.currency_id.id,
-                            'partner_id': self.external_customer_id.partner_id.id,
+                            'partner_id':
+                                self.external_customer_id.partner_id.id,
                             'acquirer_id':
-                                self.external_source_id.external_sale_payment_acquirer_id.id,
+                                self.external_source_id.
+                                    external_sale_payment_acquirer_id.id,
                             'date_validate': self.date,
                             'state': 'draft',
                         }
-                        obj = self.env['payment.transaction'].sudo(self.create_uid).create(vals)
+                        obj = self.env['payment.transaction'].sudo(
+                            self.create_uid
+                        ).create(vals)
                         # write
                         obj.write({
                             'state': 'done'

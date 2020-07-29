@@ -46,8 +46,9 @@ class ExternalSaleOrderShipping(models.Model):
         string='sale_order_line'
     )
 
-    @api.one
+    @api.multi
     def operations_item(self):
+        self.ensure_one()
         # calculate_tax
         if self.tax_amount > 0:
             self.total_price_without_tax = self.price-self.tax_amount

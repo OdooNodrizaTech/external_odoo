@@ -3,7 +3,7 @@
 # https://shopify.dev/docs/admin-api/rest/reference/orders/order
 import logging
 from odoo import api, fields, models, _
-from odoo.exceptions import Warning
+from odoo.exceptions import Warning as UserError
 import dateutil.parser
 import requests
 import json
@@ -336,7 +336,7 @@ class ExternalSource(models.Model):
             #session
             session = shopify.Session(self.url, '2020-01', self.shopify_access_token)
             shopify.ShopifyResource.activate_session(session)
-            '''            
+            '''
             # request mode (work)
             url = 'https://%s/admin/oauth/access_token' % self.url
             payload = {
@@ -426,9 +426,9 @@ class ExternalSource(models.Model):
             result_item = False
             # operations
             if not self.shopify_code:
-                raise Warning(_('Shopify_code is missing'))
+                raise UserError(_('Shopify_code is missing'))
             else:
-                raise Warning(_('It will be validated through the authorization link'))
+                raise UserError(_('It will be validated through the authorization link'))
             # return
             return result_item
         else:

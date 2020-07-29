@@ -4,7 +4,6 @@ from odoo import api, fields, models, tools, _
 
 import json
 import boto3
-from botocore.exceptions import ClientError
 _logger = logging.getLogger(__name__)
 
 

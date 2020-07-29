@@ -106,12 +106,12 @@ class ExternalSource(models.Model):
         self.ensure_one()
         if self.api_status == 'valid':
             self.action_api_status_draft()
-                
+
     @api.multi
     def action_api_status_draft(self):
         self.ensure_one()
         self.api_status = 'draft'
-    
+
     @api.multi
     def action_api_status_valid_multi(self):
         self.ensure_one()
@@ -174,10 +174,10 @@ class ExternalSource(models.Model):
                     # search draft invoice
                     invoice_ids = self.env['account.invoice'].sudo().search(
                         [
-                            ('partner_id', '=', item.invoice_partner_id.id),
+                            ('partner_id', '=', source_id.invoice_partner_id.id),
                             ('state', '=', 'draft'),
                             ('type', '=', 'out_invoice'),
-                            ('journal_id', '=', item.invoice_journal_id.id)
+                            ('journal_id', '=', source_id.invoice_journal_id.id)
                         ]
                     )
                     if invoice_ids:
@@ -208,7 +208,8 @@ class ExternalSource(models.Model):
                         # vals
                         line_vals = {
                             'invoice_id': invoice_id.id,
-                            'product_id': line_id.external_product_id.product_template_id.id,
+                            'product_id':
+                                line_id.external_product_id.product_template_id.id,
                             'name': '%s (%s)' % (
                                 line_id.title,
                                 line_id.external_stock_picking_id.picking_id.name
@@ -219,12 +220,15 @@ class ExternalSource(models.Model):
                             'currency_id': account_invoice_id.currency_id.id,                        
                         }
                         # account_id
-                        if line_id.external_product_id.product_template_id.property_account_income_id:
+                        if line_id.external_product_id.\
+                                product_template_id.property_account_income_id:
                             line_vals['account_id'] = \
-                                line_id.external_product_id.product_template_id.property_account_income_id.id
+                                line_id.external_product_id.\
+                                    product_template_id.property_account_income_id.id
                         else:
                             line_vals['account_id'] = \
-                                line_id.external_product_id.product_template_id.categ_id.property_account_income_categ_id.id
+                                line_id.external_product_id.product_template_id.\
+                                    categ_id.property_account_income_categ_id.id
                         # create
                         obj = self.env['account.invoice.line'].create(line_vals)
                         # onchange

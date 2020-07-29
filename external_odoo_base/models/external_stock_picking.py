@@ -125,11 +125,12 @@ class ExternalStockPicking(models.Model):
                 # stock_picking
                 vals = {
                     'external_stock_picking_id': self.id,
-                    'picking_type_id' :
+                    'picking_type_id':
                         self.external_source_id.
                             external_stock_picking_picking_type_id.id,
                     'location_id':
-                        self.external_source_id.external_stock_picking_picking_type_id.
+                        self.external_source_id.
+                            external_stock_picking_picking_type_id.
                             default_location_src_id.id,
                     'location_dest_id': 9,
                     'move_type' : 'one',
@@ -148,9 +149,10 @@ class ExternalStockPicking(models.Model):
                                 line_id.external_product_id.product_template_id.id,
                             'name':
                                 line_id.external_product_id.product_template_id.name,
-                            'product_uom_qty': external_stock_picking_line_id.quantity,
+                            'product_uom_qty': line_id.quantity,
                             'product_uom':
-                                line_id.external_product_id.product_template_id.uom_id.id,
+                                line_id.external_product_id.
+                                    product_template_id.uom_id.id,
                             'state': 'draft'
                         }
                         vals['move_lines'].append((0, 0, line_vals))
