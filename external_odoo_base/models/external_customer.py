@@ -14,28 +14,32 @@ class ExternalCustomer(models.Model):
         store=False
     )
     
-    @api.one        
-    def _get_name(self):            
-        for obj in self:
-            obj.name = obj.first_name
-            # Fix
-            if obj.last_name:
-                obj.name += ' '+str(self.last_name)
+    @api.multi
+    def _get_name(self):
+        self.ensure_one()
+        self.name = self.first_name
+        if self.last_name:
+            self.name = "%s %s" % (
+                self.first_name,
+                self.last_name
+            )
     
     external_url = fields.Char(        
-        compute='_get_external_url',
+        compute='_compute_external_url',
         string='External Url',
         store=False
     )
     
-    @api.one        
-    def _get_external_url(self):            
-        for obj in self:
-            if obj.external_source_id:
-                if obj.external_id:
-                    obj.external_url = ''
-                    if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://%s/admin/customers/%s' % (obj.external_source_id.url, obj.external_id)
+    @api.multi
+    @api.depends('external_source_id', 'external_id')
+    def _compute_external_url(self):
+        self.ensure_one()
+        self.external_url = ''
+        if self.external_source_id.type == 'shopify':
+            self.external_url = 'https://%s/admin/customers/%s' % (
+                self.external_source_id.url,
+                self.external_id
+            )
     # fields
     external_id = fields.Char(
         string='External Id'
@@ -100,13 +104,15 @@ class ExternalCustomer(models.Model):
     )
     
     @api.multi
+    @api.depends('partner_id')
     def action_operations_item(self):
-        for obj in self:
-            if obj.partner_id:
-                obj.action_operations_item()  
+        self.ensure_one()
+        if self.partner_id:
+            self.action_operations_item()
 
-    @api.one
+    @api.multi
     def operations_item(self):
+        self.ensure_one()
         if self.partner_id:
             # phone
             phone = None
@@ -122,7 +128,7 @@ class ExternalCustomer(models.Model):
                     phone = None
                 # search
                 if phone:
-                    res_partner_ids = self.env['res.partner'].sudo().search(
+                    items = self.env['res.partner'].sudo().search(
                         [
                             ('type', '=', 'contact'),
                             ('email', '=', str(self.email)),
@@ -132,7 +138,7 @@ class ExternalCustomer(models.Model):
                         ]
                     )
                 else:
-                    res_partner_ids = self.env['res.partner'].sudo().search(
+                    items = self.env['res.partner'].sudo().search(
                         [
                             ('type', '=', 'contact'),
                             ('email', '=', str(self.email)),
@@ -142,7 +148,7 @@ class ExternalCustomer(models.Model):
                         ]
                     )
             else:
-                res_partner_ids = self.env['res.partner'].sudo().search(
+                items = self.env['res.partner'].sudo().search(
                     [
                         ('email', '=', str(self.email)),
                         ('active', '=', True),
@@ -150,9 +156,8 @@ class ExternalCustomer(models.Model):
                     ]
                 )
             # if exists
-            if res_partner_ids:
-                res_partner_id = res_partner_ids[0]
-                self.partner_id = res_partner_id.id
+            if items:
+                self.partner_id = items[0].id
                 # Update country_id
                 if self.partner_id.country_id:
                     self.country_id = self.partner_id.country_id.id
@@ -163,7 +168,10 @@ class ExternalCustomer(models.Model):
                 # name
                 name = self.first_name
                 if self.last_name:
-                    name += ' '+str(name)
+                    name = "%s %s" % (
+                        self.first_name,
+                        self.last_name
+                    )
                 # create
                 vals = {
                     'active': True,
@@ -192,43 +200,40 @@ class ExternalCustomer(models.Model):
                     vals['vat'] = 'EU'+str(self.vat)
                 # country_id
                 if self.country_code:
-                    res_country_ids = self.env['res.country'].sudo().search(
+                    items = self.env['res.country'].sudo().search(
                         [
                             ('code', '=', str(self.country_code))
                         ]
                     )
-                    if res_country_ids:
-                        res_country_id = res_country_ids[0]
+                    if items:
                         # country_id
-                        self.country_id = res_country_id.id
-                        vals['country_id'] = res_country_id.id
+                        self.country_id = items[0].id
+                        vals['country_id'] = items[0].id
                         # state_id
                         if self.province_code:
-                            res_country_state_ids = self.env['res.country.state'].sudo().search(
+                            items = self.env['res.country.state'].sudo().search(
                                 [
                                     ('country_id', '=', res_country_id.id),
                                     ('code', '=', str(self.province_code))
                                 ]
                             )
-                            if res_country_state_ids:
-                                res_country_state_id = res_country_state_ids[0]
+                            if items:
                                 #state_id
-                                self.country_state_id = res_country_state_id.id
-                                vals['state_id'] = res_country_state_id.id
+                                self.country_state_id = items[0].id
+                                vals['state_id'] = items[0].id
                             else:
                                 if self.postcode:
-                                    res_better_zip_ids = self.env['res.better.zip'].sudo().search(
+                                    items = self.env['res.better.zip'].sudo().search(
                                         [
                                             ('country_id', '=', res_country_id.id),
                                             ('name', '=', str(self.postcode))
                                         ]
                                     )
-                                    if res_better_zip_ids:
-                                        res_better_zip_id = res_better_zip_ids[0]
-                                        if res_better_zip_id.state_id:
+                                    if items:
+                                        if items[0].state_id:
                                             # update_state_id
-                                            self.country_state_id = res_better_zip_id.state_id.id
-                                            vals['state_id'] = res_better_zip_id.state_id.id
+                                            self.country_state_id = items[0].state_id.id
+                                            vals['state_id'] = items[0].state_id.id
                 # create
                 res_partner_obj = self.env['res.partner'].create(vals)
                 self.partner_id = res_partner_obj.id                        
@@ -246,4 +251,4 @@ class ExternalCustomer(models.Model):
         # operations
         return_item.operations_item()
         # return
-        return return_item    
+        return return_item

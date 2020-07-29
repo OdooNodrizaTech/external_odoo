@@ -51,9 +51,10 @@ class ExternalSaleOrderDiscount(models.Model):
         string='sale_order_line_id'
     )    
 
-    @api.one
+    @api.multi
     def operations_item(self):
-        return False        
+        self.ensure_one()
+        return False
 
     @api.model
     def create(self, values):

@@ -10,14 +10,14 @@ import dateutil.parser
 import pytz
 import requests, json
 import shopify
-#https://github.com/Shopify/shopify_api/wiki/API-examples
-#https://shopify.dev/docs/admin-api/rest/reference/orders/order
+# https://github.com/Shopify/shopify_api/wiki/API-examples
+# https://shopify.dev/docs/admin-api/rest/reference/orders/order
 
 class ExternalSource(models.Model):
     _inherit = 'external.source'        
     
     authorize_url = fields.Char(
-        compute='_authorize_url',        
+        compute='_compute_authorize_url',
         string='Authorize Url'
     )    
     shopify_access_token = fields.Char(        
@@ -28,8 +28,9 @@ class ExternalSource(models.Model):
         help='Shopify Location ID (Default)'
     )
 
-    @api.one
+    @api.multi
     def generate_external_sale_order_shopify(self, vals):
+        self.ensure_one()
         # result_message
         result_message = {
             'statusCode': 200,
@@ -48,7 +49,10 @@ class ExternalSource(models.Model):
         processed_at = processed_at.replace() - processed_at.utcoffset()
         order_vals['date'] = processed_at.strftime("%Y-%m-%d %H:%M:%S")
         # order_fields_need_check
-        order_fields_need_check = ['number', 'total_price', 'subtotal_price', 'total_tax', 'total_discounts', 'total_line_items_price', 'source_name', 'landing_site']
+        order_fields_need_check = ['number', 'total_price', 'subtotal_price',
+                                   'total_tax', 'total_discounts',
+                                   'total_line_items_price', 'source_name',
+                                   'landing_site']
         for order_field_need_check in order_fields_need_check:
             if order_field_need_check in vals:
                 if vals[order_field_need_check] != '':
@@ -70,9 +74,13 @@ class ExternalSource(models.Model):
                 if 'amount' in vals['total_shipping_price_set']['shop_money']:
                     order_vals['total_shipping_price'] = vals['total_shipping_price_set']['shop_money']['amount']
         # currency
-        res_currency_ids = self.env['res.currency'].sudo().search([('name', '=', str(vals['currency']))])
-        if res_currency_ids:
-            order_vals['currency_id'] = res_currency_ids[0].id
+        items = self.env['res.currency'].sudo().search(
+            [
+                ('name', '=', str(vals['currency']))
+            ]
+        )
+        if items:
+            order_vals['currency_id'] = items[0].id
         # shopify_fulfillment_id
         if 'fulfillments' in vals:
             if len(vals['fulfillments']) > 0:
@@ -93,21 +101,21 @@ class ExternalSource(models.Model):
         # vat
         if 'note' in vals:
             if vals['note'] != '':
-                if vals['note'] != None:
+                if vals['note'] is not None:
                     customer_vals['vat'] = str(vals['note'])
         # cutomer_fields_need_check
         cutomer_fields_need_check = ['email', 'first_name', 'last_name', 'phone', 'zip']
         for cutomer_field_need_check in cutomer_fields_need_check:
             if cutomer_field_need_check in vals['customer']:
                 if vals['customer'][cutomer_field_need_check] != '':
-                    if vals['customer'][cutomer_field_need_check] != None:
+                    if vals['customer'][cutomer_field_need_check] is not None:
                         customer_vals[cutomer_field_need_check] = str(vals['customer'][cutomer_field_need_check])
         # customer default_address
         if 'default_address' in vals['customer']:
             customer_default_address_fields_need_check = ['address1', 'address2', 'city', 'phone', 'company', 'country_code', 'province_code']
             for customer_default_address_field_need_check in customer_default_address_fields_need_check:
                 if customer_default_address_field_need_check in vals['customer']['default_address']:
-                    if vals['customer']['default_address'][customer_default_address_field_need_check] != None:
+                    if vals['customer']['default_address'][customer_default_address_field_need_check] is not None:
                         if str(vals['customer']['default_address'][customer_default_address_field_need_check]) != '':
                             if customer_default_address_field_need_check not in customer_vals:
                                 customer_vals[customer_default_address_field_need_check] = str(vals['customer']['default_address'][customer_default_address_field_need_check])
@@ -123,14 +131,14 @@ class ExternalSource(models.Model):
                     customer_vals[new_field] = customer_vals[customer_replace_field]
                     del customer_vals[customer_replace_field]
         # search_previous
-        external_customer_ids = self.env['external.customer'].sudo().search(
+        items = self.env['external.customer'].sudo().search(
             [
                 ('external_source_id', '=', self.id),
                 ('external_id', '=', str(vals['customer']['id']))
             ]
         )
-        if external_customer_ids:
-            external_customer_obj = external_customer_ids[0]
+        if items:
+            external_customer_obj = items[0]
         else:
             # create
             external_customer_obj = self.env['external.customer'].sudo(6).create(customer_vals)
@@ -147,11 +155,15 @@ class ExternalSource(models.Model):
                     'type': 'invoice'
                 }
                 # address_fields_need_check
-                address_fields_need_check = ['first_name', 'address1', 'phone', 'city', 'zip', 'last_name', 'address2', 'company', 'latitude', 'longitude', 'country_code', 'province_code']
+                address_fields_need_check = [
+                    'first_name', 'address1', 'phone', 'city', 'zip',
+                    'last_name', 'address2', 'company', 'latitude',
+                    'longitude', 'country_code', 'province_code'
+                ]
                 for address_field_need_check in address_fields_need_check:
                     if address_field_need_check in vals[address_type]:
                         if vals[address_type][address_field_need_check] != '':
-                            if vals[address_type][address_field_need_check] != None:
+                            if vals[address_type][address_field_need_check] is not None:
                                 address_vals[address_field_need_check] = str(vals[address_type][address_field_need_check])
                 # replace
                 if 'zip' in address_vals:
@@ -163,7 +175,7 @@ class ExternalSource(models.Model):
                 # fix_external_address_vals
                 address_vals['external_id'] += '_' + str(address_vals['type'])
                 # search_previous
-                external_address_ids = self.env['external.address'].sudo().search(
+                items = self.env['external.address'].sudo().search(
                     [
                         ('external_source_id', '=', self.id),
                         ('external_customer_id', '=', address_vals['external_customer_id']),
@@ -171,8 +183,8 @@ class ExternalSource(models.Model):
                         ('type', '=', address_vals['type'])
                     ]
                 )
-                if external_address_ids:
-                    external_address_obj = external_address_ids[0]
+                if items:
+                    external_address_obj = items[0]
                 else:
                     # create
                     external_address_obj = self.env['external.address'].sudo(6).create(address_vals)
@@ -183,14 +195,14 @@ class ExternalSource(models.Model):
                     order_vals['external_shipping_address_id'] = external_address_obj.id
         # external_sale_order
         _logger.info(order_vals)
-        external_sale_order_ids = self.env['external.sale.order'].sudo().search(
+        items = self.env['external.sale.order'].sudo().search(
             [
                 ('external_source_id', '=', self.id),
                 ('external_id', '=', str(order_vals['external_id']))
             ]
         )
-        if external_sale_order_ids:
-            external_sale_order_id = external_sale_order_ids[0]
+        if items:
+            external_sale_order_id = items[0]
             external_sale_order_id.shopify_state = str(vals['financial_status'])
             # update_shopify_fulfillment_id
             if 'shopify_fulfillment_id' in order_vals:
@@ -211,7 +223,7 @@ class ExternalSource(models.Model):
                 if len(vals['discount_applications']) > 0:
                     for discount_application_item in vals['discount_applications']:
                         # vals
-                        external_sale_order_discount_vals = {
+                        discount_vals = {
                             'currency_id': external_sale_order_obj.currency_id.id,
                             'external_sale_order_id': external_sale_order_obj.id
                         }
@@ -219,16 +231,16 @@ class ExternalSource(models.Model):
                         discount_line_fields_need_check = ['type', 'value', 'value_type', 'description', 'title']
                         for discount_line_field_need_check in discount_line_fields_need_check:
                             if discount_line_field_need_check in discount_application_item:
-                                external_sale_order_discount_vals[discount_line_field_need_check] = str(discount_application_item[discount_line_field_need_check])
+                                discount_vals[discount_line_field_need_check] = str(discount_application_item[discount_line_field_need_check])
                         # create
-                        self.env['external.sale.order.discount'].sudo(6).create(external_sale_order_discount_vals)
+                        self.env['external.sale.order.discount'].sudo(6).create(discount_vals)
             # line_items
             for line_item in vals['line_items']:
                 # product_exists
                 if 'product_exists' in line_item:
-                    if line_item['product_exists'] == True:
+                    if line_item['product_exists']:
                         # vals
-                        order_line_vals = {
+                        line_vals = {
                             'line_id': str(line_item['id']),
                             'external_id': str(line_item['product_id']),
                             'external_sale_order_id': external_sale_order_obj.id,
@@ -239,27 +251,27 @@ class ExternalSource(models.Model):
                         # external_variant_id
                         if 'variant_id' in line_item:
                             if line_item['variant_id'] != '':
-                                order_line_vals['external_variant_id'] = str(line_item['variant_id'])
+                                line_vals['external_variant_id'] = str(line_item['variant_id'])
                         # sku
                         if 'sku' in line_item:
-                            order_line_vals['sku'] = str(line_item['sku'])
+                            line_vals['sku'] = str(line_item['sku'])
                             # price
                         if 'price_set' in line_item:
                             if 'shop_money' in line_item['price_set']:
                                 if 'amount' in line_item['price_set']['shop_money']:
-                                    order_line_vals['price'] = line_item['price_set']['shop_money']['amount']
+                                    line_vals['price'] = line_item['price_set']['shop_money']['amount']
                         # price
                         if 'total_discount_set' in line_item:
                             if 'shop_money' in line_item['total_discount_set']:
                                 if 'amount' in line_item['total_discount_set']['shop_money']:
-                                    order_line_vals['total_discount'] = \
+                                    line_vals['total_discount'] = \
                                     line_item['total_discount_set']['shop_money']['amount']
                         # tax_amount
                         if 'tax_lines' in line_item:
                             for tax_line in line_item['tax_lines']:
-                                order_line_vals['tax_amount'] = tax_line['price']
+                                line_vals['tax_amount'] = tax_line['price']
                         # create
-                        self.env['external.sale.order.line'].sudo(6).create(order_line_vals)
+                        self.env['external.sale.order.line'].sudo(6).create(line_vals)
             # shipping_lines
             if 'shipping_lines' in vals:
                 for shipping_line in vals['shipping_lines']:
@@ -287,17 +299,22 @@ class ExternalSource(models.Model):
         # return
         return result_message
     
-    @api.one        
-    def _authorize_url(self):                      
-        if self.api_key!=False and self.url!=False and self.type=='shopify':
+    @api.multi
+    @api.depends('api_key', 'url')
+    def _compute_authorize_url(self):
+        self.ensure_one()
+        if self.api_key and self.url and self.type=='shopify':
             session = shopify.Session(self.url, '2020-01')
             session.api_key = self.api_key
             scope = ['write_orders', 'read_products', 'write_inventory']
-            url_redirect = str(self.env['ir.config_parameter'].sudo().get_param('web.base.url'))+'/shopify_permission'
+            url_redirect = "%s/shopify_permission" % (
+                str(self.env['ir.config_parameter'].sudo().get_param('web.base.url'))
+            )
             self.authorize_url = session.create_permission_url(scope, url_redirect)        
     
-    @api.one
+    @api.multi
     def shopify_request_token(self, params):
+        self.ensure_one()
         if self.api_status == 'draft':
             # shopify api (not work)
             '''
@@ -309,7 +326,7 @@ class ExternalSource(models.Model):
             shopify.ShopifyResource.activate_session(session)
             '''            
             # request mode (work)
-            url = 'https://%s/admin/oauth/access_token' % (self.url)
+            url = 'https://%s/admin/oauth/access_token' % self.url
             payload = {
                 'client_id': str(self.api_key),
                 'client_secret': str(self.api_secret),
@@ -331,16 +348,18 @@ class ExternalSource(models.Model):
                     # api_status
                     self.api_status = 'valid'     
                     
-    @api.one
+    @api.multi
     def init_api_shopify(self):
+        self.ensure_one()
         # session
         session = shopify.Session(self.url, '2020-01', self.shopify_access_token)
         shopify.ShopifyResource.activate_session(session)
         # return
         return session
         
-    @api.one
+    @api.multi
     def action_operations_get_products(self):
+        self.ensure_one()
         # operations
         if self.type == 'shopify':
             self.action_operations_get_products_shopify()
@@ -349,23 +368,24 @@ class ExternalSource(models.Model):
         # return
         return return_item
             
-    @api.one
+    @api.multi
     def action_operations_get_products_shopify(self):
+        self.ensure_one()
         # init
-        self.init_api_shopify()                
+        self.init_api_shopify()
         # products
         products = shopify.Product.find(limit=100)
         for product in products:
             for variant in product.variants:
                 # search
-                external_product_ids = self.env['external.product'].sudo().search(
+                items = self.env['external.product'].sudo().search(
                     [
                         ('external_source_id', '=', self.id),
                         ('external_id', '=', str(product.id)),
                         ('external_variant_id', '=', str(variant.id))
                     ]                    
                 )
-                if len(external_product_ids) == 0:
+                if len(items) == 0:
                     vals = {
                         'external_source_id': self.id,
                         'external_id': str(product.id),
@@ -377,21 +397,23 @@ class ExternalSource(models.Model):
         # return
         return False        
     
-    @api.one
+    @api.multi
     def action_api_status_draft(self):
+        self.ensure_one()
         return_item = super(ExternalSource, self).action_api_status_draft()
         # extra
         self.shopify_access_token = False
         # return
         return return_item
     
-    @api.one
+    @api.multi
     def action_api_status_valid(self):
+        self.ensure_one()
         # result_item
         if self.type == 'shopify':
             result_item = False
             # operations
-            if self.shopify_code == False:
+            if not self.shopify_code:
                 raise Warning(_('Shopify_code is missing'))
             else:
                 raise Warning(_('It will be validated through the authorization link'))

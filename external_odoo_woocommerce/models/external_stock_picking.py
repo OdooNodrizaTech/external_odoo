@@ -1,25 +1,25 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+import logging
 from odoo import api, fields, models, tools, _
 
-import logging
-_logger = logging.getLogger(__name__)
-
 import json
-
 import boto3
 from botocore.exceptions import ClientError
+_logger = logging.getLogger(__name__)
+
 
 class ExternalStockPicking(models.Model):
     _inherit = 'external.stock.picking'        
     
-    @api.one
+    @api.multi
     def action_run(self):
+        self.ensure_one()
         return_item = super(ExternalStockPicking, self).action_run()        
         return return_item
     
     @api.model
     def cron_external_stock_picking_update_shipping_expedition_woocommerce(self):
-        _logger.info('cron_external_stock_picking_update_shipping_expedition_woocommerce')        
+        _logger.info('cron_external_stock_picking_update_shipping_expedition_woocommerce')
         # search
         external_source_ids = self.env['external.source'].sudo().search(
             [
@@ -47,7 +47,10 @@ class ExternalStockPicking(models.Model):
                     for external_stock_picking_id in external_stock_picking_ids:
                         #put
                         data = {"status": "completed"}
-                        response = wcapi.put("orders/%s" % external_stock_picking_id.number, data).json()
+                        response = wcapi.put(
+                            "orders/%s" % external_stock_picking_id.number,
+                            data
+                        ).json()
                         if 'id' in response:
                             # update OK
                             external_stock_picking_id.woocommerce_state = 'completed'
@@ -116,19 +119,21 @@ class ExternalStockPicking(models.Model):
                         # source_url
                         source_url = str(message_body['X-WC-Webhook-Source'])
                         # external_source_id
-                        external_source_ids = self.env['external.source'].sudo().search(
+                        items = self.env['external.source'].sudo().search(
                             [
                                 ('type', '=', str(source))
                                 ('url', '=', str(source_url))
                             ]
                         )
-                        if len(external_source_ids) == 0:
+                        if len(items) == 0:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
-                                'error': _('External_source id does not exist with this source=%s and url =%s') % (source, source_url)
+                                'error': _(
+                                    'External_source id does not exist with this source=%s and url =%s'
+                                ) % (source, source_url)
                             }
                         else:
-                            external_source_id = external_source_ids[0]                        
+                            external_source_id = items[0]
                         # status
                         if message_body['status'] not in ['processing', 'completed', 'shipped', 'refunded']:
                             result_message['statusCode'] = 500
@@ -136,12 +141,14 @@ class ExternalStockPicking(models.Model):
                             result_message['return_body'] = {'error': _('The order is not completed')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = external_source_id.generate_external_stock_picking_woocommerce(message_body)[0]
+                            result_message = external_source_id.generate_external_stock_picking_woocommerce(
+                                message_body
+                            )[0]
                     # logger
                     _logger.info(result_message)                                                            
                     # remove_message
-                    if result_message['delete_message'] == True:
-                        response_delete_message = sqs.delete_message(
+                    if result_message['delete_message']:
+                        sqs.delete_message(
                             QueueUrl=sqs_url,
                             ReceiptHandle=message['ReceiptHandle']
                         )

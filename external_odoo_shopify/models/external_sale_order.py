@@ -50,7 +50,7 @@ class ExternalSaleOrder(models.Model):
         string='Shopify Landing Site'
     )
 
-    @api.one
+    @api.multi
     def write(self, vals):
         return_object = super(ExternalSaleOrder, self).write(vals)
         # Fix
@@ -77,13 +77,15 @@ class ExternalSaleOrder(models.Model):
         # return
         return return_object
     
-    @api.one
+    @api.multi
     def action_run(self):
+        self.ensure_one()
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item
         
-    @api.one
+    @api.multi
     def action_run(self):
+        self.ensure_one()
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item        
     
@@ -130,12 +132,12 @@ class ExternalSaleOrder(models.Model):
                             # order (line_items)
                             order = shopify.Order.find(order_id)
                             # cancelled_at
-                            if order.cancelled_at != None:
+                            if order.cancelled_at is not None:
                                 external_sale_order_id.shopify_cancelled_at = str(order.cancelled_at.replace('T', ' '))
                             # Fix continue
-                            if external_sale_order_id.shopify_cancelled_at == False:
+                            if not external_sale_order_id.shopify_cancelled_at:
                                 # fullfiment
-                                if order.fulfillment_status != None:
+                                if order.fulfillment_status is not None:
                                     # fulfillments
                                     fulfillments = shopify.Fulfillment.find(order_id=order_id, limit=100)
                                     if fulfillments:
@@ -151,7 +153,11 @@ class ExternalSaleOrder(models.Model):
                                             'id': line_item.id
                                         })
                                     # Fulfillment create
-                                    new_fulfillment = shopify.Fulfillment(prefix_options = {'order_id': order_id})
+                                    new_fulfillment = shopify.Fulfillment(
+                                        prefix_options={
+                                            'order_id': order_id
+                                        }
+                                    )
                                     new_fulfillment.location_id = location_id
                                     new_fulfillment.line_items = line_items
                                     # new_fulfillment.notify_customer = False
@@ -161,7 +167,7 @@ class ExternalSaleOrder(models.Model):
                                         _logger.info('Error al crear')
                                     else:
                                         external_sale_order_id.shopify_fulfillment_id = new_fulfillment.id                                
-                                        external_sale_order_id.shopify_fulfillment_status = 'fulfilled'#Ever fullfiled
+                                        external_sale_order_id.shopify_fulfillment_status = 'fulfilled'
     
     @api.model
     def cron_sqs_external_sale_order_shopify(self):
@@ -209,7 +215,9 @@ class ExternalSaleOrder(models.Model):
                     # default
                     source = 'shopify'
                     # fields_need_check
-                    fields_need_check = ['id', 'customer', 'shipping_address', 'shipping_address', 'line_items', 'financial_status', 'X-Shopify-Shop-Domain']
+                    fields_need_check = ['id', 'customer', 'shipping_address',
+                                         'shipping_address', 'line_items',
+                                         'financial_status', 'X-Shopify-Shop-Domain']
                     for field_need_check in fields_need_check:
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
@@ -229,7 +237,9 @@ class ExternalSaleOrder(models.Model):
                         if external_source_ids:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
-                                'error': _('External_source id does not exist with this source=%s and url=%') % (source, source_url)
+                                'error': _('External_source id does not exist with this '
+                                           'source=%s and url=%'
+                                           ) % (source, source_url)
                             }
                         else:
                             external_source_id = external_source_ids[0]                        
@@ -240,12 +250,14 @@ class ExternalSaleOrder(models.Model):
                             result_message['return_body'] = {'error': _('The order is not paid (financial_status)')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = external_source_id.generate_external_sale_order_shopify(message_body)[0]
+                            result_message = external_source_id.generate_external_sale_order_shopify(
+                                message_body
+                            )[0]
                     # logger
                     _logger.info(result_message)                                                            
                     # remove_message
-                    if result_message['delete_message'] == True:
-                        response_delete_message = sqs.delete_message(
+                    if result_message['delete_message']:
+                        sqs.delete_message(
                             QueueUrl=sqs_url,
                             ReceiptHandle=message['ReceiptHandle']
                         )

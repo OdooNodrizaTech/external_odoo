@@ -34,24 +34,30 @@ class ExternalProduct(models.Model):
         string='Product Template'
     )
     external_url = fields.Char(
-        compute='_get_external_url',
+        compute='_compute_external_url',
         string='External Url',
         store=False
     )
 
-    @api.one
-    def _get_external_url(self):
-        for obj in self:
-            if obj.external_source_id:
-                if obj.external_id:
-                    obj.external_url = ''
-                    if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://%s/admin/products/%s' % (obj.external_source_id.url, obj.external_id)
-                    elif obj.external_source_id.type == 'woocommerce':
-                        obj.external_url = '%swp-admin/post.php?post=%s&action=edit' % (obj.external_source_id.url, obj.external_id)
+    @api.multi
+    @api.depends('external_source_id', 'external_id')
+    def _compute_external_url(self):
+        self.ensure_one()
+        self.external_url = ''
+        if self.external_source_id.type == 'shopify':
+            self.external_url = 'https://%s/admin/products/%s' % (
+                self.external_source_id.url,
+                self.external_id
+            )
+        elif self.external_source_id.type == 'woocommerce':
+            self.external_url = '%swp-admin/post.php?post=%s&action=edit' % (
+                self.external_source_id.url,
+                self.external_id
+            )
 
-    @api.one
+    @api.multi
     def operations_item(self):
+        self.ensure_one()
         return False        
 
     @api.model
@@ -60,4 +66,4 @@ class ExternalProduct(models.Model):
         # operations
         return_item.operations_item()
         # return
-        return return_item    
+        return return_item

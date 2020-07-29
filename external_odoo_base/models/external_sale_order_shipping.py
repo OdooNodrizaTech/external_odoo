@@ -49,9 +49,9 @@ class ExternalSaleOrderShipping(models.Model):
     @api.one
     def operations_item(self):
         # calculate_tax
-        if self.tax_amount>0:
+        if self.tax_amount > 0:
             self.total_price_without_tax = self.price-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/1
+            self.unit_price_without_tax = self.total_price_without_tax / 1
         # return
         return False        
 

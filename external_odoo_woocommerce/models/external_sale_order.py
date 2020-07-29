@@ -1,20 +1,21 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools, _
-
 import logging
-_logger = logging.getLogger(__name__)
+from odoo import api, fields, models, tools, _
 
 import json
 import dateutil.parser
 
 import boto3
 from botocore.exceptions import ClientError
+_logger = logging.getLogger(__name__)
+
 
 class ExternalSaleOrder(models.Model):
     _inherit = 'external.sale.order'             
         
-    @api.one
+    @api.multi
     def action_run(self):
+        self.ensure_one()
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item        
         
@@ -57,7 +58,10 @@ class ExternalSaleOrder(models.Model):
                         if stock_picking_ids:
                             # put (#OK, se actualiza)
                             data = {"status": "completed"}                
-                            response = wcapi.put("orders/"+str(external_sale_order_id.number), data).json()
+                            response = wcapi.put(
+                                "orders/"+str(external_sale_order_id.number),
+                                data
+                            ).json()
                             if 'id' in response:
                                 # update OK
                                 external_sale_order_id.woocommerce_state = 'completed'        
@@ -113,7 +117,8 @@ class ExternalSaleOrder(models.Model):
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = _('The field does not exist %s') % field_need_check
+                            result_message['return_body'] = \
+                                _('The field does not exist %s') % field_need_check
                     # operations_1
                     if result_message['statusCode'] == 200:
                         # source_url
@@ -128,10 +133,11 @@ class ExternalSaleOrder(models.Model):
                         if len(external_source_ids) == 0:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
-                                'error': _('External_source id does not exist with this source=% s and url=%s') % (
-                                    source,
-                                    source_url
-                                )
+                                'error':
+                                    _('External_source id does not exist with this source=% s and url=%s') % (
+                                        source,
+                                        source_url
+                                    )
                             }
                         else:
                             external_source_id = external_source_ids[0]
@@ -146,8 +152,8 @@ class ExternalSaleOrder(models.Model):
                     # logger
                     _logger.info(result_message)
                     # remove_message
-                    if result_message['delete_message'] == True:
-                        response_delete_message = sqs.delete_message(
+                    if result_message['delete_message']:
+                        sqs.delete_message(
                             QueueUrl=sqs_url,
                             ReceiptHandle=message['ReceiptHandle']
                         )

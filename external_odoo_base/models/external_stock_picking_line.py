@@ -43,35 +43,43 @@ class ExternalStockPickingLine(models.Model):
         string='invoice_line_id'
     )        
 
-    @api.one
+    @api.multi
+    @api.depends('external_product_id', 'external_stock_picking_id')
     def operations_item(self):
-        if self.external_product_id.id == 0:
-            if self.external_stock_picking_id:
-                if self.external_variant_id:
-                    external_product_ids = self.env['external.product'].sudo().search(
-                        [
-                            ('external_source_id', '=', self.external_stock_picking_id.external_source_id.id),
-                            ('external_id', '=', str(self.external_id)),
-                            ('external_variant_id', '=', str(self.external_variant_id))
-                        ]
-                    )
-                else:
-                    external_product_ids = self.env['external.product'].sudo().search(
-                        [
-                            ('external_source_id', '=', self.external_stock_picking_id.external_source_id.id),
-                            ('external_id', '=', str(self.external_id))
-                        ]
-                    )
-                # operations
-                if external_product_ids:
-                    _logger.info(_('Very strange, external_product_id not found regarding external_source_id=%s, external_id=%s and external_variant_id=%s') % (
-                        self.external_stock_picking_id.external_source_id.id,
-                        self.external_id,
-                        self.external_variant_id
-                    ))
-                else:
-                    external_product_id = external_product_ids[0]
-                    self.external_product_id = external_product_id.id
+        self.ensure_one()
+        if self.external_variant_id:
+            items = self.env['external.product'].sudo().search(
+                [
+                    ('external_source_id', '=',
+                     self.external_stock_picking_id.external_source_id.id),
+                    ('external_id', '=', str(self.external_id)),
+                    ('external_variant_id', '=',
+                     str(self.external_variant_id))
+                ]
+            )
+        else:
+            items = self.env['external.product'].sudo().search(
+                [
+                    ('external_source_id', '=',
+                     self.external_stock_picking_id.external_source_id.id),
+                    ('external_id', '=', str(self.external_id))
+                ]
+            )
+        # operations
+        if items:
+            _logger.info(
+                _('Very strange, external_product_id not found regarding '
+                  'external_source_id=%s, external_id=%s and '
+                  'external_variant_id=%s') %
+                (
+                    self.external_stock_picking_id.external_source_id.id,
+                    self.external_id,
+                    self.external_variant_id
+                )
+            )
+        else:
+            external_product_id = external_product_ids[0]
+            self.external_product_id = external_product_id.id
         # return
         return False        
 

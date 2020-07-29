@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="shopify_external_sale_order_form_view" model="ir.ui.view">
         <field name="name">shopify_external_sale_order_form_view</field>
         <field name="model">external.sale.order</field>
@@ -14,5 +15,6 @@
                 <field name="shopify_landing_site" attrs="{'invisible': [('external_source_type', '!=', 'shopify')]}"/>
             </field>                                                            
         </field>
-    </record>                           
+    </record>
+
 </odoo>
