@@ -1,11 +1,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools, _
-
 import logging
-_logger = logging.getLogger(__name__)
+from odoo import api, fields, models, _
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+_logger = logging.getLogger(__name__)
+
 
 class ExternalSaleOrder(models.Model):
     _name = 'external.sale.order'
@@ -18,7 +18,7 @@ class ExternalSaleOrder(models.Model):
         string='External Url',
         store=False
     )
-    
+
     @api.multi
     @api.depends('external_source_id', 'external_id')
     def _compute_external_url(self):
@@ -49,7 +49,7 @@ class ExternalSaleOrder(models.Model):
     external_customer_id = fields.Many2one(
         comodel_name='external.customer',
         string='Customer'
-    )    
+    )
     woocommerce_state = fields.Selection(
         [
             ('none', 'Ninguno'),
@@ -74,14 +74,14 @@ class ExternalSaleOrder(models.Model):
             ('partially_paid', 'Partially Paid'),
             ('refunded', 'Refunded'),
             ('partially_refunded', 'Partially Refunded'),
-            ('voided', 'Voided'),            
+            ('voided', 'Voided'),
         ],
         string='Shopify State',
         default='none'
     )
     date = fields.Datetime(
         string='Date'
-    )    
+    )
     currency_id = fields.Many2one(
         comodel_name='res.currency',
         string='Currency'
@@ -94,7 +94,7 @@ class ExternalSaleOrder(models.Model):
         compute='_compute_external_source_type',
         store=False,
         string='Source Type'
-    )            
+    )
     payment_transaction_id = fields.Many2one(
         comodel_name='payment.transaction',
         string='Payment Transaction'
@@ -106,7 +106,7 @@ class ExternalSaleOrder(models.Model):
     sale_order_id = fields.Many2one(
         comodel_name='sale.order',
         string='Pedido de venta'
-    )    
+    )
     number = fields.Integer(
         string='Number'
     )
@@ -124,7 +124,7 @@ class ExternalSaleOrder(models.Model):
     )
     total_line_items_price = fields.Monetary(
         string='Total Line Items Price'
-    )    
+    )
     total_shipping_price = fields.Monetary(
         string='Total Shipping Price'
     )
@@ -159,13 +159,13 @@ class ExternalSaleOrder(models.Model):
     landing_utm_source = fields.Char(
         string='Landing Utm source'
     )
-    
+
     @api.multi
     @api.depends('external_source_id')
     def _compute_external_source_type(self):
         self.ensure_one()
         self.external_source_type = self.external_source_id.type
-    
+
     @api.multi
     def action_run_multi(self):
         if self.sale_order_id.id == 0:
@@ -185,7 +185,7 @@ class ExternalSaleOrder(models.Model):
                     return_item = True
         # return
         return return_item
-    
+
     @api.multi
     def action_run(self):
         self.ensure_one()
@@ -199,8 +199,8 @@ class ExternalSaleOrder(models.Model):
             self.action_payment_transaction_create()
             self.action_crm_lead_win()
         # return
-        return False        
-            
+        return False
+
     @api.multi
     def action_crm_lead_create(self):
         self.ensure_one()
@@ -220,12 +220,14 @@ class ExternalSaleOrder(models.Model):
                         ),
                         'team_id': 1,
                         'probability': 10,
-                        'date_deadline': str(date_deadline.strftime("%Y-%m-%d %H:%I:%S"))
+                        'date_deadline':
+                            str(date_deadline.strftime("%Y-%m-%d %H:%I:%S"))
                     }
                     # user_id
                     if self.external_source_id.external_sale_order_user_id:
                         crm_lead_vals['user_id'] = \
-                            self.external_source_id.external_sale_order_user_id.id
+                            self.external_source_id.\
+                                external_sale_order_user_id.id
                     # create
                     crm_lead_obj = self.env['crm.lead'].sudo(self.create_uid).create(crm_lead_vals)
                     # update_partner_id
@@ -237,10 +239,10 @@ class ExternalSaleOrder(models.Model):
                             crm_lead_obj.partner_id.user_id = \
                                 self.external_source_id.external_sale_order_user_id.id
                     # lead_id
-                    self.lead_id = crm_lead_obj.id                                        
+                    self.lead_id = crm_lead_obj.id
         # return
         return False
-        
+
     @api.multi
     def action_sale_order_create(self):
         self.ensure_one()
@@ -258,8 +260,8 @@ class ExternalSaleOrder(models.Model):
                                 if self.external_shipping_address_id.partner_id:
                                     allow_create_sale_order = True
                                     # external_sale_order_line_ids
-                                    for external_sale_order_line_id in self.external_sale_order_line_ids:
-                                        if external_sale_order_line_id.external_product_id.id == 0:
+                                    for line_id in self.external_sale_order_line_ids:
+                                        if line_id.external_product_id.id == 0:
                                             allow_create_sale_order = False
             # operations
             if allow_create_sale_order:
@@ -270,69 +272,78 @@ class ExternalSaleOrder(models.Model):
                     'opportunity_id': self.lead_id.id,
                     'team_id': self.lead_id.team_id.id,
                     'partner_id': self.lead_id.partner_id.id,
-                    'partner_invoice_id': self.external_billing_address_id.partner_id.id,
-                    'partner_shipping_id': self.external_shipping_address_id.partner_id.id,
+                    'partner_invoice_id':
+                        self.external_billing_address_id.partner_id.id,
+                    'partner_shipping_id':
+                        self.external_shipping_address_id.partner_id.id,
                     'date_order': str(self.date),
                     'show_total': True,
-                    'origin': str(self.lead_id.name)                                                
+                    'origin': str(self.lead_id.name)
                 }
                 # user_id
                 if self.lead_id.user_id:
                     vals['user_id'] = self.lead_id.user_id.id
                 # payment_mode_id
-                if self.external_source_id.external_sale_order_account_payment_mode_id:
+                if self.external_source_id.\
+                        external_sale_order_account_payment_mode_id:
                     vals['payment_mode_id'] = \
-                        self.external_source_id.external_sale_order_account_payment_mode_id.id
+                        self.external_source_id.\
+                            external_sale_order_account_payment_mode_id.id
                 # payment_term_id
-                if self.external_source_id.external_sale_order_account_payment_term_id:
+                if self.external_source_id.\
+                        external_sale_order_account_payment_term_id:
                     vals['payment_term_id'] = \
-                        self.external_source_id.external_sale_order_account_payment_term_id.id
+                        self.external_source_id.\
+                            external_sale_order_account_payment_term_id.id
                 # create
                 obj = self.env['sale.order'].sudo(self.create_uid).create(vals)
                 # define
                 self.sale_order_id = obj.id
                 # external_sale_order_shipping_id
-                for external_sale_order_shipping_id in self.external_sale_order_shipping_ids:                    
+                for line_id in self.external_sale_order_shipping_ids:
                     #data
                     line_vals = {
                         'order_id': self.sale_order_id.id,
                         'product_id':
-                            self.external_source_id.external_sale_order_shipping_product_template_id.id,
-                        'name': str(external_sale_order_shipping_id.title),                    
+                            self.external_source_id.
+                                external_sale_order_shipping_product_template_id.id,
+                        'name': str(line_id.title),
                         'product_uom_qty': 1,
                         'product_uom': 1,
-                        'price_unit': external_sale_order_shipping_id.unit_price_without_tax,
+                        'price_unit': line_id.unit_price_without_tax,
                         'discount': 0
                     }
                     # Fix product_uom
-                    if self.external_source_id.external_sale_order_shipping_product_template_id.uom_id:
+                    if self.external_source_id.\
+                            external_sale_order_shipping_product_template_id.uom_id:
                         line_vals['product_uom'] = \
-                            self.external_source_id.external_sale_order_shipping_product_template_id.uom_id.id
+                            self.external_source_id.\
+                                external_sale_order_shipping_product_template_id.uom_id.id
                     # create
                     obj = self.env['sale.order.line'].sudo(self.create_uid).create(line_vals)
                     # update
-                    external_sale_order_shipping_id.sale_order_line_id = obj.id
+                    line_id.sale_order_line_id = obj.id
                 # lines
-                for external_sale_order_line_id in self.external_sale_order_line_ids:
+                for line_id in self.external_sale_order_line_ids:
                     # data
                     line_vals = {
                         'order_id': self.sale_order_id.id,
                         'product_id':
-                            external_sale_order_line_id.external_product_id.product_template_id.id,
-                        'name': str(external_sale_order_line_id.title),
+                            line_id.external_product_id.product_template_id.id,
+                        'name': str(line_id.title),
                         'product_uom_qty': external_sale_order_line_id.quantity,
                         'product_uom': 1,
-                        'price_unit': external_sale_order_line_id.unit_price_without_tax,
+                        'price_unit': line_id.unit_price_without_tax,
                         'discount': 0                
                     } 
                     # Fix product_uom
-                    if external_sale_order_line_id.external_product_id.product_template_id.uom_id:
+                    if line_id.external_product_id.product_template_id.uom_id:
                         line_vals['product_uom'] = \
-                            external_sale_order_line_id.external_product_id.product_template_id.uom_id.id
+                            line_id.external_product_id.product_template_id.uom_id.id
                     # create
                     obj = self.env['sale.order.line'].sudo(self.create_uid).create(line_vals)
                     # update
-                    external_sale_order_line_id.sale_order_line_id = obj.id
+                    line_id.sale_order_line_id = obj.id
         # return
         return False
     

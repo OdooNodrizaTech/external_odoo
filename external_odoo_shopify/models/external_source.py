@@ -1,17 +1,15 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools, _
-from odoo.exceptions import Warning
-
-import logging
-_logger = logging.getLogger(__name__)
-
-from datetime import datetime
-import dateutil.parser
-import pytz
-import requests, json
-import shopify
 # https://github.com/Shopify/shopify_api/wiki/API-examples
 # https://shopify.dev/docs/admin-api/rest/reference/orders/order
+import logging
+from odoo import api, fields, models, _
+from odoo.exceptions import Warning
+import dateutil.parser
+import requests
+import json
+import shopify
+_logger = logging.getLogger(__name__)
+
 
 class ExternalSource(models.Model):
     _inherit = 'external.source'        
@@ -19,11 +17,11 @@ class ExternalSource(models.Model):
     authorize_url = fields.Char(
         compute='_compute_authorize_url',
         string='Authorize Url'
-    )    
-    shopify_access_token = fields.Char(        
+    )
+    shopify_access_token = fields.Char(
         string='Shopify Access Token'
-    ) 
-    shopify_location_id = fields.Char(        
+    )
+    shopify_location_id = fields.Char(
         string='Shopify Location Id',
         help='Shopify Location ID (Default)'
     )
@@ -62,7 +60,8 @@ class ExternalSource(models.Model):
             order_vals['shopify_source_name'] = order_vals['source_name']
             del order_vals['source_name']
             # Fix
-            if order_vals['shopify_source_name'] not in ['web', 'pos', 'shopify_draft_order', 'iphone', 'android']:
+            if order_vals['shopify_source_name'] not in \
+                    ['web', 'pos', 'shopify_draft_order', 'iphone', 'android']:
                 order_vals['shopify_source_name'] = 'unknown'  # Force imposible value
         # shopify_landing_site
         if 'landing_site' in order_vals:
@@ -72,7 +71,8 @@ class ExternalSource(models.Model):
         if 'total_shipping_price_set' in vals:
             if 'shop_money' in vals['total_shipping_price_set']:
                 if 'amount' in vals['total_shipping_price_set']['shop_money']:
-                    order_vals['total_shipping_price'] = vals['total_shipping_price_set']['shop_money']['amount']
+                    order_vals['total_shipping_price'] = \
+                        vals['total_shipping_price_set']['shop_money']['amount']
         # currency
         items = self.env['res.currency'].sudo().search(
             [
@@ -88,7 +88,7 @@ class ExternalSource(models.Model):
                 order_vals['shopify_fulfillment_id'] = str(fulfillments_0['id'])
                 # shopify_fulfillment_status
         if 'fulfillment_status' in vals:
-            if vals['fulfillment_status'] != None:
+            if vals['fulfillment_status'] is not None:
                 if str(vals['fulfillment_status']) != '':
                     order_vals['shopify_fulfillment_status'] = str(vals['fulfillment_status'])
         # external_customer
@@ -105,20 +105,24 @@ class ExternalSource(models.Model):
                     customer_vals['vat'] = str(vals['note'])
         # cutomer_fields_need_check
         cutomer_fields_need_check = ['email', 'first_name', 'last_name', 'phone', 'zip']
-        for cutomer_field_need_check in cutomer_fields_need_check:
-            if cutomer_field_need_check in vals['customer']:
-                if vals['customer'][cutomer_field_need_check] != '':
-                    if vals['customer'][cutomer_field_need_check] is not None:
-                        customer_vals[cutomer_field_need_check] = str(vals['customer'][cutomer_field_need_check])
+        for field_need_check in cutomer_fields_need_check:
+            if field_need_check in vals['customer']:
+                if vals['customer'][field_need_check] != '':
+                    if vals['customer'][field_need_check] is not None:
+                        customer_vals[field_need_check] = str(vals['customer'][field_need_check])
         # customer default_address
         if 'default_address' in vals['customer']:
-            customer_default_address_fields_need_check = ['address1', 'address2', 'city', 'phone', 'company', 'country_code', 'province_code']
-            for customer_default_address_field_need_check in customer_default_address_fields_need_check:
-                if customer_default_address_field_need_check in vals['customer']['default_address']:
-                    if vals['customer']['default_address'][customer_default_address_field_need_check] is not None:
-                        if str(vals['customer']['default_address'][customer_default_address_field_need_check]) != '':
-                            if customer_default_address_field_need_check not in customer_vals:
-                                customer_vals[customer_default_address_field_need_check] = str(vals['customer']['default_address'][customer_default_address_field_need_check])
+            customer_default_address_fields_need_check = [
+                'address1', 'address2', 'city', 'phone', 'company', 'country_code',
+                'province_code'
+            ]
+            for field_need_check in customer_default_address_fields_need_check:
+                if field_need_check in vals['customer']['default_address']:
+                    if vals['customer']['default_address'][field_need_check] is not None:
+                        if str(vals['customer']['default_address'][field_need_check]) != '':
+                            if field_need_check not in customer_vals:
+                                customer_vals[field_need_check] = \
+                                    str(vals['customer']['default_address'][field_need_check])
             # customer_replace_fields
             customer_replace_fields = {
                 'address1': 'address_1',
@@ -160,11 +164,12 @@ class ExternalSource(models.Model):
                     'last_name', 'address2', 'company', 'latitude',
                     'longitude', 'country_code', 'province_code'
                 ]
-                for address_field_need_check in address_fields_need_check:
-                    if address_field_need_check in vals[address_type]:
-                        if vals[address_type][address_field_need_check] != '':
-                            if vals[address_type][address_field_need_check] is not None:
-                                address_vals[address_field_need_check] = str(vals[address_type][address_field_need_check])
+                for field_need_check in address_fields_need_check:
+                    if field_need_check in vals[address_type]:
+                        if vals[address_type][field_need_check] != '':
+                            if vals[address_type][field_need_check] is not None:
+                                address_vals[field_need_check] = \
+                                    str(vals[address_type][field_need_check])
                 # replace
                 if 'zip' in address_vals:
                     address_vals['postcode'] = str(address_vals['zip'])
@@ -206,15 +211,19 @@ class ExternalSource(models.Model):
             external_sale_order_id.shopify_state = str(vals['financial_status'])
             # update_shopify_fulfillment_id
             if 'shopify_fulfillment_id' in order_vals:
-                external_sale_order_id['shopify_fulfillment_id'] = str(order_vals['shopify_fulfillment_id'])
+                external_sale_order_id['shopify_fulfillment_id'] = \
+                    str(order_vals['shopify_fulfillment_id'])
             # shopify_fulfillment_status
             if 'shopify_fulfillment_status' in order_vals:
-                external_sale_order_id['shopify_fulfillment_status'] = str(order_vals['shopify_fulfillment_status'])
+                external_sale_order_id['shopify_fulfillment_status'] = \
+                    str(order_vals['shopify_fulfillment_status'])
             # action_run (only if need)
             external_sale_order_id.action_run()
             # result_message
             result_message['delete_message'] = True
-            result_message['return_body'] = {'message': _('As it already exists, we update its status only')}
+            result_message['return_body'] = {
+                'message': _('As it already exists, we update its status only')
+            }
         else:
             # create
             external_sale_order_obj = self.env['external.sale.order'].sudo(6).create(order_vals)
@@ -228,10 +237,13 @@ class ExternalSource(models.Model):
                             'external_sale_order_id': external_sale_order_obj.id
                         }
                         # discount_line_fields_need_check
-                        discount_line_fields_need_check = ['type', 'value', 'value_type', 'description', 'title']
-                        for discount_line_field_need_check in discount_line_fields_need_check:
-                            if discount_line_field_need_check in discount_application_item:
-                                discount_vals[discount_line_field_need_check] = str(discount_application_item[discount_line_field_need_check])
+                        discount_line_fields_need_check = [
+                            'type', 'value', 'value_type', 'description', 'title'
+                        ]
+                        for field_need_check in discount_line_fields_need_check:
+                            if field_need_check in discount_application_item:
+                                discount_vals[field_need_check] = \
+                                    str(discount_application_item[field_need_check])
                         # create
                         self.env['external.sale.order.discount'].sudo(6).create(discount_vals)
             # line_items
@@ -283,9 +295,9 @@ class ExternalSource(models.Model):
                     }
                     # shipping_line_fields_need_check
                     shipping_line_fields_need_check = ['title', 'price', 'discounted_price']
-                    for shipping_line_field_need_check in shipping_line_fields_need_check:
-                        if shipping_line_field_need_check in shipping_line:
-                            shipping_vals[shipping_line_field_need_check] = str(shipping_line[shipping_line_field_need_check])
+                    for field_need_check in shipping_line_fields_need_check:
+                        if field_need_check in shipping_line:
+                            shipping_vals[field_need_check] = str(shipping_line[field_need_check])
                     # tax_amount
                     if 'tax_lines' in shipping_line:
                         for tax_line in shipping_line['tax_lines']:

@@ -4,6 +4,7 @@ from odoo import api, fields, models, _
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class ExternalStockPickingLine(models.Model):
     _name = 'external.stock.picking.line'
     _description = 'External Stock Picking Line'
@@ -27,13 +28,13 @@ class ExternalStockPickingLine(models.Model):
         comodel_name='external.stock.picking',
         string='Sale Order',
         ondelete='cascade'
-    )    
+    )
     title = fields.Char(
         string='Title'
     )
     quantity = fields.Integer(
         string='Quantity'
-    )    
+    )
     move_id = fields.Many2one(
         comodel_name='stock.move',
         string='move_id'
@@ -41,7 +42,7 @@ class ExternalStockPickingLine(models.Model):
     invoice_line_id = fields.Many2one(
         comodel_name='account.invoice.line',
         string='invoice_line_id'
-    )        
+    )
 
     @api.multi
     @api.depends('external_product_id', 'external_stock_picking_id')
@@ -78,10 +79,9 @@ class ExternalStockPickingLine(models.Model):
                 )
             )
         else:
-            external_product_id = external_product_ids[0]
-            self.external_product_id = external_product_id.id
+            self.external_product_id = items[0].id
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):

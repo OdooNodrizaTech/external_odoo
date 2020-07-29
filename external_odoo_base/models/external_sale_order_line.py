@@ -6,6 +6,7 @@ import odoo.addons.decimal_precision as dp
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
     _description = 'External Sale Order Line'
@@ -56,17 +57,17 @@ class ExternalSaleOrderLine(models.Model):
     )
     unit_price_without_tax = fields.Float(
         string='Unit price Without Tax',
-        digits=dp.get_precision('Price Unit'),        
+        digits=dp.get_precision('Price Unit'),
         help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
         string='Total price Without Tax',
         help='Calculate (price*quantity)-tax_amount'
-    ) 
+    )
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
         string='sale_order_line'
-    )        
+    )
 
     @api.multi
     @api.depends('external_product_id', 'external_sale_order_id')
@@ -105,9 +106,9 @@ class ExternalSaleOrderLine(models.Model):
         # calculate_tax
         if self.tax_amount > 0:
             self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/self.quantity            
+            self.unit_price_without_tax = self.total_price_without_tax/self.quantity
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):

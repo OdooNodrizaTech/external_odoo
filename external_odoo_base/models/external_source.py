@@ -1,10 +1,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models, tools, _
+from odoo import api, fields, models, _
 from odoo.exceptions import Warning as UserError
 
 import logging
 _logger = logging.getLogger(__name__)
+
 
 class ExternalSource(models.Model):
     _name = 'external.source'
@@ -12,7 +13,7 @@ class ExternalSource(models.Model):
 
     name = fields.Char(
         string='Name'
-    )                        
+    )
     type = fields.Selection(
         [
             ('custom', 'Custom'),
@@ -54,7 +55,7 @@ class ExternalSource(models.Model):
         comodel_name='stock.picking.type',
         string='Stock Picking Type Id',
         help='Stock Picking Type Id (external.sale.order)',
-    )     
+    )
     external_sale_payment_acquirer_id = fields.Many2one(
         comodel_name='payment.acquirer',
         string='Payment Acquirer Id',
@@ -99,7 +100,7 @@ class ExternalSource(models.Model):
     api_secret = fields.Char(
         string='Api Secret'
     )
-        
+
     @api.multi
     def action_api_status_draft_multi(self):
         self.ensure_one()
@@ -109,60 +110,59 @@ class ExternalSource(models.Model):
     @api.multi
     def action_api_status_draft(self):
         self.ensure_one()
-        self.api_status = 'draft'                        
+        self.api_status = 'draft'
     
     @api.multi
     def action_api_status_valid_multi(self):
         self.ensure_one()
         if self.api_status == 'draft':
             if self.url and self.api_key and self.api_secret:
-                res = obj.action_api_status_valid()
+                res = self.action_api_status_valid()
                 if not res:
                     raise UserError(
                         _('Integration with API could not be '
                           'validated (perhaps not yet available)')
                     )
                 else:
-                    obj.api_status = 'valid'
+                    self.api_status = 'valid'
             else:
                 raise UserError(
                     _('The api_key and api_secret fields are required')
                 )
-                    
-                    
+
     @api.multi
     def action_api_status_valid(self):
         self.ensure_one()
-        return super(ExternalSource, self).action_api_status_valid()                    
-        
+        return super(ExternalSource, self).action_api_status_valid()
+
     @api.multi
     def action_operations_get_products_multi(self):
         self.ensure_one()
         if self.api_key and self.api_secret:
             self.action_operations_get_products()
-        
+
     @api.multi
     def action_operations_get_products(self):
         self.ensure_one()
         return False
-        
+
     @api.model
     def cron_external_stock_picking_line_generate_invoice_lines(self):
         _logger.info('cron_external_stock_picking_line_generate_invoice_lines')
         # source
-        items = self.env['external.source'].sudo().search(
+        source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'woocommerce'),
                 ('invoice_partner_id', '!=', False),
-                ('invoice_journal_id', '!=', False)                
+                ('invoice_journal_id', '!=', False)
             ]
         )
-        if items:
-            for item in items:
+        if source_ids:
+            for source_id in source_ids:
                 # external_stock_picking_line_ids
-                items = self.env['external.stock.picking.line'].sudo().search(
+                line_ids = self.env['external.stock.picking.line'].sudo().search(
                     [
-                        ('external_source_id', '=', items.id),
+                        ('external_source_id', '=', source_id.id),
                         ('invoice_line_id', '=', False),
                         ('external_stock_picking_id.picking_id', '!=', False),
                         ('external_stock_picking_id.picking_id.state', '=', 'done'),
@@ -170,9 +170,9 @@ class ExternalSource(models.Model):
                         ('external_product_id.invoice_partner_id', '!=', False)
                     ]
                 )
-                if items:
+                if line_ids:
                     # search draft invoice
-                    items = self.env['account.invoice'].sudo().search(
+                    invoice_ids = self.env['account.invoice'].sudo().search(
                         [
                             ('partner_id', '=', item.invoice_partner_id.id),
                             ('state', '=', 'draft'),
@@ -180,60 +180,59 @@ class ExternalSource(models.Model):
                             ('journal_id', '=', item.invoice_journal_id.id)
                         ]
                     )
-                    if items:
-                        invoice_id = items[0]
+                    if invoice_ids:
+                        invoice_id = invoice_ids[0]
                     else:
                         # create_proccess
                         vals = {
-                            'partner_id': external_source_id.invoice_partner_id.id,
-                            'partner_shipping_id': external_source_id.invoice_partner_id.id,
+                            'partner_id': source_id.invoice_partner_id.id,
+                            'partner_shipping_id': source_id.invoice_partner_id.id,
                             'state': 'draft',
                             'type': 'out_invoice',
-                            'journal_id': external_source_id.invoice_journal_id.id,
-                            'user_id': 0, 
+                            'journal_id': source_id.invoice_journal_id.id,
+                            'user_id': 0
                         }
                         # property_payment_term_id
-                        if external_source_id.invoice_partner_id.property_payment_term_id:
+                        if source_id.invoice_partner_id.property_payment_term_id:
                             vals['payment_term_id'] = \
-                                external_source_id.invoice_partner_id.property_payment_term_id.id
+                                source_id.invoice_partner_id.property_payment_term_id.id
                         # customer_payment_mode_id
-                        if external_source_id.invoice_partner_id.customer_payment_mode_id:
+                        if source_id.invoice_partner_id.customer_payment_mode_id:
                             vals['payment_mode_id'] = \
-                                external_source_id.invoice_partner_id.customer_payment_mode_id.id
+                                source_id.invoice_partner_id.customer_payment_mode_id.id
                         # create
                         obj = self.env['account.invoice'].create(vals)
                         invoice_id = obj
                     # add_lines
-                    for external_stock_picking_line_id in external_stock_picking_line_ids:
+                    for line_id in line_ids:
                         # vals
                         line_vals = {
                             'invoice_id': invoice_id.id,
-                            'product_id':
-                                external_stock_picking_line_id.external_product_id.product_template_id.id,
+                            'product_id': line_id.external_product_id.product_template_id.id,
                             'name': '%s (%s)' % (
-                                external_stock_picking_line_id.title,
-                                external_stock_picking_line_id.external_stock_picking_id.picking_id.name
+                                line_id.title,
+                                line_id.external_stock_picking_id.picking_id.name
                             ),
-                            'quantity': external_stock_picking_line_id.quantity,
+                            'quantity': line_id.quantity,
                             'price_unit':
-                                external_stock_picking_line_id.external_product_id.product_template_id.list_price,
+                                line_id.external_product_id.product_template_id.list_price,
                             'currency_id': account_invoice_id.currency_id.id,                        
                         }
                         # account_id
-                        if external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id:
+                        if line_id.external_product_id.product_template_id.property_account_income_id:
                             line_vals['account_id'] = \
-                                external_stock_picking_line_id.external_product_id.product_template_id.property_account_income_id.id
+                                line_id.external_product_id.product_template_id.property_account_income_id.id
                         else:
                             line_vals['account_id'] = \
-                                external_stock_picking_line_id.external_product_id.product_template_id.categ_id.property_account_income_categ_id.id
+                                line_id.external_product_id.product_template_id.categ_id.property_account_income_categ_id.id
                         # create
                         obj = self.env['account.invoice.line'].create(line_vals)
                         # onchange
                         obj._onchange_product_id()
                         obj._onchange_account_id()
                         obj.name = '%s (%s)' % (
-                            external_stock_picking_line_id.title,
-                            external_stock_picking_line_id.external_stock_picking_id.picking_id.name
+                            line_id.title,
+                            line_id.external_stock_picking_id.picking_id.name
                         )
                         # update
-                        external_stock_picking_line_id.invoice_line_id = obj.id
+                        line_id.invoice_line_id = obj.id

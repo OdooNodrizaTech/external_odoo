@@ -11,7 +11,7 @@ class ExternalProduct(models.Model):
 
     external_id = fields.Char(
         string='External Id'
-    )    
+    )
     external_variant_id = fields.Char(
         string='Variant Id'
     )
@@ -28,7 +28,7 @@ class ExternalProduct(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )                
+    )
     product_template_id = fields.Many2one(
         comodel_name='product.template',
         string='Product Template'
@@ -58,7 +58,7 @@ class ExternalProduct(models.Model):
     @api.multi
     def operations_item(self):
         self.ensure_one()
-        return False        
+        return False
 
     @api.model
     def create(self, values):

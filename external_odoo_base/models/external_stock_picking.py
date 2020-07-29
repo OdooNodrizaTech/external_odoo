@@ -9,12 +9,12 @@ class ExternalStockPicking(models.Model):
     _order = 'create_date desc'
     _rec_name = 'external_id'
 
-    external_url = fields.Char(        
+    external_url = fields.Char(
         compute='_compute_external_url',
         string='External Url',
         store=False
     )
-    
+
     @api.multi
     @api.depends('external_source_id', 'external_id')
     def _compute_external_url(self):
@@ -56,14 +56,14 @@ class ExternalStockPicking(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )                    
+    )
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
         string='Albaran'
     )
     number = fields.Integer(
         string='Number'
-    )    
+    )
     external_source_name = fields.Selection(
         [
             ('web', 'Web')
@@ -98,7 +98,7 @@ class ExternalStockPicking(models.Model):
                 return_item = True
         # return
         return return_item
-        
+
     @api.multi
     def action_run(self):
         self.ensure_one()
@@ -106,7 +106,7 @@ class ExternalStockPicking(models.Model):
         allow_create_item = self.allow_create()[0]
         if allow_create_item:
             self.action_stock_picking_create()
-        
+
     @api.multi
     def action_stock_picking_create(self):
         self.ensure_one()
@@ -117,8 +117,8 @@ class ExternalStockPicking(models.Model):
                 if self.external_customer_id.partner_id:
                     allow_create_stock_picking = True
                     # check_external_stock_picking_line_ids
-                    for external_stock_picking_line_id in self.external_stock_picking_line_ids:
-                        if external_stock_picking_line_id.external_product_id.id == 0:
+                    for line_id in self.external_stock_picking_line_ids:
+                        if line_id.external_product_id.id == 0:
                             allow_create_stock_picking = False
             # operations
             if allow_create_stock_picking:
@@ -126,30 +126,32 @@ class ExternalStockPicking(models.Model):
                 vals = {
                     'external_stock_picking_id': self.id,
                     'picking_type_id' :
-                        self.external_source_id.external_stock_picking_picking_type_id.id,
+                        self.external_source_id.
+                            external_stock_picking_picking_type_id.id,
                     'location_id':
-                        self.external_source_id.external_stock_picking_picking_type_id.default_location_src_id.id,
+                        self.external_source_id.external_stock_picking_picking_type_id.
+                            default_location_src_id.id,
                     'location_dest_id': 9,
                     'move_type' : 'one',
                     'partner_id': self.external_customer_id.partner_id.id,
-                    'move_lines': []             
+                    'move_lines': []
                 }
                 # carrier_id
                 if self.external_source_id.external_stock_picking_carrier_id:
                     vals['carrier_id'] = \
                         self.external_source_id.external_stock_picking_carrier_id.id
                 # move_lines
-                for external_stock_picking_line_id in self.external_stock_picking_line_ids:
-                    if external_stock_picking_line_id.external_product_id:
+                for line_id in self.external_stock_picking_line_ids:
+                    if line_id.external_product_id:
                         line_vals = {
                             'product_id':
-                                external_stock_picking_line_id.external_product_id.product_template_id.id,
+                                line_id.external_product_id.product_template_id.id,
                             'name':
-                                external_stock_picking_line_id.external_product_id.product_template_id.name,
+                                line_id.external_product_id.product_template_id.name,
                             'product_uom_qty': external_stock_picking_line_id.quantity,
                             'product_uom':
-                                external_stock_picking_line_id.external_product_id.product_template_id.uom_id.id,
-                            'state': 'draft',                        
+                                line_id.external_product_id.product_template_id.uom_id.id,
+                            'state': 'draft'
                         }
                         vals['move_lines'].append((0, 0, line_vals))
                 # create
@@ -161,7 +163,8 @@ class ExternalStockPicking(models.Model):
                     items = self.env['external.stock.picking.line'].sudo().search(
                         [
                             ('external_stock_picking_id', '=', self.id),
-                            ('external_product_id.product_template_id', '=', move_line.product_id.id)
+                            ('external_product_id.product_template_id', '=',
+                             move_line.product_id.id)
                         ]
                     )
                     if items:

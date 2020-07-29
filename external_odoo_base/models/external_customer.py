@@ -8,14 +8,14 @@ class ExternalCustomer(models.Model):
     _description = 'External Customer'
     _order = 'create_date desc'
 
-    name = fields.Char(        
-        compute='_get_name',
+    name = fields.Char(
+        compute='_compute_name',
         string='Name',
         store=False
     )
-    
+
     @api.multi
-    def _get_name(self):
+    def _compute_name(self):
         self.ensure_one()
         self.name = self.first_name
         if self.last_name:
@@ -23,13 +23,13 @@ class ExternalCustomer(models.Model):
                 self.first_name,
                 self.last_name
             )
-    
-    external_url = fields.Char(        
+
+    external_url = fields.Char(
         compute='_compute_external_url',
         string='External Url',
         store=False
     )
-    
+
     @api.multi
     @api.depends('external_source_id', 'external_id')
     def _compute_external_url(self):
@@ -47,7 +47,7 @@ class ExternalCustomer(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )            
+    )
     partner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Partner'
@@ -78,7 +78,7 @@ class ExternalCustomer(models.Model):
     )
     city = fields.Char(
         string='City'
-    )       
+    )
     active = fields.Boolean(
         string='Active'
     )
@@ -97,12 +97,12 @@ class ExternalCustomer(models.Model):
     )
     postcode = fields.Char(
         string='Postcode'
-    )    
+    )
     country_state_id = fields.Many2one(
         comodel_name='res.country.state',
         string='Country State'
     )
-    
+
     @api.multi
     @api.depends('partner_id')
     def action_operations_item(self):
@@ -195,7 +195,7 @@ class ExternalCustomer(models.Model):
                     vals['phone'] = str(phone)
                 else:
                     vals['mobile'] = str(mobile)
-                #vat
+                # vat
                 if self.vat:
                     vals['vat'] = 'EU'+str(self.vat)
                 # country_id
@@ -213,19 +213,19 @@ class ExternalCustomer(models.Model):
                         if self.province_code:
                             items = self.env['res.country.state'].sudo().search(
                                 [
-                                    ('country_id', '=', res_country_id.id),
+                                    ('country_id', '=', self.country_id.id),
                                     ('code', '=', str(self.province_code))
                                 ]
                             )
                             if items:
-                                #state_id
+                                # state_id
                                 self.country_state_id = items[0].id
                                 vals['state_id'] = items[0].id
                             else:
                                 if self.postcode:
                                     items = self.env['res.better.zip'].sudo().search(
                                         [
-                                            ('country_id', '=', res_country_id.id),
+                                            ('country_id', '=', self.country_id.id),
                                             ('name', '=', str(self.postcode))
                                         ]
                                     )
@@ -236,19 +236,19 @@ class ExternalCustomer(models.Model):
                                             vals['state_id'] = items[0].state_id.id
                 # create
                 res_partner_obj = self.env['res.partner'].create(vals)
-                self.partner_id = res_partner_obj.id                        
+                self.partner_id = res_partner_obj.id
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):
-        return_item = super(ExternalCustomer, self).create(values)
+        res = super(ExternalCustomer, self).create(values)
         # Fix province_code
-        if return_item.country_code and return_item.province_code:
-            code_check = str(return_item.country_code)+'-'
-            if code_check in return_item.province_code:
-                return_item.province_code = return_item.province_code.replace(code_check, "")        
+        if res.country_code and res.province_code:
+            code_check = str(res.country_code)+'-'
+            if code_check in res.province_code:
+                res.province_code = res.province_code.replace(code_check, "")
         # operations
-        return_item.operations_item()
+        res.operations_item()
         # return
-        return return_item
+        return res

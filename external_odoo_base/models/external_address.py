@@ -7,13 +7,13 @@ class ExternalAddress(models.Model):
     _name = 'external.address'
     _description = 'External Address'
     _order = 'create_date desc'
-    
-    name = fields.Char(        
+
+    name = fields.Char(
         compute='_compute_name',
         string='Name',
         store=False
     )
-    
+
     @api.multi
     def _compute_name(self):
         self.ensure_one()
@@ -34,7 +34,7 @@ class ExternalAddress(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )                        
+    )
     type = fields.Selection(
         [
             ('invoice', 'Invoice'),
@@ -61,7 +61,7 @@ class ExternalAddress(models.Model):
     )
     last_name = fields.Char(
         string='Last Name'
-    )    
+    )
     address2 = fields.Char(
         string='Address2'
     )
@@ -90,7 +90,7 @@ class ExternalAddress(models.Model):
     )
     postcode = fields.Char(
         string='Postcode'
-    )   
+    )
 
     @api.multi
     def operations_item(self):
@@ -101,7 +101,7 @@ class ExternalAddress(models.Model):
             mobile = None
             # phone_mobile
             if self.phone:
-                phone = str(self.phone)                
+                phone = str(self.phone)
                 phone_first_char = str(self.phone)[:1]
                 if phone_first_char == '6':
                     mobile = str(phone)
@@ -159,7 +159,7 @@ class ExternalAddress(models.Model):
                             if self.province_code:
                                 items = self.env['res.country.state'].sudo().search(
                                     [
-                                        ('country_id', '=', res_country_id.id),
+                                        ('country_id', '=', self.country_id.id),
                                         ('code', '=', str(self.province_code))
                                     ]
                                 )
@@ -171,7 +171,7 @@ class ExternalAddress(models.Model):
                                     if self.postcode:
                                         items = self.env['res.better.zip'].sudo().search(
                                             [
-                                                ('country_id', '=', res_country_id.id),
+                                                ('country_id', '=', self.country_id.id),
                                                 ('name', '=', str(self.postcode))
                                             ]
                                         )
@@ -184,17 +184,17 @@ class ExternalAddress(models.Model):
                     res_partner_obj = self.env['res.partner'].create(vals)
                     self.partner_id = res_partner_obj.id
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):
-        return_item = super(ExternalAddress, self).create(values)
+        res = super(ExternalAddress, self).create(values)
         # Fix province_code
-        if return_item.country_code and return_item.province_code:
-            code_check = str(return_item.country_code)+'-'
-            if code_check in return_item.province_code:
-                return_item.province_code = return_item.province_code.replace(code_check, "")
+        if res.country_code and res.province_code:
+            code_check = str(res.country_code)+'-'
+            if code_check in res.province_code:
+                res.province_code = res.province_code.replace(code_check, "")
         # operations
-        return_item.operations_item()
+        res.operations_item()
         # return
-        return return_item
+        return res
