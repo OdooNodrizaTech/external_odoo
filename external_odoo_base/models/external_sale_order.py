@@ -359,9 +359,10 @@ class ExternalSaleOrder(models.Model):
 
     @api.multi
     def action_sale_order_done_error_partner_id_without_vat(self):
+        self.ensure_one()
         _logger.info(
             _('The order %s cannot be confirmed because the '
-              'client does NOT have a CIF') % item.sale_order_id.name
+              'client does NOT have a CIF') % self.sale_order_id.name
         )
 
     @api.multi

@@ -246,7 +246,7 @@ class ExternalSource(models.Model):
                 # discount_applications
                 if 'discount_applications' in vals:
                     if len(vals['discount_applications']) > 0:
-                        for discount_application_item in vals['discount_applications']:
+                        for dai in vals['discount_applications']:
                             # vals
                             discount_vals = {
                                 'currency_id': order_obj.currency_id.id,
@@ -257,8 +257,8 @@ class ExternalSource(models.Model):
                                 'type', 'value', 'value_type', 'description', 'title'
                             ]
                             for fnc in dlfnc:
-                                if fnc in discount_application_item:
-                                    discount_vals[fnc] = str(discount_application_item[fnc])
+                                if fnc in dai:
+                                    discount_vals[fnc] = str(dai[fnc])
                             # create
                             self.env['external.sale.order.discount'].sudo(6).create(
                                 discount_vals
@@ -280,27 +280,35 @@ class ExternalSource(models.Model):
                             # external_variant_id
                             if 'variant_id' in line_item:
                                 if line_item['variant_id'] != '':
-                                    line_vals['external_variant_id'] = str(line_item['variant_id'])
+                                    linte_item_vi = line_item['variant_id']
+                                    line_vals['external_variant_id'] = str(linte_item_vi)
                             # sku
                             if 'sku' in line_item:
                                 line_vals['sku'] = str(line_item['sku'])
                                 # price
                             if 'price_set' in line_item:
+                                line_item_ps = line_item['price_set']
                                 if 'shop_money' in line_item['price_set']:
+                                    line_item_ps_sm = line_item_ps['shop_money']
                                     if 'amount' in line_item['price_set']['shop_money']:
-                                        line_vals['price'] = line_item['price_set']['shop_money']['amount']
+                                        line_item_ps_sm_a = line_item_ps_sm['amount']
+                                        line_vals['price'] = line_item_ps_sm_a
                             # price
                             if 'total_discount_set' in line_item:
+                                line_item_tds = line_item['total_discount_set']
                                 if 'shop_money' in line_item['total_discount_set']:
+                                    line_item_tds_sm = line_item_tds['shop_money']
                                     if 'amount' in line_item['total_discount_set']['shop_money']:
-                                        line_vals['total_discount'] = \
-                                        line_item['total_discount_set']['shop_money']['amount']
+                                        line_item_tds_sm_a = line_item_tds_sm['amount']
+                                        line_vals['total_discount'] = line_item_tds_sm_a
                             # tax_amount
                             if 'tax_lines' in line_item:
                                 for tax_line in line_item['tax_lines']:
                                     line_vals['tax_amount'] = tax_line['price']
                             # create
-                            self.env['external.sale.order.line'].sudo(6).create(line_vals)
+                            self.env['external.sale.order.line'].sudo(6).create(
+                                line_vals
+                            )
                 # shipping_lines
                 if 'shipping_lines' in vals:
                     for shipping_line in vals['shipping_lines']:
@@ -365,7 +373,11 @@ class ExternalSource(models.Model):
                     if 'access_token' in response_json:
                         item.shopify_access_token = str(response_json['access_token'])
                         # session
-                        session = shopify.Session(item.url, '2020-01', item.shopify_access_token)
+                        session = shopify.Session(
+                            item.url,
+                            '2020-01',
+                            item.shopify_access_token
+                        )
                         shopify.ShopifyResource.activate_session(session)
                         # api_status
                         item.api_status = 'valid'
@@ -435,7 +447,9 @@ class ExternalSource(models.Model):
                 if not item.shopify_code:
                     raise UserError(_('Shopify_code is missing'))
                 else:
-                    raise UserError(_('It will be validated through the authorization link'))
+                    raise UserError(
+                        _('It will be validated through the authorization link')
+                    )
                 # return
                 return result_item
             else:
@@ -468,7 +482,11 @@ class ExternalSource(models.Model):
                         qty_item = 0
                         quant_ids = self.env['stock.quant'].sudo().search(
                             [
-                                ('product_id', '=', product_id.product_template_id.id),
+                                (
+                                    'product_id',
+                                    '=',
+                                    product_id.product_template_id.id
+                                ),
                                 ('location_id.usage', '=', 'internal')
                             ]
                         )
@@ -478,7 +496,8 @@ class ExternalSource(models.Model):
                         # qty_item
                         product = shopify.Product.find(product_id.external_id)
                         for variant in product.variants:
-                            if str(variant.id) == str(product_id.external_variant_id):
+                            product_id_ev = product_id.external_variant_id
+                            if str(variant.id) == str(product_id_ev):
                                 inventory_level = shopify.InventoryLevel.set(
                                     location_id=42284515467,
                                     inventory_item_id=variant.inventory_item_id,

@@ -175,7 +175,7 @@ class ExternalAddress(models.Model):
                                         # define
                                         item_ci = item.country_id
                                         if item.postcode:
-                                            zips = self.env[
+                                            items = self.env[
                                                 'res.better.zip'
                                             ].sudo().search(
                                                 [
@@ -183,8 +183,8 @@ class ExternalAddress(models.Model):
                                                     ('name', '=', str(item.postcode))
                                                 ]
                                             )
-                                            if zips:
-                                                zip = zips[0]
+                                            if items:
+                                                zip = items[0]
                                                 if zip.state_id:
                                                     # update_state_id
                                                     item.country_state_id = \
