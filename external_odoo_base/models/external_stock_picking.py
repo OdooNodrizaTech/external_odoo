@@ -148,7 +148,7 @@ class ExternalStockPicking(models.Model):
                             line_id_ep_pt = line_id_ep.product_template_id
                             # vals
                             line_vals = {
-                                'product_id':line_id_ep_pt.id,
+                                'product_id': line_id_ep_pt.id,
                                 'name': line_id_ep_pt.name,
                                 'product_uom_qty': line_id.quantity,
                                 'product_uom': line_id_ep_pt.uom_id.id,

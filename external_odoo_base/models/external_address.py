@@ -172,10 +172,14 @@ class ExternalAddress(models.Model):
                                         item.country_state_id = items[0].id
                                         vals['state_id'] = items[0].id
                                     else:
+                                        # define
+                                        item_ci = item.country_id
                                         if item.postcode:
-                                            zips = self.env['res.better.zip'].sudo().search(
+                                            zips = self.env[
+                                                'res.better.zip'
+                                            ].sudo().search(
                                                 [
-                                                    ('country_id', '=', item.country_id.id),
+                                                    ('country_id', '=', item_ci.id),
                                                     ('name', '=', str(item.postcode))
                                                 ]
                                             )
@@ -183,8 +187,10 @@ class ExternalAddress(models.Model):
                                                 zip = zips[0]
                                                 if zip.state_id:
                                                     # update_state_id
-                                                    item.country_state_id = zip.state_id.id
-                                                    vals['state_id'] = zip.state_id.id
+                                                    item.country_state_id = \
+                                                        zip.state_id.id
+                                                    vals['state_id'] = \
+                                                        zip.state_id.id
                         # create
                         res_partner_obj = self.env['res.partner'].create(vals)
                         item.partner_id = res_partner_obj.id

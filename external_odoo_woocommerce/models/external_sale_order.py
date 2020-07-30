@@ -108,24 +108,23 @@ class ExternalSaleOrder(models.Model):
                     source = 'woocommerce'
                     # fields_need_check
                     fields_need_check = ['status', 'shipping', 'billing', 'X-WC-Webhook-Source']
-                    for field_need_check in fields_need_check:
-                        if field_need_check not in message_body:
+                    for fnc in fields_need_check:
+                        if fnc not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = \
-                                _('The field does not exist %s') % field_need_check
+                            result_message['return_body'] = _('The field does not exist %s') % fnc
                     # operations_1
                     if result_message['statusCode'] == 200:
                         # source_url
                         source_url = str(message_body['X-WC-Webhook-Source'])
                         # external_source_id
-                        external_source_ids = self.env['external.source'].sudo().search(
+                        source_ids = self.env['external.source'].sudo().search(
                             [
                                 ('type', '=', str(source)),
                                 ('url', '=', str(source_url))
                             ]
                         )
-                        if len(external_source_ids) == 0:
+                        if len(source_ids) == 0:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
                                 'error':
@@ -135,16 +134,18 @@ class ExternalSaleOrder(models.Model):
                                     )
                             }
                         else:
-                            external_source_id = external_source_ids[0]
+                            source_id = source_ids[0]
                         # status
-                        if message_body['status'] not in ['processing', 'completed', 'shipped', 'refunded']:
+                        if message_body['status'] not in [
+                            'processing', 'completed', 'shipped', 'refunded'
+                        ]:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
                             result_message['return_body'] = {'error': _('The order is not completed')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
                             result_message = \
-                                external_source_id.generate_external_sale_order_woocommerce(
+                                source_id.generate_external_sale_order_woocommerce(
                                     message_body
                                 )[0]
                     # logger

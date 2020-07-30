@@ -36,13 +36,13 @@ class ExternalSource(models.Model):
         date_created = dateutil.parser.parse(str(vals['date_created']))
         order_vals['date'] = date_created.strftime("%Y-%m-%d %H:%M:%S")
         # currency
-        items = self.env['res.currency'].sudo().search(
+        currency_ids = self.env['res.currency'].sudo().search(
             [
                 ('name', '=', str(vals['currency']))
             ]
         )
-        if items:
-            order_vals['currency_id'] = items[0].id
+        if currency_ids:
+            order_vals['currency_id'] = currency_ids[0].id
         # external_customer
         customer_vals = {
             'external_source_id': self.id,
@@ -58,32 +58,32 @@ class ExternalSource(models.Model):
                     customer_vals['vat'] = str(meta_data_item['value'])
                     # fields_billing
         fields_billing = ['email', 'phone']
-        for field_billing in fields_billing:
-            if field_billing in vals['billing']:
-                if vals['billing'][field_billing] != '':
-                    customer_vals[field_billing] = str(vals['billing'][field_billing])
+        for fb in fields_billing:
+            if fb in vals['billing']:
+                if vals['billing'][fb] != '':
+                    customer_vals[fb] = str(vals['billing'][fb])
                     # fields_shipping
         fields_shipping = [
             'first_name', 'last_name', 'company', 'address_1',
             'address_2', 'city', 'postcode'
         ]
-        for field_shipping in fields_shipping:
-            if field_shipping in vals['shipping']:
-                if vals['shipping'][field_shipping] != '':
-                    customer_vals[field_shipping] = str(vals['shipping'][field_shipping])
+        for fs in fields_shipping:
+            if fs in vals['shipping']:
+                if vals['shipping'][fs] != '':
+                    customer_vals[fs] = str(vals['shipping'][fs])
         # fix external_id=0
         if customer_vals['external_id'] == 0:
             if 'email' in external_customer_vals:
                 customer_vals['external_id'] = str(customer_vals['email'])
         # search_previous
-        items = self.env['external.customer'].sudo().search(
+        customer_ids = self.env['external.customer'].sudo().search(
             [
                 ('external_source_id', '=', self.id),
                 ('external_id', '=', str(vals['customer_id']))
             ]
         )
-        if items:
-            customer_obj = items[0]
+        if customer_ids:
+            customer_obj = customer_ids[0]
         else:
             # create
             customer_obj = self.env['external.customer'].sudo(6).create(
@@ -102,17 +102,16 @@ class ExternalSource(models.Model):
                 'type': 'invoice'
             }
             # address_fields_need_check
-            address_fields_need_check = [
+            afnc = [
                 'first_name', 'last_name', 'company', 'address_1',
                 'address_2', 'city', 'state', 'postcode', 'country',
                 'phone'
             ]
-            for field_need_check in address_fields_need_check:
-                if field_need_check in vals[address_type]:
-                    if vals[address_type][field_need_check] != '':
-                        if vals[address_type][field_need_check] is not None:
-                            address_vals[field_need_check] = str(
-                                vals[address_type][field_need_check])
+            for fnc in afnc:
+                if fnc in vals[address_type]:
+                    if vals[address_type][fnc] != '':
+                        if vals[address_type][fnc] is not None:
+                            address_vals[fnc] = str(vals[address_type][fnc])
             # replace address_1
             if 'address_1' in address_vals:
                 address_vals['address1'] = address_vals['address_1']
@@ -135,19 +134,25 @@ class ExternalSource(models.Model):
             # fix_external_address_vals
             address_vals['external_id'] += '_' + str(address_vals['type'])
             # search_previous
-            items = self.env['external.address'].sudo().search(
+            address_ids = self.env['external.address'].sudo().search(
                 [
                     ('external_source_id', '=', self.id),
-                    ('external_customer_id', '=', address_vals['external_customer_id']),
+                    (
+                        'external_customer_id',
+                        '=',
+                        address_vals['external_customer_id']
+                    ),
                     ('external_id', '=', address_vals['external_id']),
                     ('type', '=', address_vals['type'])
                 ]
             )
-            if items:
-                address_obj = items[0]
+            if address_ids:
+                address_obj = address_ids[0]
             else:
                 # create
-                address_obj = self.env['external.address'].sudo(6).create(address_vals)
+                address_obj = self.env['external.address'].sudo(6).create(
+                    address_vals
+                )
             # define address_id
             if address_type == 'billing':
                 order_vals['external_billing_address_id'] = address_obj.id
@@ -155,14 +160,14 @@ class ExternalSource(models.Model):
                 order_vals['external_shipping_address_id'] = address_obj.id
         # external_sale_order
         _logger.info(order_vals)
-        items = self.env['external.sale.order'].sudo().search(
+        order_ids = self.env['external.sale.order'].sudo().search(
             [
                 ('external_source_id', '=', self.id),
                 ('external_id', '=', str(order_vals['external_id']))
             ]
         )
-        if items:
-            order_obj = items[0]
+        if order_ids:
+            order_obj = order_ids[0]
             order_obj.woocommerce_state = str(vals['status'])
             # action_run (only if need)
             order_obj.action_run()
@@ -173,9 +178,12 @@ class ExternalSource(models.Model):
             }
         else:
             # create
-            order_obj = self.env['external.sale.order'].sudo(6).create(order_vals)
+            order_obj = self.env['external.sale.order'].sudo(6).create(
+                order_vals
+            )
             # update subtotal_price
-            order_obj.subtotal_price = order_obj.total_price - order_obj.total_tax
+            order_obj.subtotal_price = \
+                order_obj.total_price - order_obj.total_tax
             # line_items
             for line_item in vals['line_items']:
                 # vals
@@ -208,7 +216,9 @@ class ExternalSource(models.Model):
                     'tax_amount': shipping_line['total_tax']
                 }
                 # create
-                self.env['external.sale.order.shipping'].sudo(6).create(shipping_vals)
+                self.env['external.sale.order.shipping'].sudo(6).create(
+                    shipping_vals
+                )
             # action_run
             order_obj.action_run()
             # delete_message
@@ -239,20 +249,20 @@ class ExternalSource(models.Model):
                 if meta_data_item['key'] == 'NIF':
                     customer_vals['vat'] = str(meta_data_item['value'])
                     # fields_billing
-        fields_billing = ['email', 'phone']
-        for field_billing in fields_billing:
-            if field_billing in vals['billing']:
-                if vals['billing'][field_billing] != '':
-                    customer_vals[field_billing] = str(vals['billing'][field_billing])
+        fb = ['email', 'phone']
+        for fb in fields_billing:
+            if fb in vals['billing']:
+                if vals['billing'][fb] != '':
+                    customer_vals[fb] = str(vals['billing'][fb])
                     # fields_shipping
         fields_shipping = [
             'first_name', 'last_name', 'company',
             'address_1', 'address_2', 'city', 'postcode'
         ]
-        for field_shipping in fields_shipping:
-            if field_shipping in vals['shipping']:
-                if vals['shipping'][field_shipping] != '':
-                    customer_vals[field_shipping] = str(vals['shipping'][field_shipping])
+        for fs in fields_shipping:
+            if fs in vals['shipping']:
+                if vals['shipping'][fs] != '':
+                    customer_vals[fs] = str(vals['shipping'][fs])
         # fix external_id=0
         if customer_vals['external_id'] == 0:
             if 'email' in customer_vals:
@@ -281,14 +291,14 @@ class ExternalSource(models.Model):
             'external_source_name': 'web'
         }
         # search_previous
-        items = self.env['external.stock.picking'].sudo().search(
+        picking_ids = self.env['external.stock.picking'].sudo().search(
             [
                 ('external_id', '=', str(picking_vals['external_id'])),
                 ('external_source_id', '=', self.id)
             ]
         )
-        if items:
-            picking_obj = items[0]
+        if picking_ids:
+            picking_obj = picking_ids[0]
             picking_obj.woocommerce_state = str(vals['status'])
             # action_run (only if need)
             picking_obj.action_run()
@@ -298,7 +308,9 @@ class ExternalSource(models.Model):
                 'message': _('As it already exists, we update its status only')
             }
         else:
-            picking_obj = self.env['external.stock.picking'].sudo(6).create(picking_vals)
+            picking_obj = self.env['external.stock.picking'].sudo(6).create(
+                picking_vals
+            )
             # lines
             for line_item in message_body['line_items']:
                 # vals
@@ -310,7 +322,9 @@ class ExternalSource(models.Model):
                     'title': str(line_item['name']),
                     'quantity': int(line_item['quantity'])
                 }
-                self.env['external.stock.picking.line'].sudo(6).create(line_vals)
+                self.env['external.stock.picking.line'].sudo(6).create(
+                    line_vals
+                )
             # action_run
             picking_obj.action_run()
             # delete_message
@@ -380,14 +394,14 @@ class ExternalSource(models.Model):
                 # operations
                 for response_item in response:
                     if len(response_item['variations']) == 0:
-                        items = self.env['external.product'].sudo().search(
+                        product_ids = self.env['external.product'].sudo().search(
                             [
                                 ('external_source_id', '=', self.id),
                                 ('external_id', '=', str(response_item['id'])),
                                 ('external_variant_id', '=', False)
                             ]
                         )
-                        if len(items) == 0:
+                        if len(product_ids) == 0:
                             vals = {
                                 'external_source_id': self.id,
                                 'external_id': str(response_item['id']),
@@ -397,14 +411,14 @@ class ExternalSource(models.Model):
                             self.env['external.product'].create(vals)
                     else:
                         for variation in response_item['variations']:
-                            items = self.env['external.product'].sudo().search(
+                            product_ids = self.env['external.product'].sudo().search(
                                 [
                                     ('external_source_id', '=', self.id),
                                     ('external_id', '=', str(response_item['id'])),
                                     ('external_variant_id', '=', str(variation))
                                 ]
                             )
-                            if len(items) == 0:
+                            if len(product_ids) == 0:
                                 vals = {
                                     'external_source_id': self.id,
                                     'external_id': str(response_item['id']),

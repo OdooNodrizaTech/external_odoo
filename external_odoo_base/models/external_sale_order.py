@@ -264,16 +264,20 @@ class ExternalSaleOrder(models.Model):
                                     if item.external_shipping_address_id.partner_id:
                                         allow_create_sale_order = True
                                         # external_sale_order_line_ids
-                                        for line_id in item.external_sale_order_line_ids:
+                                        line_ids = item.external_sale_order_line_ids
+                                        for line_id in line_ids:
                                             if line_id.external_product_id.id == 0:
                                                 allow_create_sale_order = False
                 # operations
                 if allow_create_sale_order:
                     # define
                     item_es = item.external_source_id
-                    item_es_esoapm = item_es.external_sale_order_account_payment_mode_id
-                    item_es_esoapt = item_es.external_sale_order_account_payment_term_id
-                    item_es_esospt = item_es.external_sale_order_shipping_product_template_id
+                    item_es_esoapm = \
+                        item_es.external_sale_order_account_payment_mode_id
+                    item_es_esoapt = \
+                        item_es.external_sale_order_account_payment_term_id
+                    item_es_esospt = \
+                        item_es.external_sale_order_shipping_product_template_id
                     # vals
                     vals = {
                         'external_sale_order_id': item.id,
@@ -342,7 +346,8 @@ class ExternalSaleOrder(models.Model):
                         }
                         # Fix product_uom
                         if line_id_ep_pt.uom_id:
-                            line_vals['product_uom'] = line_id_ep_pt.uom_id.id
+                            line_vals['product_uom'] = \
+                                line_id_ep_pt.uom_id.id
                         # create
                         obj = self.env['sale.order.line'].sudo(
                             item.create_uid
@@ -408,7 +413,7 @@ class ExternalSaleOrder(models.Model):
                             })
                             # update
                             item.payment_transaction_id = obj.id
-    
+
     @api.multi
     def action_crm_lead_win(self):
         for item in self:

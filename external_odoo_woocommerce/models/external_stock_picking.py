@@ -118,13 +118,13 @@ class ExternalStockPicking(models.Model):
                         # source_url
                         source_url = str(message_body['X-WC-Webhook-Source'])
                         # external_source_id
-                        items = self.env['external.source'].sudo().search(
+                        source_ids = self.env['external.source'].sudo().search(
                             [
                                 ('type', '=', str(source))
                                 ('url', '=', str(source_url))
                             ]
                         )
-                        if len(items) == 0:
+                        if len(source_ids) == 0:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
                                 'error': _(
@@ -132,15 +132,17 @@ class ExternalStockPicking(models.Model):
                                 ) % (source, source_url)
                             }
                         else:
-                            external_source_id = items[0]
+                            source_id = source_ids[0]
                         # status
-                        if message_body['status'] not in ['processing', 'completed', 'shipped', 'refunded']:
+                        if message_body['status'] not in [
+                            'processing', 'completed', 'shipped', 'refunded'
+                        ]:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
                             result_message['return_body'] = {'error': _('The order is not completed')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = external_source_id.generate_external_stock_picking_woocommerce(
+                            result_message = source_id.generate_external_stock_picking_woocommerce(
                                 message_body
                             )[0]
                     # logger
