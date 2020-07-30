@@ -16,7 +16,7 @@ class ExternalSaleOrderWoocommerceController(http.Controller):
             'external.sale.order'
         ].sudo().cron_sqs_external_sale_order_woocommerce()
         return request.render('website.404')
-        
+
     @http.route(['/external_stock_picking/woocommerce/action_run'],
                 type='http',
                 auth='public',
@@ -27,4 +27,4 @@ class ExternalSaleOrderWoocommerceController(http.Controller):
         request.env[
             'external.stock.picking'
         ].sudo().cron_sqs_external_stock_picking_woocommerce()
-        return request.render('website.404')        
+        return request.render('website.404')

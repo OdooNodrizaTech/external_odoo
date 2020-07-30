@@ -1,11 +1,8 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import logging
-from odoo import api, fields, models, tools, _
+from odoo import api, models, _
 
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
 import dateutil.parser
-import pytz
 from woocommerce import API
 _logger = logging.getLogger(__name__)
 
@@ -73,7 +70,7 @@ class ExternalSource(models.Model):
                     customer_vals[fs] = str(vals['shipping'][fs])
         # fix external_id=0
         if customer_vals['external_id'] == 0:
-            if 'email' in external_customer_vals:
+            if 'email' in customer_vals:
                 customer_vals['external_id'] = str(customer_vals['email'])
         # search_previous
         customer_ids = self.env['external.customer'].sudo().search(
@@ -97,7 +94,7 @@ class ExternalSource(models.Model):
             # vals
             address_vals = {
                 'external_id': order_vals['external_id'],
-                'external_customer_id': external_customer_obj.id,
+                'external_customer_id': customer_obj.id,
                 'external_source_id': self.id,
                 'type': 'invoice'
             }
@@ -201,9 +198,12 @@ class ExternalSource(models.Model):
                 # variation_id
                 if 'variation_id' in line_item:
                     if line_item['variation_id'] != '':
-                        line_vals['external_variant_id'] = str(line_item['variation_id'])
+                        line_item_v = line_item['variation_id']
+                        line_vals['external_variant_id'] = str(line_item_v)
                 # create
-                self.env['external.sale.order.line'].sudo(6).create(line_vals)
+                self.env['external.sale.order.line'].sudo(6).create(
+                    line_vals
+                )
             # shipping_lines
             for shipping_line in vals['shipping_lines']:
                 # vals
@@ -245,9 +245,9 @@ class ExternalSource(models.Model):
         }
         # vat
         if 'meta_data' in vals:
-            for meta_data_item in vals['meta_data']:
-                if meta_data_item['key'] == 'NIF':
-                    customer_vals['vat'] = str(meta_data_item['value'])
+            for mdi in vals['meta_data']:
+                if mdi['key'] == 'NIF':
+                    customer_vals['vat'] = str(mdi['value'])
                     # fields_billing
         fb = ['email', 'phone']
         for fb in fields_billing:
@@ -271,7 +271,7 @@ class ExternalSource(models.Model):
         items = self.env['external.customer'].sudo().search(
             [
                 ('external_source_id', '=', self.id),
-                ('external_id', '=', str(external_customer_vals['external_id']))
+                ('external_id', '=', str(customer_vals['external_id']))
             ]
         )
         if items:
@@ -312,7 +312,7 @@ class ExternalSource(models.Model):
                 picking_vals
             )
             # lines
-            for line_item in message_body['line_items']:
+            for line_item in vals['line_items']:
                 # vals
                 line_vals = {
                     'line_id': str(line_item['id']),
@@ -344,7 +344,7 @@ class ExternalSource(models.Model):
                 query_string_auth=True
             )
             return wcapi
-    
+
     @api.multi
     def action_api_status_valid(self):
         for item in self:
@@ -362,7 +362,7 @@ class ExternalSource(models.Model):
                 return result_item
             else:
                 return super(ExternalSource, self).action_api_status_valid()
-    
+
     @api.multi
     def action_operations_get_products(self):
         for item in self:
@@ -471,7 +471,7 @@ class ExternalSource(models.Model):
                         if qty_item < 0:
                             data['stock_status'] = 'outofstock'
                         # operations_update
-                        if product_id.external_variant_id == False:
+                        if not product_id.external_variant_id:
                             response = wcapi.put(
                                 "products/%s" % product_id.external_id,
                                 data

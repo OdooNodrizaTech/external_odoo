@@ -184,13 +184,12 @@ class ExternalAddress(models.Model):
                                                 ]
                                             )
                                             if items:
-                                                zip = items[0]
-                                                if zip.state_id:
+                                                if items[0].state_id:
                                                     # update_state_id
                                                     item.country_state_id = \
-                                                        zip.state_id.id
+                                                        items[0].state_id.id
                                                     vals['state_id'] = \
-                                                        zip.state_id.id
+                                                        items[0].state_id.id
                         # create
                         res_partner_obj = self.env['res.partner'].create(vals)
                         item.partner_id = res_partner_obj.id

@@ -1,6 +1,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import logging
-from odoo import api, fields, models, tools, _
+from odoo import api, models, tools, _
 
 import json
 import boto3
@@ -8,13 +8,13 @@ _logger = logging.getLogger(__name__)
 
 
 class ExternalStockPicking(models.Model):
-    _inherit = 'external.stock.picking'        
-    
+    _inherit = 'external.stock.picking'
+
     @api.multi
     def action_run(self):
-        return_item = super(ExternalStockPicking, self).action_run()        
+        return_item = super(ExternalStockPicking, self).action_run()
         return return_item
-    
+
     @api.model
     def cron_external_stock_picking_update_shipping_expedition_woocommerce(self):
         # search
@@ -28,7 +28,7 @@ class ExternalStockPicking(models.Model):
             for source_id in source_ids:
                 # external_stock_picking_ids
                 picking_ids = self.env['external.stock.picking'].sudo().search(
-                    [   
+                    [
                         ('external_source_id', '=', source_id.id),
                         ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('picking_id', '!=', False),
@@ -42,7 +42,7 @@ class ExternalStockPicking(models.Model):
                     wcapi = source_id.init_api_woocommerce()[0]
                     # operations
                     for picking_id in picking_ids:
-                        #put
+                        # put
                         data = {"status": "completed"}
                         response = wcapi.put(
                             "orders/%s" % picking_id.number,
@@ -51,7 +51,7 @@ class ExternalStockPicking(models.Model):
                         if 'id' in response:
                             # update OK
                             picking_id.woocommerce_state = 'completed'
-    
+
     @api.model
     def cron_sqs_external_stock_picking_woocommerce(self):
         sqs_url = tools.config.get('sqs_external_stock_picking_woocommerce_url')
@@ -108,11 +108,12 @@ class ExternalStockPicking(models.Model):
                     fields_need_check = [
                         'status', 'shipping', 'billing', 'X-WC-Webhook-Source'
                     ]
-                    for field_need_check in fields_need_check:
-                        if field_need_check not in message_body:
+                    for fnc in fields_need_check:
+                        if fnc not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = _('The field does not exist %s') % field_need_check
+                            result_message['return_body'] = \
+                                _('The field does not exist %s') % fnc
                     # operations_1
                     if result_message['statusCode'] == 200:
                         # source_url
@@ -128,7 +129,8 @@ class ExternalStockPicking(models.Model):
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
                                 'error': _(
-                                    'External_source id does not exist with this source=%s and url =%s'
+                                    'External_source id does not exist '
+                                    'with this source=%s and url =%s'
                                 ) % (source, source_url)
                             }
                         else:
@@ -139,12 +141,15 @@ class ExternalStockPicking(models.Model):
                         ]:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = {'error': _('The order is not completed')}
+                            result_message['return_body'] = {
+                                'error': _('The order is not completed')
+                            }
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = source_id.generate_external_stock_picking_woocommerce(
+                            res = source_id.generate_external_stock_picking_woocommerce(
                                 message_body
                             )[0]
+                            result_message = res
                     # logger
                     _logger.info(result_message)                                                            
                     # remove_message

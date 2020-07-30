@@ -1,22 +1,21 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import logging
-from odoo import api, fields, models, tools, _
+from odoo import api, models, tools, _
 
 import json
-import dateutil.parser
 
 import boto3
 _logger = logging.getLogger(__name__)
 
 
 class ExternalSaleOrder(models.Model):
-    _inherit = 'external.sale.order'             
-        
+    _inherit = 'external.sale.order'
+
     @api.multi
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
-        return return_item        
-        
+        return return_item
+
     @api.model
     def cron_external_sale_order_update_shipping_expedition_woocommerce(self):
         # search
@@ -30,7 +29,7 @@ class ExternalSaleOrder(models.Model):
             for source_id in source_ids:
                 # external_sale_order_ids
                 order_ids = self.env['external.sale.order'].sudo().search(
-                    [   
+                    [
                         ('external_source_id', '=', source_id.id),
                         ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('sale_order_id', '!=', False),
@@ -44,17 +43,17 @@ class ExternalSaleOrder(models.Model):
                     for order_id in order_ids:
                         # stock_picking
                         picking_ids = self.env['stock.picking'].sudo().search(
-                            [   
+                            [
                                 ('origin', '=', str(order_id.sale_order_id.name)),
                                 ('state', '=', 'done'),
-                                ('picking_type_id.code', '=', 'outgoing'),                                
+                                ('picking_type_id.code', '=', 'outgoing'),
                                 ('shipping_expedition_id', '!=', False),
                                 ('shipping_expedition_id.state', '=', 'delivered')
                             ]
                         )
                         if picking_ids:
                             # put (#OK, se actualiza)
-                            data = {"status": "completed"}                
+                            data = {"status": "completed"}
                             response = wcapi.put(
                                 "orders/"+str(order_id.number),
                                 data
@@ -62,7 +61,7 @@ class ExternalSaleOrder(models.Model):
                             if 'id' in response:
                                 # update OK
                                 order_id.woocommerce_state = 'completed'
-    
+
     @api.model
     def cron_sqs_external_sale_order_woocommerce(self):
         sqs_url = tools.config.get('sqs_external_sale_order_woocommerce_url')
@@ -104,15 +103,18 @@ class ExternalSaleOrder(models.Model):
                         'delete_message': False,
                         'message': message_body
                     }
-                    #default
+                    # default
                     source = 'woocommerce'
                     # fields_need_check
-                    fields_need_check = ['status', 'shipping', 'billing', 'X-WC-Webhook-Source']
+                    fields_need_check = [
+                        'status', 'shipping', 'billing', 'X-WC-Webhook-Source'
+                    ]
                     for fnc in fields_need_check:
                         if fnc not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = _('The field does not exist %s') % fnc
+                            result_message['return_body'] = \
+                                _('The field does not exist %s') % fnc
                     # operations_1
                     if result_message['statusCode'] == 200:
                         # source_url
@@ -128,7 +130,10 @@ class ExternalSaleOrder(models.Model):
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
                                 'error':
-                                    _('External_source id does not exist with this source=% s and url=%s') % (
+                                    _(
+                                        'External_source id does not exist with '
+                                        'this source=% s and url=%s'
+                                    ) % (
                                         source,
                                         source_url
                                     )
@@ -141,13 +146,15 @@ class ExternalSaleOrder(models.Model):
                         ]:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = {'error': _('The order is not completed')}
+                            result_message['return_body'] = {
+                                'error': _('The order is not completed')
+                            }
                         # create-write
-                        if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = \
-                                source_id.generate_external_sale_order_woocommerce(
-                                    message_body
-                                )[0]
+                        if result_message['statusCode'] == 200:
+                            res = source_id.generate_external_sale_order_woocommerce(
+                                message_body
+                            )[0]
+                            result_message = res
                     # logger
                     _logger.info(result_message)
                     # remove_message
