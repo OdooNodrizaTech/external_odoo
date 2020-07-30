@@ -328,15 +328,6 @@ class ExternalSource(models.Model):
     def shopify_request_token(self, params):
         for item in self:
             if item.api_status == 'draft':
-                # shopify api (not work)
-                '''
-                session = shopify.Session(self.url, '2020-01')                                
-                token = session.request_token(params)
-                self.shopify_access_token = str(token)
-                #session
-                session = shopify.Session(self.url, '2020-01', self.shopify_access_token)
-                shopify.ShopifyResource.activate_session(session)
-                '''
                 # request mode (work)
                 url = 'https://%s/admin/oauth/access_token' % item.url
                 payload = {
