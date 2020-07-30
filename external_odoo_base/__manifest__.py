@@ -16,7 +16,9 @@
         "stock"
     ],
     "external_dependencies": {
-        "python": ["boto3"],
+        "python": [
+            "boto3"
+        ],
     },
     "data": [
         "data/ir_cron.xml",
