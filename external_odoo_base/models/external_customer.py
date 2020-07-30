@@ -223,7 +223,9 @@ class ExternalCustomer(models.Model):
                                     vals['state_id'] = items[0].id
                                 else:
                                     if item.postcode:
-                                        items = self.env['res.better.zip'].sudo().search(
+                                        items = self.env[
+                                            'res.better.zip'
+                                        ].sudo().search(
                                             [
                                                 ('country_id', '=', item.country_id.id),
                                                 ('name', '=', str(item.postcode))

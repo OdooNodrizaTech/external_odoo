@@ -2,25 +2,25 @@
 from odoo import api, fields, models, tools, _
 
 import logging
-_logger = logging.getLogger(__name__)
 
 import json
-import dateutil.parser
 from urllib.parse import urlparse
 
 import boto3
 import shopify
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
+_logger = logging.getLogger(__name__)
+
 
 class ExternalSaleOrder(models.Model):
-    _inherit = 'external.sale.order'             
-    
+    _inherit = 'external.sale.order'
+
     shopify_source_name = fields.Selection(
         [
             ('unknown', 'Unknown'),
             ('web', 'Web'),
-            ('pos', 'Pos'),            
+            ('pos', 'Pos'),
             ('shopify_draft_order', 'Shopify Draft Order'),
             ('iphone', 'Iphone'),
             ('android', 'Android'),
@@ -37,7 +37,7 @@ class ExternalSaleOrder(models.Model):
     shopify_fulfillment_status = fields.Selection(
         [
             ('none', 'None'),
-            ('fulfilled', 'Fulfilled'),            
+            ('fulfilled', 'Fulfilled'),
             ('null', 'Null'),
             ('partial', 'Partial'),
             ('restocked', 'Restocked'),
@@ -58,10 +58,10 @@ class ExternalSaleOrder(models.Model):
                 # get params
                 params = {}
                 parsed = urlparse.urlparse(self.shopify_landing_site)
-                params_urlparse = parse_qs(parsed.query)
-                if len(params_urlparse) > 0:
-                    for param_urlparse in params_urlparse:
-                        params[str(param_urlparse)] = str(params_urlparse[param_urlparse][0])
+                params2 = parse_qs(parsed.query)
+                if len(params2) > 0:
+                    for param2 in params2:
+                        params[str(param2)] = str(params2[param2][0])
                 # landing_url
                 self.landing_url = parsed.path
                 # utm_campaign
@@ -75,17 +75,17 @@ class ExternalSaleOrder(models.Model):
                     self.landing_utm_source = params['utm_source']
         # return
         return return_object
-    
+
     @api.multi
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item
-        
+
     @api.multi
     def action_run(self):
         return_item = super(ExternalSaleOrder, self).action_run()
-        return return_item        
-    
+        return return_item
+
     @api.model
     def cron_external_sale_order_update_shipping_expedition_shopify(self):
         _logger.info('cron_external_sale_order_update_shipping_expedition_shopify')
@@ -101,11 +101,11 @@ class ExternalSaleOrder(models.Model):
             for source_id in source_ids:
                 # external_sale_order_ids
                 order_ids = self.env['external.sale.order'].sudo().search(
-                    [   
+                    [
                         ('external_source_id', '=', source_id.id),
                         ('shopify_state', '=', 'paid'),
                         ('shopify_cancelled_at', '=', False),
-                        ('sale_order_id', '!=', False),                                                                        
+                        ('sale_order_id', '!=', False),
                         ('sale_order_id.state', 'in', ('sale', 'done')),
                         ('shopify_fulfillment_status', '=', 'none')
                     ]
@@ -117,7 +117,7 @@ class ExternalSaleOrder(models.Model):
                     for order_id in order_ids:
                         # stock_picking
                         stock_picking_ids = self.env['stock.picking'].sudo().search(
-                            [   
+                            [
                                 ('origin', '=', str(order_id.sale_order_id.name)),
                                 ('state', '=', 'done'),
                                 ('picking_type_id.code', '=', 'outgoing')
@@ -130,17 +130,22 @@ class ExternalSaleOrder(models.Model):
                             order = shopify.Order.find(order_id_external_id)
                             # cancelled_at
                             if order.cancelled_at is not None:
-                                order_id.shopify_cancelled_at = str(order.cancelled_at.replace('T', ' '))
+                                order_ca = order.cancelled_at
+                                order_id.shopify_cancelled_at = str(order_ca.replace('T', ' '))
                             # Fix continue
                             if not order_id.shopify_cancelled_at:
                                 # fullfiment
                                 if order.fulfillment_status is not None:
+                                    order_fs = order.fulfillment_status
                                     # fulfillments
-                                    fulfillments = shopify.Fulfillment.find(order_id=order_id, limit=100)
+                                    fulfillments = shopify.Fulfillment.find(
+                                        order_id=order_id,
+                                        limit=100
+                                    )
                                     if fulfillments:
                                         fullfiment_0 = fulfillments[0]
                                         order_id.shopify_fulfillment_id = fullfiment_0.id
-                                        order_id.shopify_fulfillment_status = str(order.fulfillment_status)
+                                        order_id.shopify_fulfillment_status = str(order_fs)
                                 # check need create
                                 if order_id.shopify_fulfillment_status == 'none':
                                     # line_items
@@ -158,7 +163,7 @@ class ExternalSaleOrder(models.Model):
                                     new_fulfillment.location_id = location_id
                                     new_fulfillment.line_items = line_items
                                     # new_fulfillment.notify_customer = False
-                                    success = new_fulfillment.save()
+                                    new_fulfillment.save()
                                     # update (prevent-errors)
                                     if new_fulfillment.errors:
                                         _logger.info('Error al crear')
@@ -212,34 +217,37 @@ class ExternalSaleOrder(models.Model):
                     # default
                     source = 'shopify'
                     # fields_need_check
-                    fields_need_check = ['id', 'customer', 'shipping_address',
-                                         'shipping_address', 'line_items',
-                                         'financial_status', 'X-Shopify-Shop-Domain']
+                    fields_need_check = [
+                        'id', 'customer', 'shipping_address', 'shipping_address',
+                        'line_items', 'financial_status', 'X-Shopify-Shop-Domain'
+                    ]
                     for field_need_check in fields_need_check:
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
                             result_message['delete_message'] = True
-                            result_message['return_body'] = _('The field does not exist %s') % field_need_check
+                            result_message['return_body'] = \
+                                _('The field does not exist %s') % field_need_check
                     # operations
                     if result_message['statusCode'] == 200:
                         # source_url
                         source_url = str(message_body['X-Shopify-Shop-Domain'])
                         # external_source_id
-                        external_source_ids = self.env['external.source'].sudo().search(
+                        source_ids = self.env['external.source'].sudo().search(
                             [
                                 ('type', '=', str(source)),
                                 ('url', '=', str(source_url))
                             ]
                         )
-                        if external_source_ids:
+                        if source_ids:
                             result_message['statusCode'] = 500
                             result_message['return_body'] = {
-                                'error': _('External_source id does not exist with this '
-                                           'source=%s and url=%'
-                                           ) % (source, source_url)
+                                'error': _(
+                                    'External_source id does not exist with '
+                                    'this source=%s and url=%'
+                                ) % (source, source_url)
                             }
                         else:
-                            source_id = external_source_ids[0]
+                            source_id = source_ids[0]
                         # status
                         if message_body['financial_status'] != 'paid':
                             result_message['statusCode'] = 500

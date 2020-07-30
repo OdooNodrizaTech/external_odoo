@@ -280,8 +280,8 @@ class ExternalSource(models.Model):
                             # external_variant_id
                             if 'variant_id' in line_item:
                                 if line_item['variant_id'] != '':
-                                    linte_item_vi = line_item['variant_id']
-                                    line_vals['external_variant_id'] = str(linte_item_vi)
+                                    line_item_vi = line_item['variant_id']
+                                    line_vals['external_variant_id'] = str(line_item_vi)
                             # sku
                             if 'sku' in line_item:
                                 line_vals['sku'] = str(line_item['sku'])
@@ -296,9 +296,9 @@ class ExternalSource(models.Model):
                             # price
                             if 'total_discount_set' in line_item:
                                 line_item_tds = line_item['total_discount_set']
-                                if 'shop_money' in line_item['total_discount_set']:
+                                if 'shop_money' in line_item_tds:
                                     line_item_tds_sm = line_item_tds['shop_money']
-                                    if 'amount' in line_item['total_discount_set']['shop_money']:
+                                    if 'amount' in line_item_tds_sm:
                                         line_item_tds_sm_a = line_item_tds_sm['amount']
                                         line_vals['total_discount'] = line_item_tds_sm_a
                             # tax_amount
@@ -337,20 +337,20 @@ class ExternalSource(models.Model):
                 result_message['delete_message'] = True
         # return
         return result_message
-    
+
     @api.multi
     @api.depends('api_key', 'url')
     def _compute_authorize_url(self):
         for item in self:
-            if item.api_key and item.url and item.type=='shopify':
+            if item.api_key and item.url and item.type == 'shopify':
                 session = shopify.Session(item.url, '2020-01')
                 session.api_key = item.api_key
                 scope = ['write_orders', 'read_products', 'write_inventory']
                 url_redirect = "%s/shopify_permission" % (
-                    str(item.env['ir.config_parameter'].sudo().get_param('web.base.url'))
+                    item.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 )
                 item.authorize_url = session.create_permission_url(scope, url_redirect)
-    
+
     @api.multi
     def shopify_request_token(self, params):
         for item in self:
@@ -381,7 +381,7 @@ class ExternalSource(models.Model):
                         shopify.ShopifyResource.activate_session(session)
                         # api_status
                         item.api_status = 'valid'
-                    
+
     @api.multi
     def init_api_shopify(self):
         for item in self:
@@ -390,7 +390,7 @@ class ExternalSource(models.Model):
             shopify.ShopifyResource.activate_session(session)
         # return
         return session
-        
+
     @api.multi
     def action_operations_get_products(self):
         for item in self:
@@ -400,7 +400,7 @@ class ExternalSource(models.Model):
         return_item = super(ExternalSource, self).action_operations_get_products()
         # return
         return return_item
-            
+
     @api.multi
     def action_operations_get_products_shopify(self):
         for item in self:
@@ -427,8 +427,8 @@ class ExternalSource(models.Model):
                         }
                         self.env['external.product'].create(vals)
         # return
-        return False        
-    
+        return False
+
     @api.multi
     def action_api_status_draft(self):
         return_item = super(ExternalSource, self).action_api_status_draft()
@@ -437,7 +437,7 @@ class ExternalSource(models.Model):
             item.shopify_access_token = False
         # return
         return return_item
-    
+
     @api.multi
     def action_api_status_valid(self):
         for item in self:
@@ -498,7 +498,7 @@ class ExternalSource(models.Model):
                         for variant in product.variants:
                             product_id_ev = product_id.external_variant_id
                             if str(variant.id) == str(product_id_ev):
-                                inventory_level = shopify.InventoryLevel.set(
+                                shopify.InventoryLevel.set(
                                     location_id=42284515467,
                                     inventory_item_id=variant.inventory_item_id,
                                     available=int(qty_item),

@@ -5,12 +5,22 @@ from odoo.http import request
 
 class ExternalSaleOrderShopifyController(http.Controller):
 
-    @http.route(['/external_sale_order/shopify/action_run'], type='http', auth='public', methods=['GET'], website=True)
+    @http.route(['/external_sale_order/shopify/action_run'],
+                type='http',
+                auth='public',
+                methods=['GET'],
+                website=True
+                )
     def external_sale_order_shopify_action_run(self, **get):
         request.env['external.sale.order'].sudo().cron_sqs_external_sale_order_shopify()
         return request.render('website.404')
-        
-    @http.route(['/shopify_permission'], type='http', auth='public', methods=['GET'], website=True)
+
+    @http.route(['/shopify_permission'],
+                type='http',
+                auth='public',
+                methods=['GET'],
+                website=True
+                )
     def shopify_permission(self, **get):
         if 'code' in get:
             if 'shop' in get:
@@ -27,6 +37,6 @@ class ExternalSaleOrderShopifyController(http.Controller):
                         'hmac': str(get['hmac']),
                         'shop': str(get['shop']),
                         'timestamp': str(get['timestamp'])
-                    })                    
+                    })
         # return
-        return request.render('website.404')        
+        return request.render('website.404')
