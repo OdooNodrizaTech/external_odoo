@@ -203,30 +203,28 @@ class ExternalSource(models.Model):
                         invoice_id = obj
                     # add_lines
                     for line_id in line_ids:
+                        # define
+                        line_ep = line_id.external_product_id
+                        line_ep_pt = line_ep.product_template_id
                         # vals
                         line_vals = {
                             'invoice_id': invoice_id.id,
-                            'product_id':
-                                line_id.external_product_id.product_template_id.id,
+                            'product_id':line_ep_pt.id,
                             'name': '%s (%s)' % (
                                 line_id.title,
                                 line_id.external_stock_picking_id.picking_id.name
                             ),
                             'quantity': line_id.quantity,
-                            'price_unit':
-                                line_id.external_product_id.product_template_id.list_price,
-                            'currency_id': account_invoice_id.currency_id.id,                        
+                            'price_unit': line_ep_pt.list_price,
+                            'currency_id': account_invoice_id.currency_id.id,
                         }
                         # account_id
-                        if line_id.external_product_id.\
-                                product_template_id.property_account_income_id:
+                        if line_ep_pt.property_account_income_id:
                             line_vals['account_id'] = \
-                                line_id.external_product_id.\
-                                    product_template_id.property_account_income_id.id
+                                line_ep_pt.property_account_income_id.id
                         else:
                             line_vals['account_id'] = \
-                                line_id.external_product_id.product_template_id.\
-                                    categ_id.property_account_income_categ_id.id
+                                line_ep_pt.categ_id.property_account_income_categ_id.id
                         # create
                         obj = self.env['account.invoice.line'].create(line_vals)
                         # onchange

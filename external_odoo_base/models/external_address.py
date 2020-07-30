@@ -108,7 +108,11 @@ class ExternalAddress(models.Model):
                         phone = None
                 # external_customer_id
                 if item.external_customer_id:
-                    if item.external_customer_id.partner_id:
+                    # define
+                    item_ec = item.external_customer_id
+                    if item_ec.partner_id:
+                        # define
+                        item_ec_p = item_ec
                         # name
                         name = str(item.first_name)
                         # fix_last_name
@@ -120,7 +124,7 @@ class ExternalAddress(models.Model):
                         # create
                         vals = {
                             'type': str(item.type),
-                            'parent_id': item.external_customer_id.partner_id.id,
+                            'parent_id': item_ec_p.id,
                             'active': True,
                             'customer': True,
                             'supplier': False,
@@ -128,8 +132,8 @@ class ExternalAddress(models.Model):
                             'city': str(item.city)
                         }
                         # email
-                        if item.external_customer_id.partner_id.email:
-                            vals['email'] = str(item.external_customer_id.partner_id.email)
+                        if item_ec_p.email:
+                            vals['email'] = str(item_ec_p.email)
                         # street
                         if item.address1:
                             vals['street'] = str(item.address1)
@@ -169,17 +173,18 @@ class ExternalAddress(models.Model):
                                         vals['state_id'] = items[0].id
                                     else:
                                         if item.postcode:
-                                            items = self.env['res.better.zip'].sudo().search(
+                                            zips = self.env['res.better.zip'].sudo().search(
                                                 [
                                                     ('country_id', '=', item.country_id.id),
                                                     ('name', '=', str(item.postcode))
                                                 ]
                                             )
-                                            if items:
-                                                if items[0].state_id:
+                                            if zips:
+                                                zip = zips[0]
+                                                if zip.state_id:
                                                     # update_state_id
-                                                    item.country_state_id = items[0].state_id.id
-                                                    vals['state_id'] = items[0].state_id.id
+                                                    item.country_state_id = zip.state_id.id
+                                                    vals['state_id'] = zip.state_id.id
                         # create
                         res_partner_obj = self.env['res.partner'].create(vals)
                         item.partner_id = res_partner_obj.id

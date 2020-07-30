@@ -223,17 +223,19 @@ class ExternalCustomer(models.Model):
                                     vals['state_id'] = items[0].id
                                 else:
                                     if item.postcode:
-                                        items = self.env['res.better.zip'].sudo().search(
+                                        zips = self.env['res.better.zip'].sudo().search(
                                             [
                                                 ('country_id', '=', item.country_id.id),
                                                 ('name', '=', str(item.postcode))
                                             ]
                                         )
-                                        if items:
-                                            if items[0].state_id:
+                                        if zips:
+                                            if zips[0].state_id:
+                                                # define
+                                                zip = zips[0]
                                                 # update_state_id
-                                                item.country_state_id = items[0].state_id.id
-                                                vals['state_id'] = items[0].state_id.id
+                                                item.country_state_id = zip.state_id.id
+                                                vals['state_id'] = zip.state_id.id
                     # create
                     res_partner_obj = item.env['res.partner'].create(vals)
                     item.partner_id = res_partner_obj.id

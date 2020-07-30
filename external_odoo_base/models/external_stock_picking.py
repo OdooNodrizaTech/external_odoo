@@ -122,37 +122,36 @@ class ExternalStockPicking(models.Model):
                                 allow_create_stock_picking = False
                 # operations
                 if allow_create_stock_picking:
+                    # define
+                    item_es = item.external_source_id
+                    item_es_espt = \
+                        item_es.external_stock_picking_picking_type_id
+                    item_es_espc = item_es.external_stock_picking_carrier_id
                     # stock_picking
                     vals = {
                         'external_stock_picking_id': item.id,
-                        'picking_type_id':
-                            item.external_source_id.
-                                external_stock_picking_picking_type_id.id,
+                        'picking_type_id': item_es_espt.id,
                         'location_id':
-                            item.external_source_id.
-                                external_stock_picking_picking_type_id.
-                                default_location_src_id.id,
+                            item_es_espt.default_location_src_id.id,
                         'location_dest_id': 9,
                         'move_type' : 'one',
                         'partner_id': item.external_customer_id.partner_id.id,
                         'move_lines': []
                     }
                     # carrier_id
-                    if item.external_source_id.external_stock_picking_carrier_id:
-                        vals['carrier_id'] = \
-                            item.external_source_id.external_stock_picking_carrier_id.id
+                    if item_es_espc:
+                        vals['carrier_id'] = item_es_espc.id
                     # move_lines
                     for line_id in item.external_stock_picking_line_ids:
-                        if line_id.external_product_id:
+                        line_id_ep = line_id.external_product_id
+                        if line_id_ep:
+                            line_id_ep_pt = line_id_ep.product_template_id
+                            # vals
                             line_vals = {
-                                'product_id':
-                                    line_id.external_product_id.product_template_id.id,
-                                'name':
-                                    line_id.external_product_id.product_template_id.name,
+                                'product_id':line_id_ep_pt.id,
+                                'name': line_id_ep_pt.name,
                                 'product_uom_qty': line_id.quantity,
-                                'product_uom':
-                                    line_id.external_product_id.
-                                        product_template_id.uom_id.id,
+                                'product_uom': line_id_ep_pt.uom_id.id,
                                 'state': 'draft'
                             }
                             vals['move_lines'].append((0, 0, line_vals))
@@ -162,7 +161,9 @@ class ExternalStockPicking(models.Model):
                     item.picking_id = obj.id
                     # lines
                     for move_line in item.picking_id.move_lines:
-                        items = self.env['external.stock.picking.line'].sudo().search(
+                        items = self.env[
+                            'external.stock.picking.line'
+                        ].sudo().search(
                             [
                                 ('external_stock_picking_id', '=', item.id),
                                 ('external_product_id.product_template_id', '=',

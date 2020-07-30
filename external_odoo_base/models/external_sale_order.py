@@ -211,12 +211,16 @@ class ExternalSaleOrder(models.Model):
                         # date_deadline
                         current_date = datetime.today()
                         date_deadline = current_date + relativedelta(days=1)
+                        # define
+                        item_ec = item.external_customer_id
+                        item_es = item.external_source_id
+                        item_es_esou = item_es.external_sale_order_user_id
                         # vals
                         crm_lead_vals = {
                             'external_sale_order_id': item.id,
                             'type': 'opportunity',
                             'name': "%s %s" % (
-                                item.external_source_id.type,
+                                item_es.type,
                                 item.number
                             ),
                             'team_id': 1,
@@ -225,22 +229,19 @@ class ExternalSaleOrder(models.Model):
                                 str(date_deadline.strftime("%Y-%m-%d %H:%I:%S"))
                         }
                         # user_id
-                        if item.external_source_id.external_sale_order_user_id:
-                            crm_lead_vals['user_id'] = \
-                                item.external_source_id.\
-                                    external_sale_order_user_id.id
+                        if item_es_esou:
+                            crm_lead_vals['user_id'] = item_es_esou.id
                         # create
                         crm_lead_obj = self.env['crm.lead'].sudo(
                             item.create_uid
                         ).create(crm_lead_vals)
                         # update_partner_id
-                        crm_lead_obj.partner_id = item.external_customer_id.partner_id.id
+                        crm_lead_obj.partner_id = item_ec.partner_id.id
                         crm_lead_obj._onchange_partner_id()
                         # user_id (partner_id)
-                        if item.external_source_id.external_sale_order_user_id:
+                        if item_es_esou:
                             if crm_lead_obj.partner_id.user_id.id == 0:
-                                crm_lead_obj.partner_id.user_id = \
-                                    item.external_source_id.external_sale_order_user_id.id
+                                crm_lead_obj.partner_id.user_id = item_es_esou.id
                         # lead_id
                         item.lead_id = crm_lead_obj.id
         # return
@@ -268,6 +269,11 @@ class ExternalSaleOrder(models.Model):
                                                 allow_create_sale_order = False
                 # operations
                 if allow_create_sale_order:
+                    # define
+                    item_es = item.external_source_id
+                    item_es_esoapm = item_es.external_sale_order_account_payment_mode_id
+                    item_es_esoapt = item_es.external_sale_order_account_payment_term_id
+                    item_es_esospt = item_es.external_sale_order_shipping_product_template_id
                     # vals
                     vals = {
                         'external_sale_order_id': item.id,
@@ -287,19 +293,15 @@ class ExternalSaleOrder(models.Model):
                     if item.lead_id.user_id:
                         vals['user_id'] = item.lead_id.user_id.id
                     # payment_mode_id
-                    if item.external_source_id.\
-                            external_sale_order_account_payment_mode_id:
-                        vals['payment_mode_id'] = \
-                            item.external_source_id.\
-                                external_sale_order_account_payment_mode_id.id
+                    if item_es_esoapm:
+                        vals['payment_mode_id'] = item_es_esoapm.id
                     # payment_term_id
-                    if item.external_source_id.\
-                            external_sale_order_account_payment_term_id:
-                        vals['payment_term_id'] = \
-                            item.external_source_id.\
-                                external_sale_order_account_payment_term_id.id
+                    if item_es_esoapt:
+                        vals['payment_term_id'] = item_es_esoapt.id
                     # create
-                    obj = self.env['sale.order'].sudo(item.create_uid).create(vals)
+                    obj = self.env['sale.order'].sudo(
+                        item.create_uid
+                    ).create(vals)
                     # define
                     item.sale_order_id = obj.id
                     # external_sale_order_shipping_id
@@ -307,9 +309,7 @@ class ExternalSaleOrder(models.Model):
                         # data
                         line_vals = {
                             'order_id': item.sale_order_id.id,
-                            'product_id':
-                                item.external_source_id.
-                                    external_sale_order_shipping_product_template_id.id,
+                            'product_id': item_es_esospt.id,
                             'name': str(line_id.title),
                             'product_uom_qty': 1,
                             'product_uom': 1,
@@ -317,22 +317,23 @@ class ExternalSaleOrder(models.Model):
                             'discount': 0
                         }
                         # Fix product_uom
-                        if item.external_source_id.\
-                                external_sale_order_shipping_product_template_id.uom_id:
-                            line_vals['product_uom'] = \
-                                item.external_source_id.\
-                                    external_sale_order_shipping_product_template_id.uom_id.id
+                        if item_es_esospt.uom_id:
+                            line_vals['product_uom'] = item_es_esospt.uom_id.id
                         # create
-                        obj = self.env['sale.order.line'].sudo(item.create_uid).create(line_vals)
+                        obj = self.env['sale.order.line'].sudo(
+                            item.create_uid
+                        ).create(line_vals)
                         # update
                         line_id.sale_order_line_id = obj.id
                     # lines
                     for line_id in item.external_sale_order_line_ids:
+                        # define
+                        line_id_ep = line_id.external_product_id
+                        line_id_ep_pt = line_id_ep.product_template_id
                         # data
                         line_vals = {
                             'order_id': item.sale_order_id.id,
-                            'product_id':
-                                line_id.external_product_id.product_template_id.id,
+                            'product_id': line_id_ep_pt.id,
                             'name': str(line_id.title),
                             'product_uom_qty': line_id.quantity,
                             'product_uom': 1,
@@ -340,9 +341,8 @@ class ExternalSaleOrder(models.Model):
                             'discount': 0
                         }
                         # Fix product_uom
-                        if line_id.external_product_id.product_template_id.uom_id:
-                            line_vals['product_uom'] = \
-                                line_id.external_product_id.product_template_id.uom_id.id
+                        if line_id_ep_pt.uom_id:
+                            line_vals['product_uom'] = line_id_ep_pt.uom_id.id
                         # create
                         obj = self.env['sale.order.line'].sudo(
                             item.create_uid
@@ -355,8 +355,8 @@ class ExternalSaleOrder(models.Model):
     @api.multi
     def action_sale_order_done_error_partner_id_without_vat(self):
         _logger.info(
-            _('The order %s cannot be confirmed because the client does NOT have a CIF')
-            % item.sale_order_id.name
+            _('The order %s cannot be confirmed because the '
+              'client does NOT have a CIF') % item.sale_order_id.name
         )
 
     @api.multi
@@ -381,18 +381,21 @@ class ExternalSaleOrder(models.Model):
             if item.payment_transaction_id.id == 0:
                 if item.sale_order_id:
                     if item.external_customer_id:
-                        if item.external_customer_id.partner_id:
+                        # define
+                        item_ec = item.external_customer_id
+                        if item_ec.partner_id:
+                            # define
+                            item_es = item.external_source_id
+                            item_es_esopa = \
+                                item_es.external_sale_payment_acquirer_id
                             # payment_transaction
                             vals = {
                                 'reference': item.sale_order_id.name,
                                 'sale_order_id': item.sale_order_id.id,
                                 'amount': item.total_price,
                                 'currency_id': item.currency_id.id,
-                                'partner_id':
-                                    item.external_customer_id.partner_id.id,
-                                'acquirer_id':
-                                    item.external_source_id.
-                                        external_sale_payment_acquirer_id.id,
+                                'partner_id': item_ec.partner_id.id,
+                                'acquirer_id': item_es_esopa.id,
                                 'date_validate': item.date,
                                 'state': 'draft',
                             }

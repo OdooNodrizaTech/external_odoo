@@ -106,8 +106,10 @@ class ExternalSaleOrderLine(models.Model):
                 )
             # calculate_tax
             if item.tax_amount > 0:
-                item.total_price_without_tax = (item.price*item.quantity)-item.tax_amount
-                item.unit_price_without_tax = item.total_price_without_tax/item.quantity
+                item.total_price_without_tax = \
+                    (item.price*item.quantity)-item.tax_amount
+                item.unit_price_without_tax = \
+                    item.total_price_without_tax/item.quantity
         # return
         return False
 
