@@ -250,7 +250,7 @@ class ExternalSource(models.Model):
                     customer_vals['vat'] = str(mdi['value'])
                     # fields_billing
         fb = ['email', 'phone']
-        for fb in fields_billing:
+        for fb in fb:
             if fb in vals['billing']:
                 if vals['billing'][fb] != '':
                     customer_vals[fb] = str(vals['billing'][fb])

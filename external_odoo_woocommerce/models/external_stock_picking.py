@@ -145,13 +145,13 @@ class ExternalStockPicking(models.Model):
                                 'error': _('The order is not completed')
                             }
                         # create-write
-                        if result_message['statusCode'] == 200:  # error, data not exists
+                        if result_message['statusCode'] == 200:
                             res = source_id.generate_external_stock_picking_woocommerce(
                                 message_body
                             )[0]
                             result_message = res
                     # logger
-                    _logger.info(result_message)                                                            
+                    _logger.info(result_message)
                     # remove_message
                     if result_message['delete_message']:
                         sqs.delete_message(

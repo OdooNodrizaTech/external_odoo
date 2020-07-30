@@ -268,7 +268,7 @@ class ExternalSaleOrder(models.Model):
                             )[0]
                             result_message = res
                     # logger
-                    _logger.info(result_message)                                                            
+                    _logger.info(result_message)
                     # remove_message
                     if result_message['delete_message']:
                         sqs.delete_message(
