@@ -12,7 +12,6 @@ class ExternalStockPicking(models.Model):
     
     @api.multi
     def action_run(self):
-        self.ensure_one()
         return_item = super(ExternalStockPicking, self).action_run()        
         return return_item
     

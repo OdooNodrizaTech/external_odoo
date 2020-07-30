@@ -103,47 +103,45 @@ class ExternalSource(models.Model):
 
     @api.multi
     def action_api_status_draft_multi(self):
-        self.ensure_one()
-        if self.api_status == 'valid':
-            self.action_api_status_draft()
+        for item in self:
+            if item.api_status == 'valid':
+                item.action_api_status_draft()
 
     @api.multi
     def action_api_status_draft(self):
-        self.ensure_one()
-        self.api_status = 'draft'
+        for item in self:
+            item.api_status = 'draft'
 
     @api.multi
     def action_api_status_valid_multi(self):
-        self.ensure_one()
-        if self.api_status == 'draft':
-            if self.url and self.api_key and self.api_secret:
-                res = self.action_api_status_valid()
-                if not res:
-                    raise UserError(
-                        _('Integration with API could not be '
-                          'validated (perhaps not yet available)')
-                    )
+        for item in self:
+            if item.api_status == 'draft':
+                if item.url and item.api_key and item.api_secret:
+                    res = item.action_api_status_valid()
+                    if not res:
+                        raise UserError(
+                            _('Integration with API could not be '
+                              'validated (perhaps not yet available)')
+                        )
+                    else:
+                        item.api_status = 'valid'
                 else:
-                    self.api_status = 'valid'
-            else:
-                raise UserError(
-                    _('The api_key and api_secret fields are required')
-                )
+                    raise UserError(
+                        _('The api_key and api_secret fields are required')
+                    )
 
     @api.multi
     def action_api_status_valid(self):
-        self.ensure_one()
         return super(ExternalSource, self).action_api_status_valid()
 
     @api.multi
     def action_operations_get_products_multi(self):
-        self.ensure_one()
-        if self.api_key and self.api_secret:
-            self.action_operations_get_products()
+        for item in self:
+            if item.api_key and item.api_secret:
+                item.action_operations_get_products()
 
     @api.multi
     def action_operations_get_products(self):
-        self.ensure_one()
         return False
 
     @api.model

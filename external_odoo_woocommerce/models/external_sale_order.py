@@ -14,7 +14,6 @@ class ExternalSaleOrder(models.Model):
         
     @api.multi
     def action_run(self):
-        self.ensure_one()
         return_item = super(ExternalSaleOrder, self).action_run()
         return return_item        
         

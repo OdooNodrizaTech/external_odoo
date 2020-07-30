@@ -72,41 +72,42 @@ class ExternalSaleOrderLine(models.Model):
     @api.multi
     @api.depends('external_product_id', 'external_sale_order_id')
     def operations_item(self):
-        if self.external_variant_id:
-            items = self.env['external.product'].sudo().search(
-                [
-                    ('external_source_id', '=',
-                     self.external_sale_order_id.external_source_id.id),
-                    ('external_id', '=', str(self.external_id)),
-                    ('external_variant_id', '=', str(self.external_variant_id))
-                ]
-            )
-        else:
-            items = self.env['external.product'].sudo().search(
-                [
-                    ('external_source_id', '=',
-                     self.external_sale_order_id.external_source_id.id),
-                    ('external_id', '=', str(self.external_id))
-                ]
-            )
-        # operations
-        if items:
-            self.external_product_id = items[0].id
-        else:
-            _logger.info(
-                _('Very strange, external_product_id not found regarding'
-                  ' external_source_id=%s, external_id=%s and external_'
-                  'variant_id=%s')
-                % (
-                    self.external_sale_order_id.external_source_id.id,
-                    self.external_id,
-                    self.external_variant_id
+        for item in self:
+            if item.external_variant_id:
+                items = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=',
+                         item.external_sale_order_id.external_source_id.id),
+                        ('external_id', '=', str(item.external_id)),
+                        ('external_variant_id', '=', str(item.external_variant_id))
+                    ]
                 )
-            )
-        # calculate_tax
-        if self.tax_amount > 0:
-            self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/self.quantity
+            else:
+                items = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=',
+                         item.external_sale_order_id.external_source_id.id),
+                        ('external_id', '=', str(item.external_id))
+                    ]
+                )
+            # operations
+            if items:
+                item.external_product_id = items[0].id
+            else:
+                _logger.info(
+                    _('Very strange, external_product_id not found regarding'
+                      ' external_source_id=%s, external_id=%s and external_'
+                      'variant_id=%s')
+                    % (
+                        self.external_sale_order_id.external_source_id.id,
+                        self.external_id,
+                        self.external_variant_id
+                    )
+                )
+            # calculate_tax
+            if item.tax_amount > 0:
+                item.total_price_without_tax = (item.price*item.quantity)-item.tax_amount
+                item.unit_price_without_tax = item.total_price_without_tax/item.quantity
         # return
         return False
 

@@ -42,22 +42,21 @@ class ExternalProduct(models.Model):
     @api.multi
     @api.depends('external_source_id', 'external_id')
     def _compute_external_url(self):
-        self.ensure_one()
-        self.external_url = ''
-        if self.external_source_id.type == 'shopify':
-            self.external_url = 'https://%s/admin/products/%s' % (
-                self.external_source_id.url,
-                self.external_id
-            )
-        elif self.external_source_id.type == 'woocommerce':
-            self.external_url = '%swp-admin/post.php?post=%s&action=edit' % (
-                self.external_source_id.url,
-                self.external_id
-            )
+        for item in self:
+            item.external_url = ''
+            if item.external_source_id.type == 'shopify':
+                item.external_url = 'https://%s/admin/products/%s' % (
+                    item.external_source_id.url,
+                    item.external_id
+                )
+            elif item.external_source_id.type == 'woocommerce':
+                item.external_url = '%swp-admin/post.php?post=%s&action=edit' % (
+                    item.external_source_id.url,
+                    item.external_id
+                )
 
     @api.multi
     def operations_item(self):
-        self.ensure_one()
         return False
 
     @api.model

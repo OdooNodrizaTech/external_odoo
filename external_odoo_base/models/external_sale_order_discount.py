@@ -53,7 +53,6 @@ class ExternalSaleOrderDiscount(models.Model):
 
     @api.multi
     def operations_item(self):
-        self.ensure_one()
         return False
 
     @api.model

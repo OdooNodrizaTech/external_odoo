@@ -15,7 +15,6 @@ class ExternalSource(models.Model):
 
     @api.multi
     def generate_external_sale_order_woocommerce(self, vals):
-        self.ensure_one()
         # result_message
         result_message = {
             'statusCode': 200,
@@ -209,7 +208,6 @@ class ExternalSource(models.Model):
 
     @api.multi
     def generate_external_stock_picking_woocommerce(self, vals):
-        self.ensure_one()
         # result_message
         result_message = {
             'statusCode': 200,
@@ -310,42 +308,40 @@ class ExternalSource(models.Model):
 
     @api.multi
     def init_api_woocommerce(self):
-        self.ensure_one()
-        wcapi = API(
-            url=str(self.url),
-            consumer_key=str(self.api_key),
-            consumer_secret=str(self.api_secret),
-            wp_api=True,
-            version="wc/v3",
-            query_string_auth=True
-        )
-        return wcapi
+        for item in self:
+            wcapi = API(
+                url=str(item.url),
+                consumer_key=str(item.api_key),
+                consumer_secret=str(item.api_secret),
+                wp_api=True,
+                version="wc/v3",
+                query_string_auth=True
+            )
+            return wcapi
     
     @api.multi
     def action_api_status_valid(self):
-        self.ensure_one()
-        # result_item
-        if self.type == 'woocommerce':
-            result_item = False
-            # operations
-            if self.url and self.api_key and self.api_secret:
-                # wcapi
-                wcapi = self.init_api_woocommerce()[0]                
-                # get
-                response = wcapi.get("").json()
-                if 'routes' in response:
-                    result_item = True
-            # return
-            return result_item
-        else:
-            return super(ExternalSource, self).action_api_status_valid()            
+        for item in self:
+            if item.type == 'woocommerce':
+                result_item = False
+                # operations
+                if item.url and item.api_key and item.api_secret:
+                    # wcapi
+                    wcapi = item.init_api_woocommerce()[0]
+                    # get
+                    response = wcapi.get("").json()
+                    if 'routes' in response:
+                        result_item = True
+                # return
+                return result_item
+            else:
+                return super(ExternalSource, self).action_api_status_valid()
     
     @api.multi
     def action_operations_get_products(self):
-        self.ensure_one()
-        # operations
-        if self.type == 'woocommerce':
-            self.action_operations_get_products_woocommerce()
+        for item in self:
+            if item.type == 'woocommerce':
+                item.action_operations_get_products_woocommerce()
         # super
         return_item = super(ExternalSource, self).action_operations_get_products()
         # return
