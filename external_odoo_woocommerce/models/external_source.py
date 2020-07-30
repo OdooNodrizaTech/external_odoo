@@ -63,7 +63,10 @@ class ExternalSource(models.Model):
                 if vals['billing'][field_billing] != '':
                     customer_vals[field_billing] = str(vals['billing'][field_billing])
                     # fields_shipping
-        fields_shipping = ['first_name', 'last_name', 'company', 'address_1', 'address_2', 'city', 'postcode']
+        fields_shipping = [
+            'first_name', 'last_name', 'company', 'address_1',
+            'address_2', 'city', 'postcode'
+        ]
         for field_shipping in fields_shipping:
             if field_shipping in vals['shipping']:
                 if vals['shipping'][field_shipping] != '':
@@ -83,7 +86,9 @@ class ExternalSource(models.Model):
             customer_obj = items[0]
         else:
             # create
-            customer_obj = self.env['external.customer'].sudo(6).create(customer_vals)
+            customer_obj = self.env['external.customer'].sudo(6).create(
+                customer_vals
+            )
         # define
         order_vals['external_customer_id'] = customer_obj.id
         # external_address
@@ -97,14 +102,17 @@ class ExternalSource(models.Model):
                 'type': 'invoice'
             }
             # address_fields_need_check
-            address_fields_need_check = ['first_name', 'last_name', 'company', 'address_1', 'address_2', 'city',
-                                         'state', 'postcode', 'country', 'phone']
-            for address_field_need_check in address_fields_need_check:
-                if address_field_need_check in vals[address_type]:
-                    if vals[address_type][address_field_need_check] != '':
-                        if vals[address_type][address_field_need_check] != None:
-                            address_vals[address_field_need_check] = str(
-                                vals[address_type][address_field_need_check])
+            address_fields_need_check = [
+                'first_name', 'last_name', 'company', 'address_1',
+                'address_2', 'city', 'state', 'postcode', 'country',
+                'phone'
+            ]
+            for field_need_check in address_fields_need_check:
+                if field_need_check in vals[address_type]:
+                    if vals[address_type][field_need_check] != '':
+                        if vals[address_type][field_need_check] is not None:
+                            address_vals[field_need_check] = str(
+                                vals[address_type][field_need_check])
             # replace address_1
             if 'address_1' in address_vals:
                 address_vals['address1'] = address_vals['address_1']
@@ -160,7 +168,9 @@ class ExternalSource(models.Model):
             order_obj.action_run()
             # result_message
             result_message['delete_message'] = True
-            result_message['return_body'] = {'message': _('As it already exists, we update its status only')}
+            result_message['return_body'] = {
+                'message': _('As it already exists, we update its status only')
+            }
         else:
             # create
             order_obj = self.env['external.sale.order'].sudo(6).create(order_vals)
@@ -258,7 +268,9 @@ class ExternalSource(models.Model):
             customer_obj = items[0]
         else:
             # create
-            customer_obj = self.env['external.customer'].sudo(6).create(customer_vals)
+            customer_obj = self.env['external.customer'].sudo(6).create(
+                customer_vals
+            )
         # external_stock_picking
         picking_vals = {
             'external_id': str(vals['id']),
@@ -349,7 +361,6 @@ class ExternalSource(models.Model):
 
     @api.multi
     def action_operations_get_products_woocommerce(self):
-        _logger.info('action_operations_get_products_woocommerce')
         # wcapi
         wcapi = self.init_api_woocommerce()[0]
         _logger.info(wcapi)
@@ -407,33 +418,32 @@ class ExternalSource(models.Model):
 
     @api.model
     def cron_external_product_stock_sync_woocommerce(self):
-        _logger.info('cron_external_product_stock_sync_woocommerce')
-        external_source_ids = self.env['external.source'].sudo().search(
+        source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'woocommerce'),
                 ('api_status', '=', 'valid')
             ]
         )
-        if external_source_ids:
-            for external_source_id in external_source_ids:
-                external_product_ids = self.env['external.product'].sudo().search(
+        if source_ids:
+            for source_id in source_ids:
+                product_ids = self.env['external.product'].sudo().search(
                     [
-                        ('external_source_id', '=', external_source_id.id),
+                        ('external_source_id', '=', source_id.id),
                         ('product_template_id', '!=', False),
                         ('stock_sync', '=', True)
                     ]
                 )
-                if external_product_ids:
+                if product_ids:
                     # wcapi (init)
-                    wcapi = external_source_id.init_api_woocommerce()[0]
+                    wcapi = source_id.init_api_woocommerce()[0]
                     # external_product_ids
-                    for external_product_id in external_product_ids:
+                    for product_id in product_ids:
                         # stock_quant
                         qty_item = 0
                         stock_quant_ids = self.env['stock.quant'].sudo().search(
                             [
                                 ('product_id', '=',
-                                 external_product_id.product_template_id.id),
+                                 product_id.product_template_id.id),
                                 ('location_id.usage', '=', 'internal')
                             ]
                         )
@@ -447,15 +457,15 @@ class ExternalSource(models.Model):
                         if qty_item < 0:
                             data['stock_status'] = 'outofstock'
                         # operations_update
-                        if external_product_id.external_variant_id == False:
+                        if product_id.external_variant_id == False:
                             response = wcapi.put(
-                                "products/%s" % external_product_id.external_id,
+                                "products/%s" % product_id.external_id,
                                 data
                             ).json()
                         else:
                             response = wcapi.put("products/%s/variations/%s" % (
-                                external_product_id.external_id,
-                                external_product_id.external_variant_id
+                                product_id.external_id,
+                                product_id.external_variant_id
                             ), data).json()
                         # response
                         if 'id' not in response:

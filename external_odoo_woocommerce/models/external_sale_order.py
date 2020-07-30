@@ -19,55 +19,52 @@ class ExternalSaleOrder(models.Model):
         
     @api.model
     def cron_external_sale_order_update_shipping_expedition_woocommerce(self):
-        _logger.info('cron_external_sale_order_update_shipping_expedition_woocommerce')
         # search
-        external_source_ids = self.env['external.source'].sudo().search(
+        source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'woocommerce'),
                 ('api_status', '=', 'valid')
             ]
         )
-        if external_source_ids:
-            for external_source_id in external_source_ids:
+        if source_ids:
+            for source_id in source_ids:
                 # external_sale_order_ids
-                external_sale_order_ids = self.env['external.sale.order'].sudo().search(
+                order_ids = self.env['external.sale.order'].sudo().search(
                     [   
-                        ('external_source_id', '=', external_source_id.id),
+                        ('external_source_id', '=', source_id.id),
                         ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('sale_order_id', '!=', False),
                         ('sale_order_id.state', 'in', ('sale', 'done'))
                     ]
                 )
-                if external_sale_order_ids:
+                if order_ids:
                     # wcapi (init)
-                    wcapi = external_source_id.init_api_woocommerce()[0]
+                    wcapi = source_id.init_api_woocommerce()[0]
                     # external_sale_order_ids
-                    for external_sale_order_id in external_sale_order_ids:
+                    for order_id in order_ids:
                         # stock_picking
-                        stock_picking_ids = self.env['stock.picking'].sudo().search(
+                        picking_ids = self.env['stock.picking'].sudo().search(
                             [   
-                                ('origin', '=', str(external_sale_order_id.sale_order_id.name)),
+                                ('origin', '=', str(order_id.sale_order_id.name)),
                                 ('state', '=', 'done'),
                                 ('picking_type_id.code', '=', 'outgoing'),                                
                                 ('shipping_expedition_id', '!=', False),
                                 ('shipping_expedition_id.state', '=', 'delivered')
                             ]
                         )
-                        if stock_picking_ids:
+                        if picking_ids:
                             # put (#OK, se actualiza)
                             data = {"status": "completed"}                
                             response = wcapi.put(
-                                "orders/"+str(external_sale_order_id.number),
+                                "orders/"+str(order_id.number),
                                 data
                             ).json()
                             if 'id' in response:
                                 # update OK
-                                external_sale_order_id.woocommerce_state = 'completed'        
+                                order_id.woocommerce_state = 'completed'
     
     @api.model
     def cron_sqs_external_sale_order_woocommerce(self):
-        _logger.info('cron_sqs_external_sale_order_woocommerce')
-
         sqs_url = tools.config.get('sqs_external_sale_order_woocommerce_url')
         AWS_ACCESS_KEY_ID = tools.config.get('aws_access_key_id')
         AWS_SECRET_ACCESS_KEY = tools.config.get('aws_secret_key_id')
@@ -146,7 +143,10 @@ class ExternalSaleOrder(models.Model):
                             result_message['return_body'] = {'error': _('The order is not completed')}
                         # create-write
                         if result_message['statusCode'] == 200:  # error, data not exists
-                            result_message = external_source_id.generate_external_sale_order_woocommerce(message_body)[0]
+                            result_message = \
+                                external_source_id.generate_external_sale_order_woocommerce(
+                                    message_body
+                                )[0]
                     # logger
                     _logger.info(result_message)
                     # remove_message

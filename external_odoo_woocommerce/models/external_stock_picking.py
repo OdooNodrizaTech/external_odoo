@@ -17,20 +17,19 @@ class ExternalStockPicking(models.Model):
     
     @api.model
     def cron_external_stock_picking_update_shipping_expedition_woocommerce(self):
-        _logger.info('cron_external_stock_picking_update_shipping_expedition_woocommerce')
         # search
-        external_source_ids = self.env['external.source'].sudo().search(
+        source_ids = self.env['external.source'].sudo().search(
             [
                 ('type', '=', 'woocommerce'),
                 ('api_status', '=', 'valid')
             ]
         )
-        if external_source_ids:
-            for external_source_id in external_source_ids:
+        if source_ids:
+            for source_id in source_ids:
                 # external_stock_picking_ids
-                external_stock_picking_ids = self.env['external.stock.picking'].sudo().search(
+                picking_ids = self.env['external.stock.picking'].sudo().search(
                     [   
-                        ('external_source_id', '=', external_source_id.id),
+                        ('external_source_id', '=', source_id.id),
                         ('woocommerce_state', 'in', ('processing', 'shipped')),
                         ('picking_id', '!=', False),
                         ('picking_id.state', '=', 'done'),
@@ -38,25 +37,23 @@ class ExternalStockPicking(models.Model):
                         ('picking_id.shipping_expedition_id.state', '=', 'delivered')
                     ]
                 )
-                if external_stock_picking_ids:
+                if picking_ids:
                     # wcapi (init)
-                    wcapi = external_source_id.init_api_woocommerce()[0]            
+                    wcapi = source_id.init_api_woocommerce()[0]
                     # operations
-                    for external_stock_picking_id in external_stock_picking_ids:
+                    for picking_id in picking_ids:
                         #put
                         data = {"status": "completed"}
                         response = wcapi.put(
-                            "orders/%s" % external_stock_picking_id.number,
+                            "orders/%s" % picking_id.number,
                             data
                         ).json()
                         if 'id' in response:
                             # update OK
-                            external_stock_picking_id.woocommerce_state = 'completed'
+                            picking_id.woocommerce_state = 'completed'
     
     @api.model
     def cron_sqs_external_stock_picking_woocommerce(self):
-        _logger.info('cron_sqs_external_stock_picking_woocommerce')
-
         sqs_url = tools.config.get('sqs_external_stock_picking_woocommerce_url')
         AWS_ACCESS_KEY_ID = tools.config.get('aws_access_key_id')
         AWS_SECRET_ACCESS_KEY = tools.config.get('aws_secret_key_id')
@@ -102,11 +99,15 @@ class ExternalStockPicking(models.Model):
                     if 'line_items' not in message_body:
                         result_message['statusCode'] = 500
                         result_message['delete_message'] = True
-                        result_message['return_body'] = {'error': _('Line_items field missing')}
+                        result_message['return_body'] = {
+                            'error': _('Line_items field missing')
+                        }
                     # default
                     source = 'woocommerce'
                     # fields_need_check
-                    fields_need_check = ['status', 'shipping', 'billing', 'X-WC-Webhook-Source']
+                    fields_need_check = [
+                        'status', 'shipping', 'billing', 'X-WC-Webhook-Source'
+                    ]
                     for field_need_check in fields_need_check:
                         if field_need_check not in message_body:
                             result_message['statusCode'] = 500
