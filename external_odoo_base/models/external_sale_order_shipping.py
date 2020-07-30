@@ -30,12 +30,12 @@ class ExternalSaleOrderShipping(models.Model):
     )
     unit_price_without_tax = fields.Float(
         string='Unit price Without Tax',
-        digits=dp.get_precision('Price Unit'),        
+        digits=dp.get_precision('Price Unit'),
         help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
         string='Total price Without Tax'
-    )    
+    )
     external_sale_order_id = fields.Many2one(
         comodel_name='external.sale.order',
         string='Sale Order',
@@ -44,16 +44,17 @@ class ExternalSaleOrderShipping(models.Model):
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
         string='sale_order_line'
-    )  
+    )
 
-    @api.one
+    @api.multi
     def operations_item(self):
-        # calculate_tax
-        if self.tax_amount>0:
-            self.total_price_without_tax = self.price-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/1
+        for item in self:
+            # calculate_tax
+            if item.tax_amount > 0:
+                item.total_price_without_tax = item.price-item.tax_amount
+                item.unit_price_without_tax = item.total_price_without_tax / 1
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):

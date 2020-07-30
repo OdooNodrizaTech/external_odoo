@@ -6,6 +6,7 @@ import odoo.addons.decimal_precision as dp
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class ExternalSaleOrderLine(models.Model):
     _name = 'external.sale.order.line'
     _description = 'External Sale Order Line'
@@ -56,54 +57,61 @@ class ExternalSaleOrderLine(models.Model):
     )
     unit_price_without_tax = fields.Float(
         string='Unit price Without Tax',
-        digits=dp.get_precision('Price Unit'),        
+        digits=dp.get_precision('Price Unit'),
         help='Calculate (total_price_without_tax/quantity)'
     )
     total_price_without_tax = fields.Monetary(
         string='Total price Without Tax',
         help='Calculate (price*quantity)-tax_amount'
-    ) 
+    )
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
         string='sale_order_line'
-    )        
+    )
 
-    @api.one
+    @api.multi
+    @api.depends('external_product_id', 'external_sale_order_id')
     def operations_item(self):
-        # external_product_id
-        if self.external_product_id.id == 0:
-            if self.external_sale_order_id:
-                if self.external_variant_id:
-                    external_product_ids = self.env['external.product'].sudo().search(
-                        [
-                            ('external_source_id', '=', self.external_sale_order_id.external_source_id.id),
-                            ('external_id', '=', str(self.external_id)),
-                            ('external_variant_id', '=', str(self.external_variant_id))
-                        ]
-                    )
-                else:
-                    external_product_ids = self.env['external.product'].sudo().search(
-                        [
-                            ('external_source_id', '=', self.external_sale_order_id.external_source_id.id),
-                            ('external_id', '=', str(self.external_id))
-                        ]
-                    )
-                # operations
-                if external_product_ids:
-                    external_product_id = external_product_ids[0]
-                    self.external_product_id = external_product_id.id
-                else:
-                    _logger.info(_('Very strange, external_product_id not found regarding external_source_id=%s, external_id=%s and external_variant_id=%s') % (
+        for item in self:
+            if item.external_variant_id:
+                items = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=',
+                         item.external_sale_order_id.external_source_id.id),
+                        ('external_id', '=', str(item.external_id)),
+                        ('external_variant_id', '=', str(item.external_variant_id))
+                    ]
+                )
+            else:
+                items = self.env['external.product'].sudo().search(
+                    [
+                        ('external_source_id', '=',
+                         item.external_sale_order_id.external_source_id.id),
+                        ('external_id', '=', str(item.external_id))
+                    ]
+                )
+            # operations
+            if items:
+                item.external_product_id = items[0].id
+            else:
+                _logger.info(
+                    _('Very strange, external_product_id not found regarding'
+                      ' external_source_id=%s, external_id=%s and external_'
+                      'variant_id=%s')
+                    % (
                         self.external_sale_order_id.external_source_id.id,
                         self.external_id,
                         self.external_variant_id
-                    ))
-        # calculate_tax
-        if self.tax_amount>0:
-            self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
-            self.unit_price_without_tax = self.total_price_without_tax/self.quantity            
+                    )
+                )
+            # calculate_tax
+            if item.tax_amount > 0:
+                item.total_price_without_tax = \
+                    (item.price*item.quantity)-item.tax_amount
+                item.unit_price_without_tax = \
+                    item.total_price_without_tax/item.quantity
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):

@@ -8,34 +8,38 @@ class ExternalCustomer(models.Model):
     _description = 'External Customer'
     _order = 'create_date desc'
 
-    name = fields.Char(        
-        compute='_get_name',
+    name = fields.Char(
+        compute='_compute_name',
         string='Name',
         store=False
     )
-    
-    @api.one        
-    def _get_name(self):            
-        for obj in self:
-            obj.name = obj.first_name
-            # Fix
-            if obj.last_name:
-                obj.name += ' '+str(self.last_name)
-    
-    external_url = fields.Char(        
-        compute='_get_external_url',
+
+    @api.multi
+    def _compute_name(self):
+        self.ensure_one()
+        self.name = self.first_name
+        if self.last_name:
+            self.name = "%s %s" % (
+                self.first_name,
+                self.last_name
+            )
+
+    external_url = fields.Char(
+        compute='_compute_external_url',
         string='External Url',
         store=False
     )
-    
-    @api.one        
-    def _get_external_url(self):            
-        for obj in self:
-            if obj.external_source_id:
-                if obj.external_id:
-                    obj.external_url = ''
-                    if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://%s/admin/customers/%s' % (obj.external_source_id.url, obj.external_id)
+
+    @api.multi
+    @api.depends('external_source_id', 'external_id')
+    def _compute_external_url(self):
+        self.ensure_one()
+        self.external_url = ''
+        if self.external_source_id.type == 'shopify':
+            self.external_url = 'https://%s/admin/customers/%s' % (
+                self.external_source_id.url,
+                self.external_id
+            )
     # fields
     external_id = fields.Char(
         string='External Id'
@@ -43,7 +47,7 @@ class ExternalCustomer(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )            
+    )
     partner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Partner'
@@ -74,7 +78,7 @@ class ExternalCustomer(models.Model):
     )
     city = fields.Char(
         string='City'
-    )       
+    )
     active = fields.Boolean(
         string='Active'
     )
@@ -93,157 +97,162 @@ class ExternalCustomer(models.Model):
     )
     postcode = fields.Char(
         string='Postcode'
-    )    
+    )
     country_state_id = fields.Many2one(
         comodel_name='res.country.state',
         string='Country State'
     )
-    
-    @api.multi
-    def action_operations_item(self):
-        for obj in self:
-            if obj.partner_id:
-                obj.action_operations_item()  
 
-    @api.one
+    @api.multi
+    @api.depends('partner_id')
+    def action_operations_item(self):
+        for item in self:
+            if item.partner_id:
+                item.action_operations_item()
+
+    @api.multi
     def operations_item(self):
-        if self.partner_id:
-            # phone
-            phone = None
-            mobile = None
-            # phone_mobile
-            if self.phone:
-                # phone vs mobile
-                phone = str(self.phone)
+        for item in self:
+            if item.partner_id:
+                # phone
+                phone = None
                 mobile = None
-                phone_first_char = str(self.phone)[:1]
-                if phone_first_char == '6':
-                    mobile = str(phone)
-                    phone = None
-                # search
-                if phone:
-                    res_partner_ids = self.env['res.partner'].sudo().search(
-                        [
-                            ('type', '=', 'contact'),
-                            ('email', '=', str(self.email)),
-                            ('active', '=', True),
-                            ('supplier', '=', False),
-                            ('phone', '=', str(phone))
-                        ]
-                    )
-                else:
-                    res_partner_ids = self.env['res.partner'].sudo().search(
-                        [
-                            ('type', '=', 'contact'),
-                            ('email', '=', str(self.email)),
-                            ('active', '=', True),
-                            ('supplier', '=', False),
-                            ('mobile', '=', str(mobile))
-                        ]
-                    )
-            else:
-                res_partner_ids = self.env['res.partner'].sudo().search(
-                    [
-                        ('email', '=', str(self.email)),
-                        ('active', '=', True),
-                        ('supplier', '=', False)
-                    ]
-                )
-            # if exists
-            if res_partner_ids:
-                res_partner_id = res_partner_ids[0]
-                self.partner_id = res_partner_id.id
-                # Update country_id
-                if self.partner_id.country_id:
-                    self.country_id = self.partner_id.country_id.id
-                # Update state_id
-                if self.partner_id.state_id:
-                    self.country_state_id = self.partner_id.state_id.id
-            else:
-                # name
-                name = self.first_name
-                if self.last_name:
-                    name += ' '+str(name)
-                # create
-                vals = {
-                    'active': True,
-                    'customer': True,
-                    'supplier': False,
-                    'name': str(name),
-                    'street': str(self.address_1),
-                    'city': str(self.city)
-                }
-                # address_2
-                if self.address_2:
-                    vals['street2'] = str(self.address_2)
-                # zip
-                if self.postcode:
-                    vals['zip'] = str(self.postcode)
-                # email
-                if self.email:
-                    vals['email'] = str(self.email)
                 # phone_mobile
-                if phone:
-                    vals['phone'] = str(phone)
+                if item.phone:
+                    # phone vs mobile
+                    phone = str(item.phone)
+                    mobile = None
+                    phone_first_char = str(item.phone)[:1]
+                    if phone_first_char == '6':
+                        mobile = str(phone)
+                        phone = None
+                    # search
+                    if phone:
+                        items = self.env['res.partner'].sudo().search(
+                            [
+                                ('type', '=', 'contact'),
+                                ('email', '=', str(item.email)),
+                                ('active', '=', True),
+                                ('supplier', '=', False),
+                                ('phone', '=', str(phone))
+                            ]
+                        )
+                    else:
+                        items = self.env['res.partner'].sudo().search(
+                            [
+                                ('type', '=', 'contact'),
+                                ('email', '=', str(item.email)),
+                                ('active', '=', True),
+                                ('supplier', '=', False),
+                                ('mobile', '=', str(mobile))
+                            ]
+                        )
                 else:
-                    vals['mobile'] = str(mobile)
-                #vat
-                if self.vat:
-                    vals['vat'] = 'EU'+str(self.vat)
-                # country_id
-                if self.country_code:
-                    res_country_ids = self.env['res.country'].sudo().search(
+                    items = self.env['res.partner'].sudo().search(
                         [
-                            ('code', '=', str(self.country_code))
+                            ('email', '=', str(item.email)),
+                            ('active', '=', True),
+                            ('supplier', '=', False)
                         ]
                     )
-                    if res_country_ids:
-                        res_country_id = res_country_ids[0]
-                        # country_id
-                        self.country_id = res_country_id.id
-                        vals['country_id'] = res_country_id.id
-                        # state_id
-                        if self.province_code:
-                            res_country_state_ids = self.env['res.country.state'].sudo().search(
-                                [
-                                    ('country_id', '=', res_country_id.id),
-                                    ('code', '=', str(self.province_code))
-                                ]
-                            )
-                            if res_country_state_ids:
-                                res_country_state_id = res_country_state_ids[0]
-                                #state_id
-                                self.country_state_id = res_country_state_id.id
-                                vals['state_id'] = res_country_state_id.id
-                            else:
-                                if self.postcode:
-                                    res_better_zip_ids = self.env['res.better.zip'].sudo().search(
-                                        [
-                                            ('country_id', '=', res_country_id.id),
-                                            ('name', '=', str(self.postcode))
-                                        ]
-                                    )
-                                    if res_better_zip_ids:
-                                        res_better_zip_id = res_better_zip_ids[0]
-                                        if res_better_zip_id.state_id:
-                                            # update_state_id
-                                            self.country_state_id = res_better_zip_id.state_id.id
-                                            vals['state_id'] = res_better_zip_id.state_id.id
-                # create
-                res_partner_obj = self.env['res.partner'].create(vals)
-                self.partner_id = res_partner_obj.id                        
+                # if exists
+                if items:
+                    item.partner_id = items[0].id
+                    # Update country_id
+                    if item.partner_id.country_id:
+                        item.country_id = item.partner_id.country_id.id
+                    # Update state_id
+                    if item.partner_id.state_id:
+                        item.country_state_id = item.partner_id.state_id.id
+                else:
+                    # name
+                    name = item.first_name
+                    if item.last_name:
+                        name = "%s %s" % (
+                            item.first_name,
+                            item.last_name
+                        )
+                    # create
+                    vals = {
+                        'active': True,
+                        'customer': True,
+                        'supplier': False,
+                        'name': str(name),
+                        'street': str(item.address_1),
+                        'city': str(item.city)
+                    }
+                    # address_2
+                    if item.address_2:
+                        vals['street2'] = str(item.address_2)
+                    # zip
+                    if item.postcode:
+                        vals['zip'] = str(item.postcode)
+                    # email
+                    if item.email:
+                        vals['email'] = str(item.email)
+                    # phone_mobile
+                    if phone:
+                        vals['phone'] = str(phone)
+                    else:
+                        vals['mobile'] = str(mobile)
+                    # vat
+                    if item.vat:
+                        vals['vat'] = 'EU'+str(item.vat)
+                    # country_id
+                    if item.country_code:
+                        items = self.env['res.country'].sudo().search(
+                            [
+                                ('code', '=', str(item.country_code))
+                            ]
+                        )
+                        if items:
+                            # country_id
+                            item.country_id = items[0].id
+                            vals['country_id'] = items[0].id
+                            # state_id
+                            if item.province_code:
+                                items = self.env['res.country.state'].sudo().search(
+                                    [
+                                        ('country_id', '=', item.country_id.id),
+                                        ('code', '=', str(item.province_code))
+                                    ]
+                                )
+                                if items:
+                                    # state_id
+                                    item.country_state_id = items[0].id
+                                    vals['state_id'] = items[0].id
+                                else:
+                                    if item.postcode:
+                                        items = self.env[
+                                            'res.better.zip'
+                                        ].sudo().search(
+                                            [
+                                                ('country_id', '=', item.country_id.id),
+                                                ('name', '=', str(item.postcode))
+                                            ]
+                                        )
+                                        if items:
+                                            if items[0].state_id:
+                                                # update_state_id
+                                                item.country_state_id = \
+                                                    items[0].state_id.id
+                                                vals['state_id'] = \
+                                                    items[0].state_id.id
+                    # create
+                    res_partner_obj = item.env['res.partner'].create(vals)
+                    item.partner_id = res_partner_obj.id
         # return
-        return False        
+        return False
 
     @api.model
     def create(self, values):
-        return_item = super(ExternalCustomer, self).create(values)
+        res = super(ExternalCustomer, self).create(values)
         # Fix province_code
-        if return_item.country_code and return_item.province_code:
-            code_check = str(return_item.country_code)+'-'
-            if code_check in return_item.province_code:
-                return_item.province_code = return_item.province_code.replace(code_check, "")        
+        if res.country_code and res.province_code:
+            code_check = str(res.country_code)+'-'
+            if code_check in res.province_code:
+                res.province_code = res.province_code.replace(code_check, "")
         # operations
-        return_item.operations_item()
+        res.operations_item()
         # return
-        return return_item    
+        return res

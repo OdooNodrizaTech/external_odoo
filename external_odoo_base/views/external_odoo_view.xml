@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <!--external_source!-->
     <record id="external_source_form_view" model="ir.ui.view">
         <field name="name">Source</field>
@@ -38,6 +39,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_source_tree" model="ir.ui.view">
         <field name="name">Source</field>
         <field name="model">external.source</field>            
@@ -48,7 +50,8 @@
                 <field name="url"/>
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_source_action" model="ir.actions.act_window">
         <field name="name">Source</field>
         <field name="type">ir.actions.act_window</field>
@@ -57,6 +60,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_source_tree"/>                
     </record>
+
     <!--external_product!-->
     <record id="external_product_form_view" model="ir.ui.view">
         <field name="name">Product</field>
@@ -80,6 +84,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_product_tree" model="ir.ui.view">
         <field name="name">Product</field>
         <field name="model">external.product</field>            
@@ -93,7 +98,8 @@
                 <field name="product_template_id"/>
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_product_action" model="ir.actions.act_window">
         <field name="name">Product</field>
         <field name="type">ir.actions.act_window</field>
@@ -102,6 +108,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_product_tree"/>                
     </record>
+
     <!--external_customer!-->
     <record id="external_customer_form_view" model="ir.ui.view">
         <field name="name">Customer</field>
@@ -140,6 +147,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_customer_tree" model="ir.ui.view">
         <field name="name">Customer</field>
         <field name="model">external.customer</field>            
@@ -166,7 +174,8 @@
                 <field name="country_state_id"/>                
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_customer_action" model="ir.actions.act_window">
         <field name="name">Customer</field>
         <field name="type">ir.actions.act_window</field>
@@ -175,6 +184,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_customer_tree"/>                
     </record>
+
     <!--external_address!-->
     <record id="external_address_form_view" model="ir.ui.view">
         <field name="name">Address</field>
@@ -212,6 +222,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_address_tree" model="ir.ui.view">
         <field name="name">Address</field>
         <field name="model">external.address</field>            
@@ -235,7 +246,8 @@
                 <field name="country_state_id"/>                          
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_address_action" model="ir.actions.act_window">
         <field name="name">Address</field>
         <field name="type">ir.actions.act_window</field>
@@ -244,6 +256,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_address_tree"/>                
     </record>
+
     <!--external.sale.order.discount!-->
     <record id="external_sale_order_discount_form_view" model="ir.ui.view">
         <field name="name">Sale Order Discount</field>
@@ -265,6 +278,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_sale_order_discounte_tree" model="ir.ui.view">
         <field name="name">Sale Order Discount</field>
         <field name="model">external.sale.order.discount</field>            
@@ -281,6 +295,7 @@
             </tree>
         </field>            
     </record>
+
     <!--external.sale.order.line!-->
     <record id="external_sale_order_line_form_view" model="ir.ui.view">
         <field name="name">Sale Order Line</field>
@@ -308,6 +323,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_sale_order_line_tree" model="ir.ui.view">
         <field name="name">Sale Order Line</field>
         <field name="model">external.sale.order.line</field>            
@@ -326,6 +342,7 @@
             </tree>
         </field>            
     </record>
+
     <!--external.sale.order.shipping!-->
     <record id="external_sale_order_shipping_form_view" model="ir.ui.view">
         <field name="name">Sale Order Shipping</field>
@@ -348,6 +365,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_sale_order_shipping_tree" model="ir.ui.view">
         <field name="name">Sale Order Shipping</field>
         <field name="model">external.sale.order.shipping</field>            
@@ -362,6 +380,7 @@
             </tree>
         </field>            
     </record>
+
     <!--external.stock.picking.line!-->
     <record id="external_stock_picking_line_form_view" model="ir.ui.view">
         <field name="name">Stock Picking Line</field>
@@ -382,6 +401,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_stock_picking_line_tree" model="ir.ui.view">
         <field name="name">Stock Picking Line</field>
         <field name="model">external.stock.picking.line</field>            
@@ -397,6 +417,7 @@
             </tree>
         </field>            
     </record>
+
     <!--external.sale.order!-->
     <record id="external_sale_order_form_view" model="ir.ui.view">
         <field name="name">Sale Order</field>
@@ -437,6 +458,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_sale_order_tree" model="ir.ui.view">
         <field name="name">Sale Order</field>
         <field name="model">external.sale.order</field>            
@@ -455,7 +477,8 @@
                 <field name="total_price"/>                
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_sale_order_action" model="ir.actions.act_window">
         <field name="name">Sale Order</field>
         <field name="type">ir.actions.act_window</field>
@@ -464,6 +487,7 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_sale_order_tree"/>                
     </record>
+
     <!--external.stock.picking!-->
     <record id="external_stock_picking_form_view" model="ir.ui.view">
         <field name="name">Stock Picking</field>
@@ -491,6 +515,7 @@
             </form>
         </field>
     </record>
+
     <record id="external_stock_picking_tree" model="ir.ui.view">
         <field name="name">Stock Picking</field>
         <field name="model">external.stock.picking</field>            
@@ -505,7 +530,8 @@
                 <field name="woocommerce_state"/>
             </tree>
         </field>            
-    </record>        
+    </record>
+
     <record id="external_stock_picking_action" model="ir.actions.act_window">
         <field name="name">Stock Picking</field>
         <field name="type">ir.actions.act_window</field>
@@ -513,7 +539,8 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="external_stock_picking_tree"/>                
-    </record>                     
+    </record>
+
     <menuitem 
         id="menu_odoo_external_odoo" 
         name="External Odoo"

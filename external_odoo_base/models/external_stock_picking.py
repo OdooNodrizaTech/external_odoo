@@ -9,22 +9,27 @@ class ExternalStockPicking(models.Model):
     _order = 'create_date desc'
     _rec_name = 'external_id'
 
-    external_url = fields.Char(        
-        compute='_get_external_url',
+    external_url = fields.Char(
+        compute='_compute_external_url',
         string='External Url',
         store=False
     )
-    
-    @api.one        
-    def _get_external_url(self):            
-        for obj in self:
-            if obj.external_source_id:
-                if obj.external_id:
-                    obj.external_url = ''
-                    if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://%s/admin/orders/%s' % (obj.external_source_id.url, obj.external_id)
-                    elif obj.external_source_id.type == 'woocommerce':
-                        obj.external_url = '%swp-admin/post.php?post=%s&action=edit' % (obj.external_source_id.url, obj.external_id)
+
+    @api.multi
+    @api.depends('external_source_id', 'external_id')
+    def _compute_external_url(self):
+        self.ensure_one()
+        self.external_url = ''
+        if self.external_source_id.type == 'shopify':
+            self.external_url = 'https://%s/admin/orders/%s' % (
+                self.external_source_id.url,
+                self.external_id
+            )
+        elif self.external_source_id.type == 'woocommerce':
+            self.external_url = '%swp-admin/post.php?post=%s&action=edit' % (
+                self.external_source_id.url,
+                self.external_id
+            )
     # fields
     woocommerce_state = fields.Selection(
         [
@@ -51,14 +56,14 @@ class ExternalStockPicking(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )                    
+    )
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
         string='Albaran'
     )
     number = fields.Integer(
         string='Number'
-    )    
+    )
     external_source_name = fields.Selection(
         [
             ('web', 'Web')
@@ -66,91 +71,110 @@ class ExternalStockPicking(models.Model):
         string='External Source Name',
         default='web'
     )
-    external_stock_picking_line_ids = fields.One2many('external.stock.picking.line', 'external_stock_picking_id', string='Lines', copy=True)        
+    external_stock_picking_line_ids = fields.One2many(
+        'external.stock.picking.line',
+        'external_stock_picking_id',
+        string='Lines',
+        copy=True
+    )
 
     @api.multi
     def action_run_multi(self):
-        for obj in self:
-            if obj.picking_id.id == 0:
-                obj.action_run()
+        for item in self:
+            if item.picking_id.id == 0:
+                item.action_run()
 
-    @api.one
+    @api.multi
     def allow_create(self):
         return_item = False
         # operations
-        if self.external_source_id:
-            # woocommerce
-            if self.external_source_id.type == 'woocommerce':
-                if self.woocommerce_state in ['processing', 'shipped', 'completed']:
+        for item in self:
+            if item.external_source_id:
+                # woocommerce
+                if item.external_source_id.type == 'woocommerce':
+                    if item.woocommerce_state in ['processing', 'shipped', 'completed']:
+                        return_item = True
+                elif item.external_source_id.type == 'custom':
                     return_item = True
-            elif self.external_source_id.type == 'custom':
-                return_item = True
         # return
         return return_item
-        
-    @api.one
+
+    @api.multi
     def action_run(self):
-        # allow_create
-        allow_create_item = self.allow_create()[0]
-        if allow_create_item:
-            self.action_stock_picking_create()
-        
-    @api.one
-    def action_stock_picking_create(self):
-        if self.picking_id.id == 0:
+        for item in self:
             # allow_create
-            allow_create_stock_picking = False
-            if self.external_customer_id:
-                if self.external_customer_id.partner_id:
-                    allow_create_stock_picking = True
-                    # check_external_stock_picking_line_ids
-                    for external_stock_picking_line_id in self.external_stock_picking_line_ids:
-                        if external_stock_picking_line_id.external_product_id.id == 0:
-                            allow_create_stock_picking = False
-            # operations
-            if allow_create_stock_picking:
-                # stock_picking
-                stock_picking_vals = {
-                    'external_stock_picking_id': self.id,
-                    'picking_type_id' : self.external_source_id.external_stock_picking_picking_type_id.id,
-                    'location_id': self.external_source_id.external_stock_picking_picking_type_id.default_location_src_id.id,
-                    'location_dest_id': 9,
-                    'move_type' : 'one',
-                    'partner_id': self.external_customer_id.partner_id.id,
-                    'move_lines': []             
-                }
-                # carrier_id
-                if self.external_source_id.external_stock_picking_carrier_id:
-                    stock_picking_vals['carrier_id'] = self.external_source_id.external_stock_picking_carrier_id.id
-                # move_lines
-                for external_stock_picking_line_id in self.external_stock_picking_line_ids:
-                    if external_stock_picking_line_id.external_product_id:
-                        move_line_item = {
-                            'product_id': external_stock_picking_line_id.external_product_id.product_template_id.id,
-                            'name': external_stock_picking_line_id.external_product_id.product_template_id.name,
-                            'product_uom_qty': external_stock_picking_line_id.quantity,
-                            'product_uom': external_stock_picking_line_id.external_product_id.product_template_id.uom_id.id,
-                            'state': 'draft',                        
-                        }
-                        stock_picking_vals['move_lines'].append((0, 0, move_line_item))
-                # create
-                stock_picking_obj = self.env['stock.picking'].create(stock_picking_vals)
-                # update
-                self.picking_id = stock_picking_obj.id
-                # lines
-                for move_line in stock_picking_obj.move_lines:
-                    external_stock_picking_line_ids = self.env['external.stock.picking.line'].sudo().search(
-                        [
-                            ('external_stock_picking_id', '=', self.id),
-                            ('external_product_id.product_template_id', '=', move_line.product_id.id)
-                        ]
-                    )
-                    if external_stock_picking_line_ids:
-                        external_stock_picking_line_id = external_stock_picking_line_ids[0]
-                        external_stock_picking_line_id.move_id = move_line.id         
-                # action_confirm
-                stock_picking_obj.action_confirm()
-                # force_assign
-                stock_picking_obj.force_assign()                            
+            allow_create_item = item.allow_create()[0]
+            if allow_create_item:
+                item.action_stock_picking_create()
+
+    @api.multi
+    def action_stock_picking_create(self):
+        for item in self:
+            if item.picking_id.id == 0:
+                # allow_create
+                allow_create_stock_picking = False
+                if item.external_customer_id:
+                    if item.external_customer_id.partner_id:
+                        allow_create_stock_picking = True
+                        # check_external_stock_picking_line_ids
+                        for line_id in item.external_stock_picking_line_ids:
+                            if line_id.external_product_id.id == 0:
+                                allow_create_stock_picking = False
+                # operations
+                if allow_create_stock_picking:
+                    # define
+                    item_es = item.external_source_id
+                    item_es_espt = \
+                        item_es.external_stock_picking_picking_type_id
+                    item_es_espc = item_es.external_stock_picking_carrier_id
+                    # stock_picking
+                    vals = {
+                        'external_stock_picking_id': item.id,
+                        'picking_type_id': item_es_espt.id,
+                        'location_id':
+                            item_es_espt.default_location_src_id.id,
+                        'location_dest_id': 9,
+                        'move_type' : 'one',
+                        'partner_id': item.external_customer_id.partner_id.id,
+                        'move_lines': []
+                    }
+                    # carrier_id
+                    if item_es_espc:
+                        vals['carrier_id'] = item_es_espc.id
+                    # move_lines
+                    for line_id in item.external_stock_picking_line_ids:
+                        line_id_ep = line_id.external_product_id
+                        if line_id_ep:
+                            line_id_ep_pt = line_id_ep.product_template_id
+                            # vals
+                            line_vals = {
+                                'product_id': line_id_ep_pt.id,
+                                'name': line_id_ep_pt.name,
+                                'product_uom_qty': line_id.quantity,
+                                'product_uom': line_id_ep_pt.uom_id.id,
+                                'state': 'draft'
+                            }
+                            vals['move_lines'].append((0, 0, line_vals))
+                    # create
+                    obj = self.env['stock.picking'].create(vals)
+                    # update
+                    item.picking_id = obj.id
+                    # lines
+                    for move_line in item.picking_id.move_lines:
+                        items = self.env[
+                            'external.stock.picking.line'
+                        ].sudo().search(
+                            [
+                                ('external_stock_picking_id', '=', item.id),
+                                ('external_product_id.product_template_id', '=',
+                                 move_line.product_id.id)
+                            ]
+                        )
+                        if items:
+                            items[0].move_id = move_line.id
+                    # action_confirm
+                    item.picking_id.action_confirm()
+                    # force_assign
+                    item.picking_id.force_assign()
         # return
-        return False            
+        return False

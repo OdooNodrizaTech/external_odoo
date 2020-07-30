@@ -11,7 +11,7 @@ class ExternalProduct(models.Model):
 
     external_id = fields.Char(
         string='External Id'
-    )    
+    )
     external_variant_id = fields.Char(
         string='Variant Id'
     )
@@ -28,31 +28,36 @@ class ExternalProduct(models.Model):
     external_source_id = fields.Many2one(
         comodel_name='external.source',
         string='Source'
-    )                
+    )
     product_template_id = fields.Many2one(
         comodel_name='product.template',
         string='Product Template'
     )
     external_url = fields.Char(
-        compute='_get_external_url',
+        compute='_compute_external_url',
         string='External Url',
         store=False
     )
 
-    @api.one
-    def _get_external_url(self):
-        for obj in self:
-            if obj.external_source_id:
-                if obj.external_id:
-                    obj.external_url = ''
-                    if obj.external_source_id.type == 'shopify':
-                        obj.external_url = 'https://%s/admin/products/%s' % (obj.external_source_id.url, obj.external_id)
-                    elif obj.external_source_id.type == 'woocommerce':
-                        obj.external_url = '%swp-admin/post.php?post=%s&action=edit' % (obj.external_source_id.url, obj.external_id)
+    @api.multi
+    @api.depends('external_source_id', 'external_id')
+    def _compute_external_url(self):
+        for item in self:
+            item.external_url = ''
+            if item.external_source_id.type == 'shopify':
+                item.external_url = 'https://%s/admin/products/%s' % (
+                    item.external_source_id.url,
+                    item.external_id
+                )
+            elif item.external_source_id.type == 'woocommerce':
+                item.external_url = '%swp-admin/post.php?post=%s&action=edit' % (
+                    item.external_source_id.url,
+                    item.external_id
+                )
 
-    @api.one
+    @api.multi
     def operations_item(self):
-        return False        
+        return False
 
     @api.model
     def create(self, values):
@@ -60,4 +65,4 @@ class ExternalProduct(models.Model):
         # operations
         return_item.operations_item()
         # return
-        return return_item    
+        return return_item

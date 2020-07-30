@@ -30,7 +30,7 @@ class ExternalSaleOrderDiscount(models.Model):
         [
             ('fixed_amount', 'Fixed Amount'),
             ('percentage', 'Percentage'),
-            ('shipping', 'Shipping')            
+            ('shipping', 'Shipping')
         ],
         string='Value type',
         default='fixed_amount'
@@ -40,7 +40,7 @@ class ExternalSaleOrderDiscount(models.Model):
     )
     title = fields.Char(
         string='Title'
-    )    
+    )
     external_sale_order_id = fields.Many2one(
         comodel_name='external.sale.order',
         string='Sale Order',
@@ -49,11 +49,11 @@ class ExternalSaleOrderDiscount(models.Model):
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line',
         string='sale_order_line_id'
-    )    
+    )
 
-    @api.one
+    @api.multi
     def operations_item(self):
-        return False        
+        return False
 
     @api.model
     def create(self, values):
