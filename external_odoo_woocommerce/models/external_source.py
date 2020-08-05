@@ -281,7 +281,7 @@ class ExternalSource(models.Model):
         else:
             external_stock_picking_obj = self.env['external.stock.picking'].sudo(6).create(external_stock_picking_vals)
             # lines
-            for line_item in message_body['line_items']:
+            for line_item in vals['line_items']:
                 # vals
                 external_stock_picking_line_vals = {
                     'line_id': str(line_item['id']),
