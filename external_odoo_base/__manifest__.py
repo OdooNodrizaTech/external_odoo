@@ -11,9 +11,13 @@
     "depends": [
         "base",
         "sale",
+        "account",
         "utm_websites",
         "delivery",
-        "stock"
+        "stock",
+        "account_payment_mode",  # https://github.com/OCA/bank-payment
+        "account_payment_partner",  # https://github.com/OCA/bank-payment
+        "account_payment_sale",  # https://github.com/OCA/bank-payment
     ],
     "external_dependencies": {
         "python": [
