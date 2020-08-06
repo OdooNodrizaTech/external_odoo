@@ -50,6 +50,11 @@ class ExternalProduct(models.Model):
         comodel_name='product.template',
         string='Product Template'
     )
+    quantity_every_unit = fields.Integer(
+        string='Quantity every unit',
+        help='Odoo quantity everty unit (1 ud = 4 uds in Odoo)',
+        default=1
+    )
     external_url = fields.Char(
         compute='_get_external_url',
         string='External Url',

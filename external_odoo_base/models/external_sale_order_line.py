@@ -109,6 +109,8 @@ class ExternalSaleOrderLine(models.Model):
                 else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
+                    # re-define quantity (ONLY in creation)
+                    item.quantity = (item.quantity * item.external_product_id.quantity_every_unit)
         #calculate_tax
         if self.tax_amount>0:
             self.total_price_without_tax = (self.price*self.quantity)-self.tax_amount
