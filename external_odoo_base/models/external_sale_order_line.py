@@ -93,6 +93,10 @@ class ExternalSaleOrderLine(models.Model):
             # operations
             if items:
                 item.external_product_id = items[0].id
+                # re-define quantity (ONLY in creation)
+                item.quantity = (
+                    item.quantity*item.external_product_id.quantity_every_unit
+                )
             else:
                 _logger.info(
                     _('Very strange, external_product_id not found regarding'
