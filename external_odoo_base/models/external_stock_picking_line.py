@@ -81,7 +81,9 @@ class ExternalStockPickingLine(models.Model):
             else:
                 item.external_product_id = items[0].id
                 # re-define quantity (ONLY in creation)
-                item.quantity = (item.quantity * item.external_product_id.quantity_every_unit)
+                item.quantity = (
+                    item.quantity * item.external_product_id.quantity_every_unit
+                )
         # return
         return False
 
