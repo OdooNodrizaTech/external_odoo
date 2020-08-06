@@ -78,12 +78,14 @@ class ExternalStockPickingLine(models.Model):
                             ('external_id', '=', str(self.external_id))
                         ]
                     )
-                #operations                                           
+                # operations
                 if len(external_product_ids)==0:
                     _logger.info('Muy raro, no se encuentra external_product_id respecto a external_source_id='+str(self.external_stock_picking_id.external_source_id.id)+', external_id='+str(self.external_id)+' y external_variant_id='+str(self.external_variant_id))
                 else:
                     external_product_id = external_product_ids[0]
                     self.external_product_id = external_product_id.id
+                    # re-define quantity (ONLY in creation)
+                    item.quantity = (item.quantity * item.external_product_id.quantity_every_unit)
         #return
         return False        
 
