@@ -1,3 +1,2 @@
 bank-payment
 OdooNodrizaTech-tools https://github.com/OdooNodrizaTech/tools
-# Shopify-shopify_python_api https://github.com/Shopify/shopify_python_api master
