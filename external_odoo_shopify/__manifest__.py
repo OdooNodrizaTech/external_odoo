@@ -15,7 +15,7 @@
     "external_dependencies": {
         "python": [
             # "ShopifyAPI",
-            # "shopify",
+            "shopify",
             "boto3"
         ],
     },
