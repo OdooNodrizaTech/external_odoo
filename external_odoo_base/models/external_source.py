@@ -28,7 +28,7 @@ class ExternalSource(models.Model):
     )
     external_sale_order_user_id = fields.Many2one(
         comodel_name='res.users',
-        string='User id',
+        string='User id (sale_order)',
         help='User id (external.sale.order)',
     )
     external_sale_order_account_payment_mode_id = fields.Many2one(
@@ -48,12 +48,12 @@ class ExternalSource(models.Model):
     )
     external_sale_order_carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',
-        string='Delivery Carrier Id',
+        string='Delivery Carrier Id (sale_order)',
         help='Delivery Carrier Id (external.sale.order)'
     )
     external_sale_order_picking_type_id = fields.Many2one(
         comodel_name='stock.picking.type',
-        string='Stock Picking Type Id',
+        string='Stock Picking Type Id (sale_order)',
         help='Stock Picking Type Id (external.sale.order)',
     )
     external_sale_payment_acquirer_id = fields.Many2one(
@@ -63,17 +63,17 @@ class ExternalSource(models.Model):
     )
     external_stock_picking_user_id = fields.Many2one(
         comodel_name='res.users',
-        string='User id',
+        string='User id (stock_picking)',
         help='User id (external.stock.picking)',
     )
     external_stock_picking_picking_type_id = fields.Many2one(
         comodel_name='stock.picking.type',
-        string='Stock Picking Type Id',
+        string='Stock Picking Type Id (stock_picking)',
         help='Stock Picking Type Id (external.stock.picking)',
     )
     external_stock_picking_carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',
-        string='Delivery Carrier Id',
+        string='Delivery Carrier Id (stock_picking)',
         help='Delivery Carrier Id (external.stock.picking)'
     )
     invoice_partner_id = fields.Many2one(
