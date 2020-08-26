@@ -199,6 +199,9 @@ class ExternalAddress(models.Model):
     @api.model
     def create(self, values):
         res = super(ExternalAddress, self).create(values)
+        # remove empty spaces in phone field
+        if res.phone:
+            res.phone = res.phone.replace(' ', '')
         # Fix province_code
         if res.country_code and res.province_code:
             code_check = str(res.country_code)+'-'

@@ -247,6 +247,9 @@ class ExternalCustomer(models.Model):
     @api.model
     def create(self, values):
         res = super(ExternalCustomer, self).create(values)
+        # remove empty spaces in phone field
+        if res.phone:
+            res.phone = res.phone.replace(' ', '')
         # Fix province_code
         if res.country_code and res.province_code:
             code_check = str(res.country_code)+'-'
